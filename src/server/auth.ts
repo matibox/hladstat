@@ -27,13 +27,17 @@ declare module "next-auth" {
       id: string;
       // ...other properties
       // role: UserRole;
+      firstName: string | undefined;
+      lastName: string | undefined;
     } & DefaultSession["user"];
   }
 
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
+  interface User {
+    // ...other properties
+    // role: UserRole;
+    firstName: string | undefined;
+    lastName: string | undefined;
+  }
 }
 
 /**
@@ -72,6 +76,9 @@ export const authOptions: NextAuthOptions = {
      * @see https://next-auth.js.org/providers/github
      */
   ],
+  pages: {
+    signIn: "/",
+  },
 };
 
 /**
