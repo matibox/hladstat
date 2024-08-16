@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Button } from "~/components/ui/button";
+import NewTeamForm from "~/components/NewTeamForm";
 import { getServerAuthSession } from "~/server/auth";
 
 const teams = [{ name: "Sparta Skoczów" }, { name: "Szybin" }].map(
@@ -15,7 +15,7 @@ export default async function Dashboard() {
   return (
     <main className="flex min-h-screen flex-col items-center gap-8 px-4 py-8">
       <h1 className="text-3xl font-bold leading-none">Drużyny</h1>
-      <Button>Nowa drużyna</Button>
+      <NewTeamForm />
       <div className="grid w-full grid-cols-[repeat(auto-fill,_343px)] justify-center gap-4">
         {teams.map((team) => (
           <Link
