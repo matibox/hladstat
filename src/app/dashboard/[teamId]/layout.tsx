@@ -20,8 +20,8 @@ export default async function TeamLayout({
   const team = await api.team.byId({ teamId });
 
   return (
-    <>
-      <nav className="flex flex-col p-4">
+    <div className="flex flex-col">
+      <nav className="p-4">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -43,9 +43,8 @@ export default async function TeamLayout({
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <div>tab1</div>
       </nav>
       {children}
-    </>
+    </div>
   );
 }

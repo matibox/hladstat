@@ -14,6 +14,7 @@ const config = {
     "@typescript-eslint/array-type": "off",
     "@typescript-eslint/no-empty-interface": "off",
     "@typescript-eslint/consistent-type-definitions": "off",
+    "@typescript-eslint/prefer-nullish-coalescing": "off",
     "@typescript-eslint/consistent-type-imports": [
       "warn",
       {
