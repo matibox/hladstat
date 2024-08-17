@@ -1,14 +1,13 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import NewTeamForm from "~/components/NewTeamForm";
+import Teams from "~/components/Teams";
 import { getServerAuthSession } from "~/server/auth";
-
-const teams = [{ name: "Sparta Skoczów" }, { name: "Szybin" }].map(
-  (team, i) => ({ id: i, ...team }),
-);
+import { api } from "~/trpc/server";
 
 export default async function Dashboard() {
   const session = await getServerAuthSession();
+
+  void api.team.listMemberOf.prefetch();
 
   if (!session) redirect("/");
 
@@ -17,15 +16,7 @@ export default async function Dashboard() {
       <h1 className="text-3xl font-bold leading-none">Drużyny</h1>
       <NewTeamForm />
       <div className="grid w-full grid-cols-[repeat(auto-fill,_343px)] justify-center gap-4">
-        {teams.map((team) => (
-          <Link
-            key={team.id}
-            href={`/${team.id}`}
-            className="w-full max-w-96 rounded-md bg-muted p-4 transition-colors hover:bg-muted/85"
-          >
-            <span className="font-semibold leading-none">{team.name}</span>
-          </Link>
-        ))}
+        <Teams />
       </div>
     </main>
   );

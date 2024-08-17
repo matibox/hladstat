@@ -31,8 +31,12 @@ export default function NewTeamForm() {
     },
   });
 
+  const utils = api.useUtils();
   const createTeam = api.team.create.useMutation({
-    onSuccess: () => setFormOpened(false),
+    onSuccess: async () => {
+      await utils.team.listMemberOf.invalidate();
+      setFormOpened(false);
+    },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {

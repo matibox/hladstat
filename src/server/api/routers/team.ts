@@ -1,6 +1,7 @@
-import { teams, usersToTeams } from "~/server/db/schema";
+import { teams, users, usersToTeams } from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import z from "zod";
+import { count, eq } from "drizzle-orm";
 
 export const teamRouter = createTRPCRouter({
   create: protectedProcedure
@@ -19,4 +20,28 @@ export const teamRouter = createTRPCRouter({
         role: "owner",
       });
     }),
+  listMemberOf: protectedProcedure.query(async ({ ctx }) => {
+    const selectedTeams = await ctx.db
+      .select({
+        id: teams.id,
+        name: teams.name,
+        playerCount: count(),
+      })
+      .from(usersToTeams)
+      .leftJoin(users, eq(usersToTeams.userId, users.id))
+      .leftJoin(teams, eq(usersToTeams.teamId, teams.id))
+      .where(eq(users.id, ctx.session.user.id))
+      .all();
+
+    return selectedTeams[0]?.id ? selectedTeams : [];
+
+    // return await ctx.db.query.teams.findMany({
+    //   columns: { id: true, name: true },
+    //   with: {
+    //     users: {
+    //       where: eq(usersToTeams.userId, ctx.session.user.id),
+    //     },
+    //   },
+    // });
+  }),
 });

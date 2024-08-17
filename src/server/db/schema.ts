@@ -58,8 +58,10 @@ export const usersRelations = relations(users, ({ many }) => ({
 }));
 
 export const teams = createTable("team", {
-  id: int("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-  name: text("name", { length: 255 }),
+  id: int("id", { mode: "number" })
+    .primaryKey({ autoIncrement: true })
+    .notNull(),
+  name: text("name", { length: 255 }).notNull(),
 });
 
 export const usersToTeams = createTable(
