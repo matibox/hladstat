@@ -23,19 +23,34 @@ export const teamRouter = createTRPCRouter({
       });
     }),
   listMemberOf: protectedProcedure.query(async ({ ctx }) => {
-    const selectedTeams = await ctx.db
-      .select({
-        id: teams.id,
-        name: teams.name,
-        profilePicture: teams.profilePicture,
-        playerCount: count(),
-      })
-      .from(usersToTeams)
-      .leftJoin(users, eq(usersToTeams.userId, users.id))
-      .leftJoin(teams, eq(usersToTeams.teamId, teams.id))
-      .where(eq(users.id, ctx.session.user.id))
-      .all();
+    const selectedTeams = await ctx.db.query.teams.findMany({
+      columns: {
+        id: true,
+        name: true,
+        profilePicture: true,
+      },
+      with: {
+        users: {
+          columns: { role: true },
+          where: (usersToTeams, { eq }) =>
+            eq(usersToTeams.userId, ctx.session.user.id),
+        },
+      },
+    });
 
-    return selectedTeams[0]?.id ? selectedTeams : [];
+    return await Promise.all(
+      selectedTeams.map(async (team) => {
+        const [selectedTeam] = await ctx.db
+          .select({ playerCount: count() })
+          .from(users)
+          .where(eq(usersToTeams.teamId, team.id))
+          .leftJoin(usersToTeams, eq(users.id, usersToTeams.userId));
+
+        return {
+          ...team,
+          playerCount: selectedTeam ? selectedTeam.playerCount : 0,
+        };
+      }),
+    );
   }),
 });

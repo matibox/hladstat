@@ -17,27 +17,6 @@ import { type roles } from "~/lib/constants";
  */
 export const createTable = sqliteTableCreator((name) => `hladstat_${name}`);
 
-export const posts = createTable(
-  "post",
-  {
-    id: int("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-    name: text("name", { length: 256 }),
-    createdById: text("created_by", { length: 255 })
-      .notNull()
-      .references(() => users.id),
-    createdAt: int("created_at", { mode: "timestamp" })
-      .default(sql`(unixepoch())`)
-      .notNull(),
-    updatedAt: int("updatedAt", { mode: "timestamp" }).$onUpdate(
-      () => new Date(),
-    ),
-  },
-  (example) => ({
-    createdByIdIdx: index("created_by_idx").on(example.createdById),
-    nameIndex: index("name_idx").on(example.name),
-  }),
-);
-
 export const users = createTable("user", {
   id: text("id", { length: 255 })
     .notNull()
@@ -52,10 +31,6 @@ export const users = createTable("user", {
   }).default(sql`(unixepoch())`),
   image: text("image", { length: 255 }),
 });
-
-export const usersRelations = relations(users, ({ many }) => ({
-  accounts: many(accounts),
-}));
 
 export const teams = createTable("team", {
   id: int("id", { mode: "number" })
@@ -110,10 +85,6 @@ export const accounts = createTable(
   }),
 );
 
-export const accountsRelations = relations(accounts, ({ one }) => ({
-  user: one(users, { fields: [accounts.userId], references: [users.id] }),
-}));
-
 export const sessions = createTable(
   "session",
   {
@@ -128,10 +99,6 @@ export const sessions = createTable(
   }),
 );
 
-export const sessionsRelations = relations(sessions, ({ one }) => ({
-  user: one(users, { fields: [sessions.userId], references: [users.id] }),
-}));
-
 export const verificationTokens = createTable(
   "verification_token",
   {
@@ -143,3 +110,27 @@ export const verificationTokens = createTable(
     compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
   }),
 );
+
+// ==== relations ====
+
+export const usersRelations = relations(users, ({ many }) => ({
+  accounts: many(accounts),
+  teams: many(usersToTeams),
+}));
+
+export const accountsRelations = relations(accounts, ({ one }) => ({
+  user: one(users, { fields: [accounts.userId], references: [users.id] }),
+}));
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, { fields: [sessions.userId], references: [users.id] }),
+}));
+
+export const usersToTeamsRelations = relations(usersToTeams, ({ one }) => ({
+  user: one(users, { fields: [usersToTeams.userId], references: [users.id] }),
+  team: one(teams, { fields: [usersToTeams.teamId], references: [teams.id] }),
+}));
+
+export const teamRelations = relations(teams, ({ many }) => ({
+  users: many(usersToTeams),
+}));
