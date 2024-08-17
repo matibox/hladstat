@@ -5,13 +5,15 @@ import { count, eq } from "drizzle-orm";
 
 export const teamRouter = createTRPCRouter({
   create: protectedProcedure
-    .input(z.object({ name: z.string() }))
+    .input(
+      z.object({ name: z.string(), profilePicture: z.string().optional() }),
+    )
     .mutation(async ({ ctx, input }) => {
-      const { name } = input;
+      const { name, profilePicture } = input;
 
       const insertedTeams = await ctx.db
         .insert(teams)
-        .values({ name })
+        .values({ name, profilePicture })
         .returning({ teamId: teams.id });
 
       await ctx.db.insert(usersToTeams).values({

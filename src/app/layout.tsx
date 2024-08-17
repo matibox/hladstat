@@ -5,6 +5,9 @@ import { cn } from "~/lib/utils";
 import { type Metadata } from "next";
 
 import { TRPCReactProvider } from "~/trpc/react";
+import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
+import { extractRouterConfig } from "uploadthing/server";
+import { fileRouter } from "~/server/uploadthing";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -28,7 +31,10 @@ export default function RootLayout({
           fontSans.variable,
         )}
       >
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <TRPCReactProvider>
+          <NextSSRPlugin routerConfig={extractRouterConfig(fileRouter)} />
+          {children}
+        </TRPCReactProvider>
       </body>
     </html>
   );

@@ -16,18 +16,35 @@ import {
 } from "./ui/form";
 import { Input } from "./ui/input";
 import { api } from "~/trpc/react";
+import { acceptedImageTypes } from "~/lib/uploadthing";
+import { useImageUpload } from "~/hooks/useImageUpload";
+import { UploadIcon } from "lucide-react";
 
 export const formSchema = z.object({
   name: z.string().min(1, "Nazwa jest wymagana"),
+  profilePicture: z
+    .custom<File | null>()
+    .optional()
+    .refine(
+      (file) => file === null || (file && file.size < 2000000),
+      "Plik przewyższa 2MB.",
+    )
+    .refine(
+      (file) =>
+        file === null || (file && acceptedImageTypes.includes(file.type)),
+      "Tylko pliki .jpg, .jpeg, .png i .webp są wspierane.",
+    ),
 });
 
 export default function NewTeamForm() {
   const [formOpened, setFormOpened] = useState(false);
+  const { uploadImage, isImageUploading } = useImageUpload();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
+      profilePicture: null,
     },
   });
 
@@ -39,9 +56,19 @@ export default function NewTeamForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    createTeam.mutate(values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    let profilePicture: string | undefined;
+
+    if (values.profilePicture) {
+      await uploadImage(values.profilePicture, ({ url }) => {
+        profilePicture = url;
+      });
+    }
+
+    createTeam.mutate({
+      ...values,
+      profilePicture,
+    });
   }
 
   return (
@@ -70,6 +97,42 @@ export default function NewTeamForm() {
               </FormItem>
             )}
           />
+          <FormField
+            control={form.control}
+            name="profilePicture"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Logo drużyny (opcjonalne)</FormLabel>
+                <FormControl>
+                  <Input
+                    type="file"
+                    id="file-input"
+                    className="hidden"
+                    accept={acceptedImageTypes.join(", ")}
+                    onChange={(e) =>
+                      field.onChange(e.target.files ? e.target.files[0] : null)
+                    }
+                  />
+                </FormControl>
+                <div className="flex items-center gap-4">
+                  <label
+                    htmlFor="file-input"
+                    className="flex cursor-pointer items-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-sm font-semibold transition hover:bg-accent"
+                  >
+                    <UploadIcon className="h-4 w-4" />
+                    <span>Prześlij logo</span>
+                  </label>
+                  <span className="text-sm text-primary">
+                    {field.value && field.value.size > 0
+                      ? field.value.name
+                      : "Nie wybrano pliku."}
+                  </span>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {isImageUploading && <p>loading</p>}
           <Button type="submit" className="self-end">
             Utwórz
           </Button>
