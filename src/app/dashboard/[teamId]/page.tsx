@@ -1,5 +1,6 @@
 import { ArrowRightIcon, PlusIcon } from "lucide-react";
 import { redirect } from "next/navigation";
+import AddPlayerForm from "~/components/AddPlayerForm";
 import MatchCard from "~/components/MatchCard";
 import PlayerCard from "~/components/PlayerCard";
 import { Button } from "~/components/ui/button";
@@ -71,7 +72,7 @@ export default async function Team({
   if (!session) return redirect("/");
 
   return (
-    <main className="flex min-h-[200vh] flex-col gap-8 px-4">
+    <main className="flex flex-col gap-8 px-4 pb-4">
       {/* matches */}
       <section className="flex flex-col gap-4">
         <div className="flex w-full items-center justify-between">
@@ -97,10 +98,7 @@ export default async function Team({
       <section className="flex flex-col gap-4">
         <div className="flex w-full items-center justify-between">
           <h2 className="text-2xl font-semibold">Zawodnicy</h2>
-          <Button size="sm" variant="secondary">
-            <span>Dodaj zawodnika</span>
-            <PlusIcon className="ml-1 h-4 w-4" />
-          </Button>
+          <AddPlayerForm />
         </div>
         <div className="flex flex-col gap-4">
           {PLACEHOLDER_PLAYERS.map((player) => (
