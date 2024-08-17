@@ -4,7 +4,12 @@ import { useState } from "react";
 import { z } from "zod";
 import ResponsiveDialog from "./ui/responsive-dialog";
 import { Button } from "./ui/button";
-import { CheckIcon, ChevronsUpDownIcon, PlusIcon } from "lucide-react";
+import {
+  CheckIcon,
+  ChevronsUpDownIcon,
+  Loader2Icon,
+  PlusIcon,
+} from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -25,19 +30,7 @@ import {
   CommandItem,
   CommandList,
 } from "./ui/command";
-
-const PLACEHOLDER_PLAYERS = [
-  {
-    id: "1",
-    firstName: "Mateusz",
-    lastName: "Hladky",
-  },
-  {
-    id: "2",
-    firstName: "Jan",
-    lastName: "Kowalski",
-  },
-];
+import { api } from "~/trpc/react";
 
 export const formSchema = z.object({
   playerId: z.string().min(1, "Wybierz zawodnika."),
@@ -47,6 +40,7 @@ export const formSchema = z.object({
 
 export default function AddPlayerForm() {
   const [formOpened, setFormOpened] = useState(false);
+  const [query, setQuery] = useState("");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -54,6 +48,11 @@ export default function AddPlayerForm() {
       position: "",
     },
   });
+
+  const playersByQuery = api.user.byQuery.useQuery(
+    { q: query },
+    { enabled: Boolean(query) },
+  );
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
@@ -98,7 +97,7 @@ export default function AddPlayerForm() {
                       >
                         {field.value
                           ? (() => {
-                              const foundPlayer = PLACEHOLDER_PLAYERS.find(
+                              const foundPlayer = playersByQuery.data?.find(
                                 (player) => player.id === field.value,
                               );
 
@@ -111,11 +110,23 @@ export default function AddPlayerForm() {
                   </PopoverTrigger>
                   <PopoverContent className="p-0">
                     <Command>
-                      <CommandInput placeholder="Wyszukaj..." />
+                      <CommandInput
+                        value={query}
+                        onValueChange={setQuery}
+                        placeholder="Wyszukaj..."
+                      />
                       <CommandList>
-                        <CommandEmpty>Nie znaleziono zawodników.</CommandEmpty>
+                        <CommandEmpty>
+                          {playersByQuery.isLoading ? (
+                            <div className="mx-auto flex justify-center">
+                              <Loader2Icon className="h-4 w-4 animate-spin" />
+                            </div>
+                          ) : (
+                            "Nie znaleziono zawodników."
+                          )}
+                        </CommandEmpty>
                         <CommandGroup>
-                          {PLACEHOLDER_PLAYERS.map((player) => (
+                          {playersByQuery.data?.map((player) => (
                             <CommandItem
                               key={player.id}
                               value={`${player.firstName} ${player.lastName}`}
