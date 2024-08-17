@@ -25,6 +25,7 @@ export const teamRouter = createTRPCRouter({
       .select({
         id: teams.id,
         name: teams.name,
+        profilePicture: teams.profilePicture,
         playerCount: count(),
       })
       .from(usersToTeams)
@@ -34,14 +35,5 @@ export const teamRouter = createTRPCRouter({
       .all();
 
     return selectedTeams[0]?.id ? selectedTeams : [];
-
-    // return await ctx.db.query.teams.findMany({
-    //   columns: { id: true, name: true },
-    //   with: {
-    //     users: {
-    //       where: eq(usersToTeams.userId, ctx.session.user.id),
-    //     },
-    //   },
-    // });
   }),
 });

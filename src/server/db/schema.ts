@@ -62,6 +62,7 @@ export const teams = createTable("team", {
     .primaryKey({ autoIncrement: true })
     .notNull(),
   name: text("name", { length: 255 }).notNull(),
+  profilePicture: text("profile_picture", { length: 255 }),
 });
 
 export const usersToTeams = createTable(
