@@ -53,4 +53,27 @@ export const teamRouter = createTRPCRouter({
       }),
     );
   }),
+  byId: protectedProcedure
+    .input(z.object({ teamId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const { teamId } = input;
+
+      return await ctx.db.query.teams.findFirst({
+        columns: { id: true, name: true, profilePicture: true },
+        where: eq(teams.id, parseInt(teamId)),
+        with: {
+          users: {
+            columns: { role: true },
+            with: {
+              user: {
+                columns: {
+                  firstName: true,
+                  lastName: true,
+                },
+              },
+            },
+          },
+        },
+      });
+    }),
 });

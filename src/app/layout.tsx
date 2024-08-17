@@ -8,6 +8,7 @@ import { TRPCReactProvider } from "~/trpc/react";
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
 import { fileRouter } from "~/server/uploadthing";
+import { HydrateClient } from "~/trpc/server";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -27,13 +28,13 @@ export default function RootLayout({
     <html lang="pl">
       <body
         className={cn(
-          "dark min-h-screen bg-background font-sans antialiased",
-          fontSans.variable,
+          "dark min-h-screen bg-background antialiased",
+          fontSans.className,
         )}
       >
         <TRPCReactProvider>
           <NextSSRPlugin routerConfig={extractRouterConfig(fileRouter)} />
-          {children}
+          <HydrateClient>{children}</HydrateClient>
         </TRPCReactProvider>
       </body>
     </html>
