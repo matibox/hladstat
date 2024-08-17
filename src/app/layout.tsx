@@ -24,7 +24,7 @@ export default function RootLayout({
     <html lang="pl">
       <body
         className={cn(
-          "bg-background dark min-h-screen font-sans antialiased",
+          "dark min-h-screen bg-background font-sans antialiased",
           fontSans.variable,
         )}
       >

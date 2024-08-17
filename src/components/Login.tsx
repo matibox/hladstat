@@ -3,7 +3,6 @@
 import { signIn } from "next-auth/react";
 import { Button } from "./ui/button";
 import Image from "next/image";
-import Link from "next/link";
 
 export default function Login() {
   return (
