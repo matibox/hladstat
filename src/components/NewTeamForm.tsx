@@ -52,6 +52,7 @@ export default function NewTeamForm() {
   const createTeam = api.team.create.useMutation({
     onSuccess: async () => {
       await utils.team.listMemberOf.invalidate();
+      form.reset();
       setFormOpened(false);
     },
   });
@@ -132,8 +133,11 @@ export default function NewTeamForm() {
               </FormItem>
             )}
           />
-          {isImageUploading && <p>loading</p>}
-          <Button type="submit" className="self-end">
+          <Button
+            type="submit"
+            className="self-end"
+            loading={isImageUploading || createTeam.isPending}
+          >
             Utwórz
           </Button>
         </form>

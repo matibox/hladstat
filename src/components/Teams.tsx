@@ -10,7 +10,7 @@ export default function Teams() {
   const [teams] = api.team.listMemberOf.useSuspenseQuery();
 
   return teams?.length === 0 ? (
-    <p className="text-center">Nie należysz do żadnej drużyny.</p>
+    <p className="col-span-full text-center">Nie należysz do żadnej drużyny.</p>
   ) : (
     teams?.map((team) => (
       <Link
@@ -22,7 +22,7 @@ export default function Teams() {
           <AvatarImage
             src={team.profilePicture ?? undefined}
             alt={`${team.name} - logo`}
-            className="h-16 rounded-md object-cover"
+            className="h-16 w-16 rounded-md object-cover"
           />
           <AvatarFallback className="h-16 w-16 rounded-md bg-primary-foreground">
             <UsersIcon className="text-muted-foreground" />
