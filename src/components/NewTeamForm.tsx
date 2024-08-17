@@ -15,6 +15,7 @@ import {
   FormMessage,
 } from "./ui/form";
 import { Input } from "./ui/input";
+import { api } from "~/trpc/react";
 
 export const formSchema = z.object({
   name: z.string().min(1, "Nazwa jest wymagana"),
@@ -30,8 +31,13 @@ export default function NewTeamForm() {
     },
   });
 
+  const createTeam = api.team.create.useMutation({
+    onSuccess: () => setFormOpened(false),
+  });
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
+    createTeam.mutate(values);
   }
 
   return (

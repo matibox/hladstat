@@ -61,7 +61,7 @@ export default function ResponsiveDialog({
             <DrawerDescription>{description}</DrawerDescription>
           ) : null}
         </DrawerHeader>
-        {children}
+        <div className="px-6 pb-6">{children}</div>
       </DrawerContent>
     </Drawer>
   );
