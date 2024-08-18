@@ -6,6 +6,7 @@ export const positions = [
   "Atakujący",
   "Środkowy",
   "Libero",
+  "Nieokreślona",
 ] as const;
 
 export const PLACEHOLDER_MATCHES = [

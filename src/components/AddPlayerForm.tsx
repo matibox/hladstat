@@ -53,7 +53,7 @@ export const formSchema = z.object({
   shirtNumber: z.string().optional(),
 });
 
-export default function AddPlayerForm() {
+export default function AddPlayerForm({ teamId }: { teamId: number }) {
   const [formOpened, setFormOpened] = useState(false);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -68,13 +68,25 @@ export default function AddPlayerForm() {
     },
   });
 
+  const utils = api.useUtils();
   const playersByQuery = api.user.byQuery.useQuery(
     { q: debouncedQuery },
     { enabled: Boolean(debouncedQuery) },
   );
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  const addPlayer = api.team.addPlayer.useMutation({
+    onSuccess: () => {
+      // TODO: invalidate players query
+      setFormOpened(false);
+    },
+  });
+
+  function onSubmit({ shirtNumber, ...values }: z.infer<typeof formSchema>) {
+    addPlayer.mutate({
+      ...values,
+      teamId,
+      shirtNumber: shirtNumber ? parseInt(shirtNumber) : undefined,
+    });
   }
 
   return (
@@ -221,7 +233,11 @@ export default function AddPlayerForm() {
               </FormItem>
             )}
           />
-          <Button type="submit" className="self-end">
+          <Button
+            type="submit"
+            className="self-end"
+            loading={addPlayer.isPending}
+          >
             Dodaj
           </Button>
         </form>

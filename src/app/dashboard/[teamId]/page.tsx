@@ -45,7 +45,7 @@ export default async function Team({
         <section className="flex flex-col gap-4">
           <div className="flex w-full items-center justify-between">
             <h2 className="text-2xl font-semibold">Zawodnicy</h2>
-            <AddPlayerForm />
+            <AddPlayerForm teamId={parseInt(teamId)} />
           </div>
           <div className="flex flex-col gap-4">
             {PLACEHOLDER_PLAYERS.map((player) => (

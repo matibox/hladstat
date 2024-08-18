@@ -20,6 +20,7 @@ export const teamRouter = createTRPCRouter({
         teamId: insertedTeams[0]!.teamId,
         userId: ctx.session.user.id,
         role: "owner",
+        position: "Nieokreślona",
       });
     }),
   listMemberOf: protectedProcedure.query(async ({ ctx }) => {
@@ -74,6 +75,26 @@ export const teamRouter = createTRPCRouter({
             },
           },
         },
+      });
+    }),
+  addPlayer: protectedProcedure
+    .input(
+      z.object({
+        teamId: z.number(),
+        playerId: z.string(),
+        position: z.string(),
+        shirtNumber: z.number().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { teamId, playerId, position, shirtNumber } = input;
+
+      await ctx.db.insert(usersToTeams).values({
+        teamId,
+        userId: playerId,
+        position,
+        shirtNumber,
+        role: "player",
       });
     }),
 });
