@@ -1,49 +1,15 @@
 import React from "react";
-import { Avatar, AvatarImage } from "~/components/ui/avatar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "~/components/ui/breadcrumb";
-import { api } from "~/trpc/server";
 
 export default async function TeamLayout({
-  params: { teamId },
   children,
+  nav,
 }: {
   children: React.ReactNode;
-  params: { teamId: string };
+  nav: React.ReactNode;
 }) {
-  const team = await api.team.byId({ teamId });
-
   return (
     <div className="flex flex-col">
-      <nav className="p-4 md:mx-auto md:w-full md:max-w-5xl md:p-6 lg:p-8">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/dashboard">Drużyny</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage className="flex items-center gap-2">
-                {team?.profilePicture && (
-                  <Avatar className="h-6 w-6 rounded-sm">
-                    <AvatarImage
-                      src={team.profilePicture}
-                      alt={`${team.name} - logo`}
-                    />
-                  </Avatar>
-                )}
-                <span>{team?.name}</span>
-              </BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-      </nav>
+      {nav}
       {children}
     </div>
   );
