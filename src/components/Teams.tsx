@@ -16,7 +16,7 @@ export default function Teams() {
       <Link
         key={team.id}
         href={`/dashboard/${team.id}`}
-        className="flex w-full max-w-96 items-center gap-4 rounded-md bg-muted p-2 transition-colors hover:bg-muted/85"
+        className="flex w-full max-w-96 items-center gap-4 rounded-md bg-muted/25 p-2 transition-colors hover:bg-muted/40"
       >
         <Avatar>
           <AvatarImage
@@ -24,13 +24,13 @@ export default function Teams() {
             alt={`${team.name} - logo`}
             className="h-16 w-16 rounded-md object-cover"
           />
-          <AvatarFallback className="h-16 w-16 rounded-md bg-primary-foreground">
+          <AvatarFallback className="h-16 w-16 rounded-md bg-muted">
             <UsersIcon className="text-muted-foreground" />
           </AvatarFallback>
         </Avatar>
-        <div className="flex flex-col gap-1 leading-none">
+        <div className="flex flex-col leading-none">
           <span className="text-lg font-semibold">{team.name}</span>
-          <div className="flex gap-1">
+          <div className="flex gap-0.5 text-muted-foreground">
             <UserIcon className="h-4 w-4" />
             <span>{team.playerCount}</span>
           </div>

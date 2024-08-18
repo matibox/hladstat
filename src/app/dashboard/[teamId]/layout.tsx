@@ -21,7 +21,7 @@ export default async function TeamLayout({
 
   return (
     <div className="flex flex-col">
-      <nav className="p-4">
+      <nav className="p-4 md:mx-auto md:w-full md:max-w-5xl md:p-6 lg:p-8">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
