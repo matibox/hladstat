@@ -1,6 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { users } from "~/server/db/schema";
-import { and, eq, like, not, or, sql } from "drizzle-orm";
+import { users, usersToTeams } from "~/server/db/schema";
+import { and, eq, isNull, like, not, or, sql } from "drizzle-orm";
 import { z } from "zod";
 
 export const userRouter = createTRPCRouter({
@@ -14,10 +14,10 @@ export const userRouter = createTRPCRouter({
         .set({ firstName, lastName })
         .where(eq(users.id, ctx.session.user.id));
     }),
-  byQuery: protectedProcedure
-    .input(z.object({ q: z.string() }))
+  byQueryNotInTeam: protectedProcedure
+    .input(z.object({ q: z.string(), teamId: z.number() }))
     .query(async ({ ctx, input }) => {
-      const { q } = input;
+      const { q, teamId } = input;
 
       const pattern = `%${q}%`;
 
@@ -32,11 +32,16 @@ export const userRouter = createTRPCRouter({
           and(
             not(eq(users.id, ctx.session.user.id)),
             or(
+              isNull(usersToTeams.teamId),
+              not(eq(usersToTeams.teamId, teamId)),
+            ),
+            or(
               like(users.firstName, pattern),
               like(users.lastName, pattern),
               sql`${users.firstName} || ' ' || ${users.lastName} LIKE ${pattern}`,
             ),
           ),
-        );
+        )
+        .leftJoin(usersToTeams, eq(users.id, usersToTeams.userId));
     }),
 });

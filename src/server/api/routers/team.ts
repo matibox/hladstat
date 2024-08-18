@@ -103,4 +103,19 @@ export const teamRouter = createTRPCRouter({
         role: "player",
       });
     }),
+  players: protectedProcedure
+    .input(z.object({ teamId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const { teamId } = input;
+
+      return (
+        await ctx.db.query.usersToTeams.findMany({
+          columns: { position: true, shirtNumber: true },
+          where: (table, { eq }) => eq(table.teamId, teamId),
+          with: {
+            user: { columns: { id: true, firstName: true, lastName: true } },
+          },
+        })
+      ).map(({ user, ...data }) => ({ ...data, ...user }));
+    }),
 });

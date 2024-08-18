@@ -2,11 +2,11 @@ import { ArrowRightIcon, PlusIcon } from "lucide-react";
 import { redirect } from "next/navigation";
 import AddPlayerForm from "~/components/AddPlayerForm";
 import MatchCard from "~/components/MatchCard";
-import PlayerCard from "~/components/PlayerCard";
+import PlayerCards from "~/components/PlayerCards";
 import { Button } from "~/components/ui/button";
-import { PLACEHOLDER_MATCHES, PLACEHOLDER_PLAYERS } from "~/lib/constants";
+import { PLACEHOLDER_MATCHES } from "~/lib/constants";
 import { getServerAuthSession } from "~/server/auth";
-import { HydrateClient } from "~/trpc/server";
+import { api, HydrateClient } from "~/trpc/server";
 
 export default async function Team({
   params: { teamId },
@@ -16,6 +16,8 @@ export default async function Team({
   const session = await getServerAuthSession();
 
   if (!session) return redirect("/");
+
+  await api.team.players.prefetch({ teamId: parseInt(teamId) });
 
   return (
     <HydrateClient>
@@ -47,11 +49,7 @@ export default async function Team({
             <h2 className="text-2xl font-semibold">Zawodnicy</h2>
             <AddPlayerForm teamId={parseInt(teamId)} />
           </div>
-          <div className="flex flex-col gap-4">
-            {PLACEHOLDER_PLAYERS.map((player) => (
-              <PlayerCard key={player.id} player={player} />
-            ))}
-          </div>
+          <PlayerCards teamId={parseInt(teamId)} />
         </section>
         {/* settings/danger zone */}
         <section></section>

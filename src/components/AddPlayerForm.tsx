@@ -69,14 +69,14 @@ export default function AddPlayerForm({ teamId }: { teamId: number }) {
   });
 
   const utils = api.useUtils();
-  const playersByQuery = api.user.byQuery.useQuery(
-    { q: debouncedQuery },
+  const playersByQuery = api.user.byQueryNotInTeam.useQuery(
+    { q: debouncedQuery, teamId },
     { enabled: Boolean(debouncedQuery) },
   );
 
   const addPlayer = api.team.addPlayer.useMutation({
-    onSuccess: () => {
-      // TODO: invalidate players query
+    onSuccess: async () => {
+      await utils.team.players.invalidate();
       setFormOpened(false);
     },
   });
