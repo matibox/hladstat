@@ -9,6 +9,7 @@ import {
   ChevronsUpDownIcon,
   Loader2Icon,
   PlusIcon,
+  ShirtIcon,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,11 +33,24 @@ import {
 } from "./ui/command";
 import { api } from "~/trpc/react";
 import { useDebounce } from "~/hooks/useDebounce";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { positions } from "~/lib/constants";
+import { Input } from "./ui/input";
 
 export const formSchema = z.object({
-  playerId: z.string().min(1, "Wybierz zawodnika."),
-  position: z.string().min(1, "Pozycja jest wymagana."),
-  shirtNumber: z.number().optional(),
+  playerId: z
+    .string({ required_error: "Wybierz zawodnika." })
+    .min(1, "Wybierz zawodnika."),
+  position: z
+    .string({ required_error: "Pozycja jest wymagana." })
+    .min(1, "Pozycja jest wymagana."),
+  shirtNumber: z.string().optional(),
 });
 
 export default function AddPlayerForm() {
@@ -50,6 +64,7 @@ export default function AddPlayerForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       position: "",
+      shirtNumber: "",
     },
   });
 
@@ -62,12 +77,13 @@ export default function AddPlayerForm() {
     console.log(values);
   }
 
-  console.log(form.getValues("playerId"));
-
   return (
     <ResponsiveDialog
       open={formOpened}
-      onOpenChange={setFormOpened}
+      onOpenChange={(v) => {
+        setFormOpened(v);
+        if (!v) form.reset();
+      }}
       trigger={
         <Button size="sm" variant="secondary">
           <span>Dodaj zawodnika</span>
@@ -158,6 +174,56 @@ export default function AddPlayerForm() {
               </FormItem>
             )}
           />
+          <FormField
+            control={form.control}
+            name="position"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Pozycja</FormLabel>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Wybierz pozycję" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {positions.map((position) => (
+                      <SelectItem key={position} value={position}>
+                        {position}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="shirtNumber"
+            render={({ field }) => (
+              <FormItem>
+                <div className="flex items-center gap-4">
+                  <div className="grow">
+                    <FormLabel>Numer koszulki (opcjonalne)</FormLabel>
+                    <FormControl>
+                      <Input type="number" min={1} max={99} {...field} />
+                    </FormControl>
+                  </div>
+                  <div className="relative">
+                    <ShirtIcon className="h-12 w-12 fill-current" />
+                    <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-lg font-bold text-primary-foreground">
+                      {field.value ? field.value?.slice(0, 2) : "?"}
+                    </span>
+                  </div>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit" className="self-end">
+            Dodaj
+          </Button>
         </form>
       </Form>
     </ResponsiveDialog>

@@ -1,11 +1,11 @@
 export const roles = ["owner", "player"] as const;
 
 export const positions = [
-  "przyjmujący",
-  "rozgrywający",
-  "atakujący",
-  "środkowy",
-  "libero",
+  "Przyjmujący",
+  "Rozgrywający",
+  "Atakujący",
+  "Środkowy",
+  "Libero",
 ] as const;
 
 export const PLACEHOLDER_MATCHES = [
