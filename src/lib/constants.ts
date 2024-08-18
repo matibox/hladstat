@@ -32,4 +32,26 @@ export const PLACEHOLDER_MATCHES = [
     },
     date: new Date(),
   },
+  {
+    vs: "LKS Goleszów",
+    score: "3:0",
+    teamStats: {
+      attackPerc: 32,
+      posReceptionPerc: 54,
+      blocks: 2,
+      aces: 0,
+    },
+    date: new Date(),
+  },
+  {
+    vs: "Cisownica",
+    score: "2:3",
+    teamStats: {
+      attackPerc: 32,
+      posReceptionPerc: 54,
+      blocks: 2,
+      aces: 0,
+    },
+    date: new Date(),
+  },
 ].map((match, i) => ({ id: i, ...match }));
