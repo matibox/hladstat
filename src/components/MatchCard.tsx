@@ -2,22 +2,12 @@
 
 import { type PLACEHOLDER_MATCHES } from "~/lib/constants";
 import {
-  ArrowRightIcon,
   CalendarIcon,
-  ChartAreaIcon,
   ChartNoAxesCombinedIcon,
-  FileChartColumnIcon,
-  StarIcon,
   SwordsIcon,
 } from "lucide-react";
 import { Button } from "./ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
+import { Card, CardHeader, CardTitle } from "./ui/card";
 import dayjs from "dayjs";
 import {
   Tooltip,

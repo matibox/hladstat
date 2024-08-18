@@ -97,7 +97,7 @@ export default function AddPlayerForm({ teamId }: { teamId: number }) {
         if (!v) form.reset();
       }}
       trigger={
-        <Button size="sm" variant="secondary">
+        <Button size="sm">
           <span>Dodaj zawodnika</span>
           <PlusIcon className="ml-1 h-4 w-4" />
         </Button>

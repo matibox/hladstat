@@ -26,7 +26,7 @@ export default async function Team({
         <section className="flex flex-col gap-4">
           <div className="flex w-full items-center justify-between">
             <h1 className="text-2xl font-semibold">Ostatnie mecze</h1>
-            <Button size="sm" variant="secondary">
+            <Button size="sm">
               <span>Nowy mecz</span>
               <PlusIcon className="ml-1 h-4 w-4" />
             </Button>
@@ -35,7 +35,7 @@ export default async function Team({
             {PLACEHOLDER_MATCHES.map((match) => (
               <MatchCard key={match.id} match={match} />
             ))}
-            <Button className="self-end" size="sm">
+            <Button className="self-end" size="sm" variant="secondary">
               <span>Wszystkie mecze</span>
               <ArrowRightIcon className="ml-1 h-4 w-4" />
             </Button>
