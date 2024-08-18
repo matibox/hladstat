@@ -22,6 +22,8 @@ import { cn } from "~/lib/utils";
 import dayjs from "dayjs";
 import { Calendar } from "./ui/calendar";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "./ui/input-otp";
+import { api } from "~/trpc/react";
+import { useRouter } from "next/navigation";
 
 export const formSchema = z
   .object({
@@ -52,6 +54,7 @@ export const formSchema = z
 
 export default function NewMatchForm({ teamId }: { teamId: number }) {
   const [formOpened, setFormOpened] = useState(false);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -61,8 +64,20 @@ export default function NewMatchForm({ teamId }: { teamId: number }) {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  const createMatch = api.match.create.useMutation({
+    onSuccess: ({ matchId }) => {
+      router.push(`/dashboard/${teamId}/${matchId}/analysis`);
+    },
+  });
+
+  function onSubmit({ score, ...values }: z.infer<typeof formSchema>) {
+    const formattedScore = `${score.charAt(0)}:${score.charAt(1)}`;
+
+    createMatch.mutate({
+      teamId,
+      score: formattedScore,
+      ...values,
+    });
   }
 
   return (
@@ -161,7 +176,7 @@ export default function NewMatchForm({ teamId }: { teamId: number }) {
           <Button
             type="submit"
             className="self-end"
-            // loading={isImageUploading || createTeam.isPending}
+            loading={createMatch.isPending}
           >
             <span>Rozpocznij analizę</span>
             <ChartNoAxesCombinedIcon className="ml-1.5 h-4 w-4" />
