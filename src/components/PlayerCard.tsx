@@ -1,6 +1,6 @@
 "use client";
 
-import { type PLACEHOLDER_PLAYERS } from "~/app/dashboard/[teamId]/page";
+import { type PLACEHOLDER_PLAYERS } from "~/lib/constants";
 import {
   Card,
   CardContent,

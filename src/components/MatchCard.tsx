@@ -1,6 +1,6 @@
 "use client";
 
-import { type PLACEHOLDER_MATCHES } from "~/app/dashboard/[teamId]/page";
+import { type PLACEHOLDER_MATCHES } from "~/lib/constants";
 import { ArrowRightIcon, CalendarIcon, SwordsIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "./ui/card";
