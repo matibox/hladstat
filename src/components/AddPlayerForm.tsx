@@ -31,6 +31,7 @@ import {
   CommandList,
 } from "./ui/command";
 import { api } from "~/trpc/react";
+import { useDebounce } from "~/hooks/useDebounce";
 
 export const formSchema = z.object({
   playerId: z.string().min(1, "Wybierz zawodnika."),
@@ -41,6 +42,9 @@ export const formSchema = z.object({
 export default function AddPlayerForm() {
   const [formOpened, setFormOpened] = useState(false);
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+
+  useDebounce(() => setDebouncedQuery(query), 300, [query]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -50,8 +54,8 @@ export default function AddPlayerForm() {
   });
 
   const playersByQuery = api.user.byQuery.useQuery(
-    { q: query },
-    { enabled: Boolean(query) },
+    { q: debouncedQuery },
+    { enabled: Boolean(debouncedQuery) },
   );
 
   function onSubmit(values: z.infer<typeof formSchema>) {
