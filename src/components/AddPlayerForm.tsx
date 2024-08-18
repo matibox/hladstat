@@ -216,7 +216,7 @@ export default function AddPlayerForm({ teamId }: { teamId: number }) {
             render={({ field }) => (
               <FormItem>
                 <div className="flex items-center gap-4">
-                  <div className="grow">
+                  <div className="grow space-y-2">
                     <FormLabel>Numer koszulki (opcjonalne)</FormLabel>
                     <FormControl>
                       <Input type="number" min={1} max={99} {...field} />

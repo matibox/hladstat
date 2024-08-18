@@ -18,7 +18,15 @@ import { Input } from "./ui/input";
 import { api } from "~/trpc/react";
 import { acceptedImageTypes } from "~/lib/uploadthing";
 import { useImageUpload } from "~/hooks/useImageUpload";
-import { UploadIcon } from "lucide-react";
+import { ShirtIcon, UploadIcon } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { positions } from "~/lib/constants";
 
 export const formSchema = z.object({
   name: z.string().min(1, "Nazwa jest wymagana"),
@@ -34,6 +42,10 @@ export const formSchema = z.object({
         file === null || (file && acceptedImageTypes.includes(file.type)),
       "Tylko pliki .jpg, .jpeg, .png i .webp są wspierane.",
     ),
+  position: z
+    .string({ required_error: "Pozycja jest wymagana." })
+    .min(1, "Pozycja jest wymagana."),
+  shirtNumber: z.string().optional(),
 });
 
 export default function NewTeamForm() {
@@ -57,7 +69,10 @@ export default function NewTeamForm() {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit({
+    shirtNumber,
+    ...values
+  }: z.infer<typeof formSchema>) {
     let profilePicture: string | undefined;
 
     if (values.profilePicture) {
@@ -69,6 +84,7 @@ export default function NewTeamForm() {
     createTeam.mutate({
       ...values,
       profilePicture,
+      shirtNumber: shirtNumber ? parseInt(shirtNumber) : undefined,
     });
   }
 
@@ -128,6 +144,53 @@ export default function NewTeamForm() {
                       ? field.value.name
                       : "Nie wybrano pliku."}
                   </span>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="position"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Twoja pozycja</FormLabel>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Wybierz pozycję" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {positions.map((position) => (
+                      <SelectItem key={position} value={position}>
+                        {position}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="shirtNumber"
+            render={({ field }) => (
+              <FormItem>
+                <div className="flex items-center gap-4">
+                  <div className="grow space-y-2">
+                    <FormLabel>Twój numer koszulki (opcjonalne)</FormLabel>
+                    <FormControl>
+                      <Input type="number" min={1} max={99} {...field} />
+                    </FormControl>
+                  </div>
+                  <div className="relative">
+                    <ShirtIcon className="h-12 w-12 fill-current" />
+                    <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-lg font-bold text-primary-foreground">
+                      {field.value ? field.value?.slice(0, 2) : "?"}
+                    </span>
+                  </div>
                 </div>
                 <FormMessage />
               </FormItem>
