@@ -1,12 +1,11 @@
-import { ArrowRightIcon, PlusIcon } from "lucide-react";
-import Link from "next/link";
+import { ArrowRightIcon } from "lucide-react";
 import { redirect } from "next/navigation";
 import AddPlayerForm from "~/components/AddPlayerForm";
 import MatchCard from "~/components/MatchCard";
+import NewMatchForm from "~/components/NewMatchForm";
 import PlayerCards from "~/components/PlayerCards";
-import { Button, buttonVariants } from "~/components/ui/button";
+import { Button } from "~/components/ui/button";
 import { PLACEHOLDER_MATCHES } from "~/lib/constants";
-import { cn } from "~/lib/utils";
 import { getServerAuthSession } from "~/server/auth";
 import { api, HydrateClient } from "~/trpc/server";
 
@@ -28,13 +27,7 @@ export default async function Team({
         <section className="flex w-full flex-col gap-4">
           <div className="flex w-full items-center justify-between">
             <h1 className="text-2xl font-semibold">Ostatnie mecze</h1>
-            <Link
-              href={`/dashboard/${teamId}/matches/new`}
-              className={cn(buttonVariants({ size: "sm" }))}
-            >
-              <span>Nowy mecz</span>
-              <PlusIcon className="ml-1 h-4 w-4" />
-            </Link>
+            <NewMatchForm teamId={parseInt(teamId)} />
           </div>
           <div className="flex flex-col gap-4">
             {PLACEHOLDER_MATCHES.map((match) => (

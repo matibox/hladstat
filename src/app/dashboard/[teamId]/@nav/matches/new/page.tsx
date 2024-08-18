@@ -35,7 +35,7 @@ export default async function NewMatchNav({
       </BreadcrumbItem>
       <BreadcrumbSeparator />
       <BreadcrumbItem>
-        <BreadcrumbPage>Analiza meczu</BreadcrumbPage>
+        <BreadcrumbPage>Nowy mecz</BreadcrumbPage>
       </BreadcrumbItem>
     </>
   );

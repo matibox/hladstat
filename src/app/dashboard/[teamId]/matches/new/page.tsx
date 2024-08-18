@@ -1,3 +1,3 @@
-export default function AnalysisBoard() {
+export default function NewMatch() {
   return <div>analiza meczu</div>;
 }
