@@ -33,7 +33,6 @@ export const matchRouter = createTRPCRouter({
       const { matchId } = input;
 
       const selectedMatch = await ctx.db.query.matches.findFirst({
-        columns: { id: true, score: true },
         where: (matches, { eq }) => eq(matches.id, matchId),
       });
 
