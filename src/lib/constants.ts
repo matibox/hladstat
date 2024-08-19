@@ -1,3 +1,6 @@
+import { type VariantProps } from "class-variance-authority";
+import { type buttonVariants } from "~/components/ui/button";
+
 export const roles = ["owner", "player"] as const;
 
 export const positions = [
@@ -9,49 +12,51 @@ export const positions = [
   "Nieokreślona",
 ] as const;
 
-export const PLACEHOLDER_MATCHES = [
+export const statsOptions = [
   {
-    vs: "Humansport Kumple",
-    score: "3:0",
-    teamStats: {
-      attackPerc: 47,
-      posReceptionPerc: 56,
-      blocks: 3,
-      aces: 2,
-    },
-    date: new Date(),
+    label: "Atak",
+    value: "atk",
+    options: [
+      { label: "punkt", value: "kill", variant: "default" },
+      { label: "podbity", value: "def", variant: "secondary" },
+      { label: "błąd", value: "err", variant: "destructive" },
+    ],
   },
   {
-    vs: "RMJ Księżyc",
-    score: "3:2",
-    teamStats: {
-      attackPerc: 32,
-      posReceptionPerc: 54,
-      blocks: 2,
-      aces: 0,
-    },
-    date: new Date(),
+    label: "Przyjęcie",
+    value: "rec",
+    options: [
+      { label: "perf.", value: "perf", variant: "default" },
+      { label: "poz.", value: "pos", variant: "default" },
+      { label: "neg.", value: "neg", variant: "secondary" },
+      { label: "błąd", value: "err", variant: "destructive" },
+    ],
   },
   {
-    vs: "LKS Goleszów",
-    score: "3:0",
-    teamStats: {
-      attackPerc: 32,
-      posReceptionPerc: 54,
-      blocks: 2,
-      aces: 0,
-    },
-    date: new Date(),
+    label: "Zagrywka",
+    value: "serve",
+    options: [
+      { label: "as", value: "ace", variant: "default" },
+      { label: "poz.", value: "pos", variant: "secondary" },
+      { label: "błąd", value: "err", variant: "destructive" },
+    ],
   },
   {
-    vs: "Cisownica",
-    score: "2:3",
-    teamStats: {
-      attackPerc: 32,
-      posReceptionPerc: 54,
-      blocks: 2,
-      aces: 0,
-    },
-    date: new Date(),
+    label: "Inne",
+    value: "other",
+    options: [{ label: "blok", value: "blk", variant: "default" }],
   },
-].map((match, i) => ({ id: i, ...match }));
+] as const satisfies Array<{
+  label: string;
+  value: string;
+  options: Array<{
+    label: string;
+    value: string;
+    variant: VariantProps<typeof buttonVariants>["variant"];
+  }>;
+}>;
+
+type StatsOptions = typeof statsOptions;
+export type StatsCode = {
+  [T in StatsOptions[number] as T["value"]]: `${T["value"]}-${T["options"][number]["value"]}`;
+}[StatsOptions[number]["value"]];

@@ -2,59 +2,10 @@
 
 import React, { useState } from "react";
 import ResponsiveDialog from "./ui/responsive-dialog";
-import { Button, type buttonVariants } from "./ui/button";
+import { Button } from "./ui/button";
 import { type RouterOutputs } from "~/trpc/react";
 import { ClipboardPlusIcon } from "lucide-react";
-import { type VariantProps } from "class-variance-authority";
-
-const statsOptions = [
-  {
-    label: "Atak",
-    value: "atk",
-    options: [
-      { label: "punkt", value: "kill", variant: "default" },
-      { label: "podbity", value: "def", variant: "secondary" },
-      { label: "błąd", value: "err", variant: "destructive" },
-    ],
-  },
-  {
-    label: "Przyjęcie",
-    value: "rec",
-    options: [
-      { label: "perf.", value: "perf", variant: "default" },
-      { label: "poz.", value: "pos", variant: "default" },
-      { label: "neg", value: "neg", variant: "secondary" },
-      { label: "błąd", value: "err", variant: "destructive" },
-    ],
-  },
-  {
-    label: "Zagrywka",
-    value: "serve",
-    options: [
-      { label: "as", value: "ace", variant: "default" },
-      { label: "poz.", value: "pos", variant: "secondary" },
-      { label: "błąd", value: "err", variant: "destructive" },
-    ],
-  },
-  {
-    label: "Inne",
-    value: "other",
-    options: [{ label: "blok", value: "blk", variant: "default" }],
-  },
-] as const satisfies Array<{
-  label: string;
-  value: string;
-  options: Array<{
-    label: string;
-    value: string;
-    variant: VariantProps<typeof buttonVariants>["variant"];
-  }>;
-}>;
-
-type StatsOptions = typeof statsOptions;
-type StatsCode = {
-  [T in StatsOptions[number] as T["value"]]: `${T["value"]}-${T["options"][number]["value"]}`;
-}[StatsOptions[number]["value"]];
+import { statsOptions, type StatsCode } from "~/lib/constants";
 
 export default function AddStatisticForm({
   teamId,

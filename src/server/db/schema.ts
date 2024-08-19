@@ -1,4 +1,4 @@
-import { relations, sql } from "drizzle-orm";
+import { Many, relations, sql } from "drizzle-orm";
 import {
   index,
   int,
@@ -7,7 +7,7 @@ import {
   text,
 } from "drizzle-orm/sqlite-core";
 import { type AdapterAccount } from "next-auth/adapters";
-import type { roles } from "~/lib/constants";
+import type { roles, StatsCode } from "~/lib/constants";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -137,11 +137,27 @@ export const matches = createTable("matches", {
   score: text("score", { length: 3 }).notNull(),
 });
 
+export const stats = createTable("stats", {
+  id: text("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  playerId: text("player_id")
+    .notNull()
+    .references(() => users.id),
+  matchId: int("match_id")
+    .notNull()
+    .references(() => matches.id),
+  set: int("set", { mode: "number" }).notNull(),
+  code: text("code", { length: 20 }).notNull().$type<StatsCode>(),
+});
+
 // ==== relations ====
 
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
   teams: many(usersToTeams),
+  stats: many(stats),
 }));
 
 export const usersToTeamsRelations = relations(usersToTeams, ({ one }) => ({
@@ -154,6 +170,12 @@ export const teamRelations = relations(teams, ({ many }) => ({
   matches: many(matches),
 }));
 
-export const matchesRelations = relations(matches, ({ one }) => ({
+export const matchesRelations = relations(matches, ({ one, many }) => ({
   team: one(teams, { fields: [matches.teamId], references: [teams.id] }),
+  stats: many(stats),
+}));
+
+export const statsRelations = relations(stats, ({ one }) => ({
+  player: one(users, { fields: [stats.playerId], references: [users.id] }),
+  match: one(matches, { fields: [stats.matchId], references: [matches.id] }),
 }));
