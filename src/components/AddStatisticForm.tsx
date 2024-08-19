@@ -59,10 +59,12 @@ type StatsCode = {
 export default function AddStatisticForm({
   teamId,
   matchId,
+  set,
   player: { firstName, lastName, position, shirtNumber },
 }: {
   teamId: number;
   matchId: number;
+  set: number;
   player: RouterOutputs["team"]["players"][number];
 }) {
   const [formOpened, setFormOpened] = useState(false);
@@ -80,16 +82,10 @@ export default function AddStatisticForm({
           <ClipboardPlusIcon className="h-5 w-5" />
         </Button>
       }
-      title="Dodaj statystykę"
+      title={`Dodaj statystykę - ${set} set`}
       description={`${firstName} ${lastName}, ${position}${shirtNumber ? `, nr ${shirtNumber}` : ""}`}
     >
-      <div
-        onClick={(e) => {
-          const target = e.target as HTMLButtonElement;
-          console.log(target.value);
-        }}
-        className="flex flex-col gap-4"
-      >
+      <div className="flex flex-col gap-4">
         {statsOptions.map((group) => (
           <div key={group.label} className="flex flex-col gap-2">
             <h2 className="font-semibold leading-none">{group.label}</h2>

@@ -37,6 +37,7 @@ export default async function MatchAnalysis({
                     player={player}
                     header={
                       <AddStatisticForm
+                        set={setNumber}
                         player={player}
                         teamId={teamId}
                         matchId={matchId}
