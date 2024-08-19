@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import ResponsiveDialog from "./ui/responsive-dialog";
 import { Button } from "./ui/button";
 import { api, type RouterOutputs } from "~/trpc/react";
-import { ClipboardPlusIcon } from "lucide-react";
+import { ClipboardPlusIcon, Loader2Icon } from "lucide-react";
 import { statsOptions, type StatsCode } from "~/lib/constants";
 
 export default function AddStatisticForm({
@@ -45,7 +45,17 @@ export default function AddStatisticForm({
       title={`Dodaj statystykę - ${set} set`}
       description={`${firstName} ${lastName}, ${position}${shirtNumber ? `, nr ${shirtNumber}` : ""}`}
     >
-      <div className="flex flex-col gap-4">
+      <div className="relative flex flex-col gap-4">
+        <div
+          className="absolute -left-1 top-0 flex h-full w-full items-center justify-center bg-background/90 transition-opacity"
+          style={
+            addStats.isPending
+              ? { opacity: "100", visibility: "visible" }
+              : { opacity: "0", visibility: "hidden" }
+          }
+        >
+          <Loader2Icon className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
         {statsOptions.map((group) => (
           <div key={group.label} className="flex flex-col gap-2">
             <h2 className="font-semibold leading-none">{group.label}</h2>
@@ -54,7 +64,6 @@ export default function AddStatisticForm({
                 <Button
                   key={option.value}
                   variant={option.variant}
-                  loading={addStats.isPending}
                   onClick={() =>
                     handleStatClick({
                       code: `${group.value}-${option.value}` as StatsCode,
