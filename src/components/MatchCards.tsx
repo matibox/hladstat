@@ -1,7 +1,7 @@
 "use client";
 
-import { type PLACEHOLDER_MATCHES } from "~/lib/constants";
 import {
+  ArrowRightIcon,
   CalendarIcon,
   ChartNoAxesCombinedIcon,
   SwordsIcon,
@@ -15,11 +15,34 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
+import { api, type RouterOutputs } from "~/trpc/react";
 
-export default function MatchCard({
+export default function MatchCards({ teamId }: { teamId: number }) {
+  const [matches] = api.team.recentMatches.useSuspenseQuery({ teamId });
+
+  return (
+    <div className="flex flex-col gap-4">
+      {matches.map((match) => (
+        <MatchCard key={match.id} match={match} />
+      ))}
+      {matches.length === 0 ? (
+        <p className="text-center text-muted-foreground">
+          Brak ostatnich meczów.
+        </p>
+      ) : (
+        <Button className="self-end" size="sm" variant="secondary">
+          <span>Wszystkie mecze</span>
+          <ArrowRightIcon className="ml-1 h-4 w-4" />
+        </Button>
+      )}
+    </div>
+  );
+}
+
+function MatchCard({
   match,
 }: {
-  match: (typeof PLACEHOLDER_MATCHES)[number];
+  match: RouterOutputs["team"]["recentMatches"][number];
 }) {
   return (
     <Card className="w-full border-none bg-muted/25">
@@ -31,7 +54,7 @@ export default function MatchCard({
         <div className="flex flex-col text-sm text-muted-foreground">
           <div className="flex items-center gap-1">
             <SwordsIcon className="h-4 w-4" />
-            <span>{match.vs}</span>
+            <span>{match.opponent}</span>
           </div>
           <div className="flex items-center gap-1">
             <CalendarIcon className="h-4 w-4" />

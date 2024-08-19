@@ -118,4 +118,16 @@ export const teamRouter = createTRPCRouter({
         })
       ).map(({ user, ...data }) => ({ ...data, ...user }));
     }),
+  recentMatches: protectedProcedure
+    .input(z.object({ teamId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const { teamId } = input;
+
+      return await ctx.db.query.matches.findMany({
+        columns: { teamId: false },
+        where: (matches, { eq }) => eq(matches.teamId, teamId),
+        orderBy: (matches, { desc }) => desc(matches.date),
+        limit: 4,
+      });
+    }),
 });

@@ -1,11 +1,8 @@
-import { ArrowRightIcon } from "lucide-react";
 import { redirect } from "next/navigation";
 import AddPlayerForm from "~/components/AddPlayerForm";
-import MatchCard from "~/components/MatchCard";
+import MatchCards from "~/components/MatchCards";
 import NewMatchForm from "~/components/NewMatchForm";
 import PlayerCards from "~/components/PlayerCards";
-import { Button } from "~/components/ui/button";
-import { PLACEHOLDER_MATCHES } from "~/lib/constants";
 import { getServerAuthSession } from "~/server/auth";
 import { api, HydrateClient } from "~/trpc/server";
 
@@ -19,6 +16,7 @@ export default async function Team({
   if (!session) return redirect("/");
 
   await api.team.players.prefetch({ teamId: parseInt(teamId) });
+  await api.team.recentMatches.prefetch({ teamId: parseInt(teamId) });
 
   return (
     <HydrateClient>
@@ -29,15 +27,7 @@ export default async function Team({
             <h1 className="text-2xl font-semibold">Ostatnie mecze</h1>
             <NewMatchForm teamId={parseInt(teamId)} />
           </div>
-          <div className="flex flex-col gap-4">
-            {PLACEHOLDER_MATCHES.map((match) => (
-              <MatchCard key={match.id} match={match} />
-            ))}
-            <Button className="self-end" size="sm" variant="secondary">
-              <span>Wszystkie mecze</span>
-              <ArrowRightIcon className="ml-1 h-4 w-4" />
-            </Button>
-          </div>
+          <MatchCards teamId={parseInt(teamId)} />
         </section>
         {/* stats */}
         {/* <section></section> */}
