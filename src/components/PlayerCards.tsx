@@ -4,22 +4,37 @@ import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { ShirtIcon } from "lucide-react";
 import { api, type RouterOutputs } from "~/trpc/react";
 
-export default function PlayerCards({ teamId }: { teamId: number }) {
+export default function TeamPlayers({ teamId }: { teamId: number }) {
   const [players] = api.team.players.useSuspenseQuery({ teamId });
 
   return (
     <div className="flex flex-col gap-4">
       {players.map((player) => (
-        <PlayerCard key={player.id} player={player} />
+        <PlayerCard
+          key={player.id}
+          player={player}
+          header={
+            <div className="relative">
+              <ShirtIcon className="h-12 w-12 fill-current" />
+              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-lg font-bold text-primary-foreground">
+                {player.shirtNumber ?? "?"}
+              </span>
+            </div>
+          }
+        />
       ))}
     </div>
   );
 }
 
-function PlayerCard({
-  player: { firstName, lastName, position, shirtNumber },
+export function PlayerCard({
+  player: { firstName, lastName, position },
+  header,
+  children,
 }: {
   player: RouterOutputs["team"]["players"][number];
+  header?: React.ReactNode;
+  children?: React.ReactNode;
 }) {
   return (
     <Card className="w-full border-none bg-muted/25">
@@ -30,13 +45,9 @@ function PlayerCard({
           </CardTitle>
           <CardDescription>{position}</CardDescription>
         </div>
-        <div className="relative">
-          <ShirtIcon className="h-12 w-12 fill-current" />
-          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-lg font-bold text-primary-foreground">
-            {shirtNumber ?? "?"}
-          </span>
-        </div>
+        {header}
       </CardHeader>
+      {children}
       {/* <CardContent className="p-4 pt-0">
         <div className="flex flex-col gap-0.5 text-sm">
           <span>{player.stats.matches} meczy/ów</span>

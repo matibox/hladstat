@@ -27,4 +27,23 @@ export const matchRouter = createTRPCRouter({
 
       return { matchId: data?.matchId };
     }),
+  byId: protectedProcedure
+    .input(z.object({ matchId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const { matchId } = input;
+
+      const selectedMatch = await ctx.db.query.matches.findFirst({
+        columns: { id: true, score: true },
+        where: (matches, { eq }) => eq(matches.id, matchId),
+      });
+
+      return {
+        ...selectedMatch,
+        numberOfSets:
+          selectedMatch?.score
+            .split(":")
+            .map(Number)
+            .reduce((a, b) => a + b, 0) ?? 0,
+      };
+    }),
 });

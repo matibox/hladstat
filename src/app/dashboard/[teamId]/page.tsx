@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import AddPlayerForm from "~/components/AddPlayerForm";
 import MatchCards from "~/components/MatchCards";
 import NewMatchForm from "~/components/NewMatchForm";
-import PlayerCards from "~/components/PlayerCards";
+import TeamPlayers from "~/components/PlayerCards";
 import { getServerAuthSession } from "~/server/auth";
 import { api, HydrateClient } from "~/trpc/server";
 
@@ -37,7 +37,7 @@ export default async function Team({
             <h2 className="text-2xl font-semibold">Zawodnicy</h2>
             <AddPlayerForm teamId={parseInt(teamId)} />
           </div>
-          <PlayerCards teamId={parseInt(teamId)} />
+          <TeamPlayers teamId={parseInt(teamId)} />
         </section>
         {/* settings/danger zone */}
         {/* <section></section> */}
