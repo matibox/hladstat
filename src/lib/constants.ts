@@ -18,7 +18,7 @@ export const statsOptions = [
     value: "atk",
     options: [
       { label: "punkt", value: "kill", variant: "default" },
-      { label: "podbity", value: "def", variant: "secondary" },
+      { label: "podbity", value: "def", variant: "outline" },
       { label: "błąd", value: "err", variant: "destructive" },
     ],
   },
@@ -27,8 +27,8 @@ export const statsOptions = [
     value: "rec",
     options: [
       { label: "perf.", value: "perf", variant: "default" },
-      { label: "poz.", value: "pos", variant: "default" },
-      { label: "neg.", value: "neg", variant: "secondary" },
+      { label: "poz.", value: "pos", variant: "secondary" },
+      { label: "neg.", value: "neg", variant: "outline" },
       { label: "błąd", value: "err", variant: "destructive" },
     ],
   },

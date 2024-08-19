@@ -38,11 +38,11 @@ export default async function MatchAnalysis({
               </div>
             </div>
             <div className="sticky left-0 top-0 flex items-center gap-4 pb-4">
-              <span className="text-muted-foreground">Set</span>
+              {/* <span className="text-muted-foreground">Set</span> */}
               <TabsList>
                 {setArray.map((setNumber) => (
                   <TabsTrigger key={setNumber} value={setNumber.toString()}>
-                    {setNumber}
+                    {setNumber} set
                   </TabsTrigger>
                 ))}
               </TabsList>
