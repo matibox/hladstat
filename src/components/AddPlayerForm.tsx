@@ -78,6 +78,7 @@ export default function AddPlayerForm({ teamId }: { teamId: number }) {
     onSuccess: async () => {
       await utils.team.players.invalidate();
       setFormOpened(false);
+      form.reset();
     },
   });
 
@@ -92,10 +93,7 @@ export default function AddPlayerForm({ teamId }: { teamId: number }) {
   return (
     <ResponsiveDialog
       open={formOpened}
-      onOpenChange={(v) => {
-        setFormOpened(v);
-        if (!v) form.reset();
-      }}
+      onOpenChange={setFormOpened}
       trigger={
         <Button size="sm">
           <span>Dodaj zawodnika</span>
