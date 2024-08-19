@@ -3,25 +3,34 @@
 import React, { useState } from "react";
 import ResponsiveDialog from "./ui/responsive-dialog";
 import { Button } from "./ui/button";
-import { type RouterOutputs } from "~/trpc/react";
+import { api, type RouterOutputs } from "~/trpc/react";
 import { ClipboardPlusIcon } from "lucide-react";
 import { statsOptions, type StatsCode } from "~/lib/constants";
 
 export default function AddStatisticForm({
-  teamId,
   matchId,
   set,
-  player: { firstName, lastName, position, shirtNumber },
+  player: { id: playerId, firstName, lastName, position, shirtNumber },
 }: {
-  teamId: number;
   matchId: number;
   set: number;
   player: RouterOutputs["team"]["players"][number];
 }) {
   const [formOpened, setFormOpened] = useState(false);
 
-  function handleStatClick(value: StatsCode) {
-    console.log(value);
+  const addStats = api.stats.add.useMutation({
+    onSuccess: () => {
+      setFormOpened(false);
+    },
+  });
+
+  function handleStatClick({ code }: { code: StatsCode }) {
+    addStats.mutate({
+      matchId,
+      playerId,
+      code,
+      set,
+    });
   }
 
   return (
@@ -45,10 +54,11 @@ export default function AddStatisticForm({
                 <Button
                   key={option.value}
                   variant={option.variant}
+                  loading={addStats.isPending}
                   onClick={() =>
-                    handleStatClick(
-                      `${group.value}-${option.value}` as StatsCode,
-                    )
+                    handleStatClick({
+                      code: `${group.value}-${option.value}` as StatsCode,
+                    })
                   }
                 >
                   {option.label}

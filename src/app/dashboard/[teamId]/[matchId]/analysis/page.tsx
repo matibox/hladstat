@@ -39,7 +39,6 @@ export default async function MatchAnalysis({
                       <AddStatisticForm
                         set={setNumber}
                         player={player}
-                        teamId={teamId}
                         matchId={matchId}
                       />
                     }
