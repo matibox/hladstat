@@ -57,6 +57,8 @@ export default function NewTeamForm() {
     defaultValues: {
       name: "",
       profilePicture: null,
+      position: "",
+      shirtNumber: "",
     },
   });
 
