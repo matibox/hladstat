@@ -44,7 +44,10 @@ export const statsOptions = [
   {
     label: "Inne",
     value: "other",
-    options: [{ label: "blok", value: "blk", variant: "default" }],
+    options: [
+      { label: "blok", value: "blk", variant: "default" },
+      { label: "obrona", value: "dig", variant: "default" },
+    ],
   },
 ] as const satisfies Array<{
   label: string;
