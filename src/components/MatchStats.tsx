@@ -1,33 +1,31 @@
 "use client";
 
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts";
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
 } from "~/components/ui/chart";
-import { type positions } from "~/lib/constants";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { api } from "~/trpc/react";
+import { countSetDistribution } from "~/lib/stats";
 
 const chartConfig = {
   perc: { label: "%", color: "hsl(var(--chart-2))" },
 } satisfies ChartConfig;
 
-const SET_DRISTRIBUTION_PLACEHOLDER = [
-  { position: "Przyjmujący", perc: 51 },
-  { position: "Środkowy", perc: 15 },
-  { position: "Atakujący", perc: 44 },
-] satisfies Array<{ position: (typeof positions)[number]; perc: number }>;
+export default function MatchStats({
+  matchId,
+  teamId,
+}: {
+  matchId: number;
+  teamId: number;
+}) {
+  const [stats] = api.match.stats.useSuspenseQuery({ teamId, matchId });
 
-export default function MatchStats() {
+  const setDistribution = countSetDistribution(stats);
+
   return (
     <Card className="w-full border-none bg-muted/25">
       <CardHeader className="p-4">
@@ -37,11 +35,16 @@ export default function MatchStats() {
       </CardHeader>
       <CardContent className="p-4 pt-0">
         <ChartContainer config={chartConfig}>
-          <BarChart data={SET_DRISTRIBUTION_PLACEHOLDER}>
+          <BarChart
+            data={setDistribution}
+            margin={{
+              top: 20,
+            }}
+          >
             <CartesianGrid vertical={false} />
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent hideLabel />}
+              content={<ChartTooltipContent hideLabel nameKey="perc" />}
             />
             <XAxis
               dataKey="position"
@@ -49,14 +52,14 @@ export default function MatchStats() {
               tickMargin={10}
               axisLine={false}
             />
-            <YAxis
-              width={32}
-              dataKey="perc"
-              tickLine={false}
-              axisLine={false}
-              tickFormatter={(perc: number) => `${perc}%`}
-            />
-            <Bar dataKey="perc" fill="var(--color-perc)" radius={6} />
+            <Bar dataKey="distributionPerc" fill="var(--color-perc)" radius={6}>
+              <LabelList
+                position="top"
+                offset={12}
+                className="fill-foreground"
+                fontSize={12}
+              />
+            </Bar>
           </BarChart>
         </ChartContainer>
       </CardContent>

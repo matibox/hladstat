@@ -18,8 +18,10 @@ export default function AddStatisticForm({
 }) {
   const [formOpened, setFormOpened] = useState(false);
 
+  const utils = api.useUtils();
   const addStats = api.stats.add.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
+      await utils.match.stats.invalidate();
       setFormOpened(false);
     },
   });

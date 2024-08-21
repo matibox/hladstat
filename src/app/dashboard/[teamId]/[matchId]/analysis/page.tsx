@@ -17,6 +17,8 @@ export default async function MatchAnalysis({
 
   const players = await api.team.players({ teamId });
 
+  await api.match.stats.prefetch({ matchId, teamId });
+
   return (
     <HydrateClient>
       <main className="relative mx-auto flex min-h-[200dvh] w-full max-w-xl flex-col gap-8 pb-4 md:max-w-5xl md:pb-6 lg:gap-12 lg:pb-8">
@@ -80,7 +82,7 @@ export default async function MatchAnalysis({
               <h2 className="text-2xl font-semibold leading-none">
                 Statystyki live
               </h2>
-              <MatchStats />
+              <MatchStats matchId={matchId} teamId={teamId} />
             </section>
           </div>
         </Tabs>
