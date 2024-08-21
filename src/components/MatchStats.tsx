@@ -23,6 +23,7 @@ import {
   countPointsAndErrors,
   countTeamPointsByPlayer,
   countSetDistribution,
+  countAttackStats,
 } from "~/lib/stats";
 import { colorizeChart } from "~/lib/utils";
 
@@ -42,6 +43,7 @@ export default function MatchStats({
       <Scorers stats={stats} />
       <SetDistributionChart stats={stats} />
       <PointsAndErrorsChart stats={stats} />
+      <AttackStats stats={stats} />
     </>
   );
 }
@@ -111,9 +113,9 @@ function PointsAndErrorsChart({ stats }: { stats: Stats }) {
             />
             <Pie
               data={chartData.map((data, i) => {
-                let fill = `hsl(var(--chart-${i + 1}))`;
-                if (i == 0) fill = "hsl(var(--chart-2))";
-                if (i == 1) fill = "hsl(var(--chart-5))";
+                let fill = `hsl(var(--chart-${(i % 5) + 1}))`;
+                if (data.type === "Punkty") fill = "hsl(var(--chart-2))";
+                if (data.type === "Błędy") fill = "hsl(var(--chart-5))";
                 return { ...data, fill };
               })}
               dataKey="value"
@@ -181,6 +183,79 @@ function Scorers({ stats }: { stats: Stats }) {
               content={<ChartLegendContent nameKey="player" />}
               className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
             />
+          </PieChart>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}
+
+function AttackStats({ stats }: { stats: Stats }) {
+  const { chartData: attackStats, legend, perc } = countAttackStats(stats);
+
+  return (
+    <Card className="w-full border-none bg-muted/25">
+      <CardHeader className="p-4">
+        <CardTitle className="text-xl leading-none">Atak</CardTitle>
+      </CardHeader>
+      <CardContent className="flex-1 p-4 pt-0">
+        <ChartContainer
+          config={legend}
+          className="mx-auto aspect-square max-h-[250px]"
+        >
+          <PieChart>
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent hideLabel />}
+            />
+            <ChartLegend
+              content={<ChartLegendContent nameKey="attackType" />}
+              className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
+            />
+            <Pie
+              data={attackStats.map((data, i) => {
+                const { attackType } = data;
+                let fill = `hsl(var(--chart-${(i % 5) + 1}))`;
+                if (attackType === "Skończone") fill = "hsl(var(--chart-2))";
+                if (attackType === "Obronione") fill = "hsl(var(--chart-1))";
+                if (attackType === "Błędy") fill = "hsl(var(--chart-5))";
+                return { ...data, fill };
+              })}
+              dataKey="quantity"
+              nameKey="attackType"
+              innerRadius={60}
+              strokeWidth={5}
+            >
+              <Label
+                content={({ viewBox }) => {
+                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                    return (
+                      <text
+                        x={viewBox.cx}
+                        y={viewBox.cy}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                      >
+                        <tspan
+                          x={viewBox.cx}
+                          y={viewBox.cy}
+                          className="fill-foreground text-3xl font-bold"
+                        >
+                          {perc}%
+                        </tspan>
+                        <tspan
+                          x={viewBox.cx}
+                          y={(viewBox.cy || 0) + 24}
+                          className="fill-muted-foreground"
+                        >
+                          w ataku
+                        </tspan>
+                      </text>
+                    );
+                  }
+                }}
+              />
+            </Pie>
           </PieChart>
         </ChartContainer>
       </CardContent>
