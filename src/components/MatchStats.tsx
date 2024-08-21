@@ -12,7 +12,10 @@ import { api } from "~/trpc/react";
 import { countSetDistribution } from "~/lib/stats";
 
 const chartConfig = {
-  perc: { label: "%", color: "hsl(var(--chart-2))" },
+  perc: { label: "%" },
+  "pos-0": { label: "Przyjmujący", color: "hsl(var(--chart-1))" },
+  "pos-1": { label: "Środkowy", color: "hsl(var(--chart-2))" },
+  "pos-2": { label: "Atakujący", color: "hsl(var(--chart-3))" },
 } satisfies ChartConfig;
 
 export default function MatchStats({
@@ -36,7 +39,10 @@ export default function MatchStats({
       <CardContent className="p-4 pt-0">
         <ChartContainer config={chartConfig}>
           <BarChart
-            data={setDistribution}
+            data={setDistribution.map((data, i) => ({
+              ...data,
+              fill: `var(--color-pos-${i})`,
+            }))}
             margin={{
               top: 20,
             }}
@@ -52,7 +58,7 @@ export default function MatchStats({
               tickMargin={10}
               axisLine={false}
             />
-            <Bar dataKey="distributionPerc" fill="var(--color-perc)" radius={6}>
+            <Bar dataKey="distributionPerc" radius={6}>
               <LabelList
                 position="top"
                 offset={12}
