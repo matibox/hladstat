@@ -12,12 +12,19 @@ import {
 } from "recharts";
 import {
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "~/components/ui/chart";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { api, type RouterOutputs } from "~/trpc/react";
-import { countPointsAndErrors, countSetDistribution } from "~/lib/stats";
+import {
+  countPointsAndErrors,
+  countTeamPointsByPlayer,
+  countSetDistribution,
+} from "~/lib/stats";
+import { colorizeChart } from "~/lib/utils";
 
 type Stats = RouterOutputs["match"]["stats"];
 
@@ -34,6 +41,7 @@ export default function MatchStats({
     <>
       <SetDistributionChart stats={stats} />
       <PointsAndErrorsChart stats={stats} />
+      <Scorers stats={stats} />
     </>
   );
 }
@@ -51,10 +59,7 @@ function SetDistributionChart({ stats }: { stats: Stats }) {
       <CardContent className="p-4 pt-0">
         <ChartContainer config={{ tooltip: { label: "%" } }}>
           <BarChart
-            data={setDistribution.map((data, i) => ({
-              ...data,
-              fill: `hsl(var(--chart-${i + 1}))`,
-            }))}
+            data={colorizeChart(setDistribution)}
             margin={{
               top: 20,
             }}
@@ -91,7 +96,10 @@ function PointsAndErrorsChart({ stats }: { stats: Stats }) {
 
   return (
     <Card className="w-full border-none bg-muted/25">
-      <CardContent className="p-0">
+      <CardHeader className="p-4 pb-0">
+        <CardTitle className="text-xl leading-none">Pkt/Błędy</CardTitle>
+      </CardHeader>
+      <CardContent className="p-4 pt-0">
         <ChartContainer
           config={{}}
           className="mx-auto aspect-square max-h-[250px]"
@@ -143,6 +151,36 @@ function PointsAndErrorsChart({ stats }: { stats: Stats }) {
                 }}
               />
             </Pie>
+          </PieChart>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}
+
+function Scorers({ stats }: { stats: Stats }) {
+  const { chartData: pointsByPlayer, legend } = countTeamPointsByPlayer(stats);
+
+  return (
+    <Card className="w-full border-none bg-muted/25">
+      <CardHeader className="p-4">
+        <CardTitle className="text-xl leading-none">Punkty drużyny</CardTitle>
+      </CardHeader>
+      <CardContent className="flex-1 p-4 pt-0">
+        <ChartContainer
+          config={legend}
+          className="mx-auto aspect-square max-h-[300px]"
+        >
+          <PieChart>
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent nameKey="player" />}
+            />
+            <Pie data={colorizeChart(pointsByPlayer)} dataKey="points" />
+            <ChartLegend
+              content={<ChartLegendContent nameKey="player" />}
+              className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
+            />
           </PieChart>
         </ChartContainer>
       </CardContent>

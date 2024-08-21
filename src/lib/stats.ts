@@ -1,19 +1,20 @@
 import { type StatsCode } from "./constants";
-import { groupBy } from "./utils";
+import { formatPercentage, groupBy } from "./utils";
 
-export function countStat<T extends Array<{ code: StatsCode }>>(
-  arr: T,
-  codes: StatsCode[],
-) {
+type Stat = Array<{ code: StatsCode }>;
+type StatWithPlayer = Array<{
+  player: { name: string; position: string };
+  code: StatsCode;
+}>;
+
+export function countStat<T extends Stat>(arr: T, codes: StatsCode[]) {
   return arr.reduce((sum, stat) => {
     if (codes.includes(stat.code)) return sum + 1;
     return sum;
   }, 0);
 }
 
-export function countSetDistribution<
-  T extends Array<{ player: { position: string }; code: StatsCode }>,
->(stats: T) {
+export function countSetDistribution<T extends StatWithPlayer>(stats: T) {
   const totalAttacks = countStat(stats, ["atk-kill", "atk-def", "atk-err"]);
   const groupedByPos = groupBy(stats, (stat) => stat.player.position);
 
@@ -24,7 +25,7 @@ export function countSetDistribution<
 
       return {
         position,
-        distributionPerc: Math.round(attacksFraction * 100),
+        distributionPerc: formatPercentage(attacksFraction),
       };
     })
     .filter((data) =>
@@ -34,9 +35,7 @@ export function countSetDistribution<
   return data;
 }
 
-export function countPointsAndErrors<T extends Array<{ code: StatsCode }>>(
-  stats: T,
-) {
+export function countPointsAndErrors<T extends Stat>(stats: T) {
   const points = countStat(stats, ["atk-kill", "other-blk", "serve-ace"]);
   const errors = countStat(stats, [
     "atk-err",
@@ -53,4 +52,33 @@ export function countPointsAndErrors<T extends Array<{ code: StatsCode }>>(
     points,
     errors,
   };
+}
+
+export function countTeamPointsByPlayer<T extends StatWithPlayer>(stats: T) {
+  const statsByPlayer = groupBy(stats, (stat) => stat.player.name);
+
+  const data = Object.entries(statsByPlayer)
+    .map(([playerName, stats]) => {
+      const playerPoints = stats.filter((stat) =>
+        ["atk-kill", "other-blk", "serve-ace"].includes(stat.code),
+      ).length;
+
+      return {
+        player: playerName,
+        points: playerPoints,
+      };
+    })
+    .filter((el) => el.points !== 0)
+    .sort((a, b) => b.points - a.points);
+
+  const legend = Object.keys(statsByPlayer).reduce((acc, playerName) => {
+    const [firstName, lastName] = playerName.split(" ") as [string, string];
+
+    return {
+      ...acc,
+      [playerName]: { label: `${firstName[0]}. ${lastName}` },
+    };
+  }, {});
+
+  return { chartData: data, legend };
 }

@@ -25,3 +25,14 @@ export function groupBy<T, K extends string | number>(
     {} as Record<string, T[]>,
   );
 }
+
+export function formatPercentage(num: number) {
+  return Math.round(num * 100);
+}
+
+export function colorizeChart<T extends object>(arr: T[]) {
+  return arr.map((el, i) => ({
+    ...el,
+    fill: `hsl(var(--chart-${(i % 5) + 1}))`,
+  }));
+}
