@@ -23,7 +23,7 @@ export default async function MatchAnalysis({
     <HydrateClient>
       <main className="relative mx-auto flex min-h-[200dvh] w-full max-w-xl flex-col gap-8 pb-4 md:max-w-5xl md:pb-6 lg:gap-12 lg:pb-8">
         <Tabs defaultValue={setArray[0]?.toString()}>
-          <header className="sticky -top-10 left-0 flex flex-col items-center gap-4 border-b bg-background px-4 md:px-6 lg:px-8">
+          <header className="sticky -top-10 left-0 z-50 flex flex-col items-center gap-4 border-b bg-background px-4 md:px-6 lg:px-8">
             <div className="flex items-center gap-4">
               <h1 className="text-4xl font-semibold leading-none">
                 {match.score}

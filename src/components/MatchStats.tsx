@@ -39,9 +39,9 @@ export default function MatchStats({
 
   return (
     <>
+      <Scorers stats={stats} />
       <SetDistributionChart stats={stats} />
       <PointsAndErrorsChart stats={stats} />
-      <Scorers stats={stats} />
     </>
   );
 }
