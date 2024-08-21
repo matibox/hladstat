@@ -47,6 +47,7 @@ export const statsOptions = [
     options: [
       { label: "blok", value: "blk", variant: "default" },
       { label: "obrona", value: "dig", variant: "default" },
+      { label: "błąd", value: "err", variant: "destructive" },
     ],
   },
 ] as const satisfies Array<{

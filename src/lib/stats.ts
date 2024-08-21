@@ -14,8 +14,6 @@ export function countStat<T extends Array<{ code: StatsCode }>>(
 export function countSetDistribution<
   T extends Array<{ player: { position: string }; code: StatsCode }>,
 >(stats: T) {
-  // console.log(stats);
-
   const totalAttacks = countStat(stats, ["atk-kill", "atk-def", "atk-err"]);
   const groupedByPos = groupBy(stats, (stat) => stat.player.position);
 
@@ -34,4 +32,25 @@ export function countSetDistribution<
     );
 
   return data;
+}
+
+export function countPointsAndErrors<T extends Array<{ code: StatsCode }>>(
+  stats: T,
+) {
+  const points = countStat(stats, ["atk-kill", "other-blk", "serve-ace"]);
+  const errors = countStat(stats, [
+    "atk-err",
+    "rec-err",
+    "serve-err",
+    "other-err",
+  ]);
+
+  return {
+    chartData: [
+      { type: "Punkty", value: points },
+      { type: "Błędy", value: errors },
+    ],
+    points,
+    errors,
+  };
 }
