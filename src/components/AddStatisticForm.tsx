@@ -22,6 +22,7 @@ export default function AddStatisticForm({
   const addStats = api.stats.add.useMutation({
     onSuccess: async () => {
       await utils.match.stats.invalidate();
+      await utils.match.playerStats.invalidate();
       setFormOpened(false);
     },
   });
