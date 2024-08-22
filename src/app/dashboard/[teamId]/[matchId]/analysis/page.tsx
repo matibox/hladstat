@@ -3,7 +3,7 @@ import { CalendarIcon, SwordsIcon } from "lucide-react";
 import AddStatisticForm from "~/components/AddStatisticForm";
 import MatchStats from "~/components/MatchStats";
 import { PlayerCard } from "~/components/PlayerCards";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { api, HydrateClient } from "~/trpc/server";
 
 export default async function MatchAnalysis({
@@ -54,29 +54,21 @@ export default async function MatchAnalysis({
           <div className="flex flex-col gap-8 px-4 pt-4 md:px-6 md:pt-6 lg:px-8 lg:pt-8">
             <section className="flex flex-col gap-4">
               <h2 className="text-2xl font-semibold leading-none">Zawodnicy</h2>
-              {setArray.map((setNumber) => (
-                <TabsContent
-                  key={setNumber}
-                  value={setNumber.toString()}
-                  className="mt-0"
-                >
-                  <div className="flex flex-col gap-4">
-                    {players.map((player) => (
-                      <PlayerCard
-                        key={player.id}
+              <div className="flex flex-col gap-4">
+                {players.map((player) => (
+                  <PlayerCard
+                    key={player.id}
+                    player={player}
+                    header={
+                      <AddStatisticForm
+                        set={1}
                         player={player}
-                        header={
-                          <AddStatisticForm
-                            set={setNumber}
-                            player={player}
-                            matchId={matchId}
-                          />
-                        }
+                        matchId={matchId}
                       />
-                    ))}
-                  </div>
-                </TabsContent>
-              ))}
+                    }
+                  />
+                ))}
+              </div>
             </section>
             <section className="flex flex-col gap-4">
               <h2 className="text-2xl font-semibold leading-none">

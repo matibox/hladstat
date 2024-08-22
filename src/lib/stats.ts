@@ -110,3 +110,30 @@ export function countAttackStats<T extends Stats>(stats: T) {
 
   return { chartData: data, legend, perc, efficiency };
 }
+
+export function countReceptionStats<T extends Stats>(stats: T) {
+  const perfect = countStat(stats, ["rec-perf"]);
+  const positive = countStat(stats, ["rec-pos"]);
+  const negative = countStat(stats, ["rec-neg"]);
+  const errors = countStat(stats, ["rec-err"]);
+
+  const sum = perfect + positive + negative + errors;
+  const perfectPerc = formatPercentage(perfect / sum);
+  const positivePerc = formatPercentage(positive / sum);
+
+  const data = [
+    { receptionType: "Perfekcyjne", quantity: perfect },
+    { receptionType: "Pozytywne", quantity: positive },
+    { receptionType: "Negatywne", quantity: negative },
+    { receptionType: "Błędy", quantity: errors },
+  ];
+
+  const legend = data.reduce(
+    (acc, { receptionType }) => {
+      return { ...acc, [receptionType]: { label: receptionType } };
+    },
+    {} as Record<string, { label: string }>,
+  );
+
+  return { chartData: data, legend, perfectPerc, positivePerc };
+}

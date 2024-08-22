@@ -24,6 +24,7 @@ import {
   countTeamPointsByPlayer,
   countSetDistribution,
   countAttackStats,
+  countReceptionStats,
 } from "~/lib/stats";
 import { colorizeChart } from "~/lib/utils";
 
@@ -40,10 +41,11 @@ export default function MatchStats({
 
   return (
     <>
-      <Scorers stats={stats} />
+      <ScorersChart stats={stats} />
       <SetDistributionChart stats={stats} />
       <PointsAndErrorsChart stats={stats} />
-      <AttackStats stats={stats} />
+      <AttackChart stats={stats} />
+      <ReceptionChart stats={stats} />
     </>
   );
 }
@@ -160,7 +162,7 @@ function PointsAndErrorsChart({ stats }: { stats: Stats }) {
   );
 }
 
-function Scorers({ stats }: { stats: Stats }) {
+function ScorersChart({ stats }: { stats: Stats }) {
   const { chartData: pointsByPlayer, legend } = countTeamPointsByPlayer(stats);
 
   return (
@@ -190,7 +192,7 @@ function Scorers({ stats }: { stats: Stats }) {
   );
 }
 
-function AttackStats({ stats }: { stats: Stats }) {
+function AttackChart({ stats }: { stats: Stats }) {
   const { chartData: attackStats, legend, perc } = countAttackStats(stats);
 
   return (
@@ -249,6 +251,86 @@ function AttackStats({ stats }: { stats: Stats }) {
                           className="fill-muted-foreground"
                         >
                           w ataku
+                        </tspan>
+                      </text>
+                    );
+                  }
+                }}
+              />
+            </Pie>
+          </PieChart>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ReceptionChart({ stats }: { stats: Stats }) {
+  const {
+    chartData: receptionStats,
+    legend,
+    perfectPerc,
+    positivePerc,
+  } = countReceptionStats(stats);
+
+  return (
+    <Card className="w-full border-none bg-muted/25">
+      <CardHeader className="p-4">
+        <CardTitle className="text-xl leading-none">Przyjęcie</CardTitle>
+      </CardHeader>
+      <CardContent className="flex-1 p-4 pt-0">
+        <ChartContainer
+          config={legend}
+          className="mx-auto aspect-square max-h-[270px]"
+        >
+          <PieChart>
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent hideLabel />}
+            />
+            <ChartLegend
+              content={<ChartLegendContent nameKey="receptionType" />}
+              className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
+            />
+            <Pie
+              data={receptionStats.map((data, i) => {
+                const { receptionType } = data;
+                let fill = `hsl(var(--chart-${(i % 5) + 1}))`;
+                if (receptionType === "Perfekcyjne")
+                  fill = "hsl(var(--chart-2))";
+                if (receptionType === "Pozytywne") fill = "hsl(var(--chart-1))";
+                if (receptionType === "Negatywne") fill = "hsl(var(--chart-3))";
+                if (receptionType === "Błędy") fill = "hsl(var(--chart-5))";
+                return { ...data, fill };
+              })}
+              dataKey="quantity"
+              nameKey="receptionType"
+              innerRadius={60}
+              strokeWidth={5}
+            >
+              <Label
+                content={({ viewBox }) => {
+                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                    return (
+                      <text
+                        x={viewBox.cx}
+                        y={viewBox.cy}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                      >
+                        <tspan
+                          x={viewBox.cx}
+                          y={viewBox.cy}
+                          className="fill-foreground text-3xl font-bold"
+                        >
+                          {perfectPerc}/{positivePerc}
+                        </tspan>
+                        <tspan
+                          x={viewBox.cx}
+                          y={(viewBox.cy || 0) + 24}
+                          className="fill-muted-foreground"
+                        >
+                          % perf./poz.
                         </tspan>
                       </text>
                     );
