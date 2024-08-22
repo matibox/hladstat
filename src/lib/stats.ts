@@ -137,3 +137,27 @@ export function countReceptionStats<T extends Stats>(stats: T) {
 
   return { chartData: data, legend, perfectPerc, positivePerc };
 }
+
+export function countServeStats<T extends Stats>(stats: T) {
+  const ace = countStat(stats, ["serve-ace"]);
+  const positive = countStat(stats, ["serve-pos"]);
+  const errors = countStat(stats, ["serve-err"]);
+
+  const sum = ace + positive + errors;
+  const acePerc = formatPercentage(ace / sum);
+
+  const data = [
+    { serveType: "As", quantity: ace },
+    { serveType: "Pozytywny", quantity: positive },
+    { serveType: "Błędy", quantity: errors },
+  ];
+
+  const legend = data.reduce(
+    (acc, { serveType }) => {
+      return { ...acc, [serveType]: { label: serveType } };
+    },
+    {} as Record<string, { label: string }>,
+  );
+
+  return { chartData: data, legend, acePerc };
+}

@@ -25,6 +25,7 @@ import {
   countSetDistribution,
   countAttackStats,
   countReceptionStats,
+  countServeStats,
 } from "~/lib/stats";
 import { colorizeChart } from "~/lib/utils";
 
@@ -46,6 +47,7 @@ export default function MatchStats({
       <PointsAndErrorsChart stats={stats} />
       <AttackChart stats={stats} />
       <ReceptionChart stats={stats} />
+      <ServeChart stats={stats} />
     </>
   );
 }
@@ -331,6 +333,79 @@ function ReceptionChart({ stats }: { stats: Stats }) {
                           className="fill-muted-foreground"
                         >
                           % perf./poz.
+                        </tspan>
+                      </text>
+                    );
+                  }
+                }}
+              />
+            </Pie>
+          </PieChart>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ServeChart({ stats }: { stats: Stats }) {
+  const { chartData: receptionStats, legend, acePerc } = countServeStats(stats);
+
+  return (
+    <Card className="w-full border-none bg-muted/25">
+      <CardHeader className="p-4">
+        <CardTitle className="text-xl leading-none">Zagrywka</CardTitle>
+      </CardHeader>
+      <CardContent className="flex-1 p-4 pt-0">
+        <ChartContainer
+          config={legend}
+          className="mx-auto aspect-square max-h-[270px]"
+        >
+          <PieChart>
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent hideLabel />}
+            />
+            <ChartLegend
+              content={<ChartLegendContent nameKey="serveType" />}
+              className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
+            />
+            <Pie
+              data={receptionStats.map((data, i) => {
+                const { serveType } = data;
+                let fill = `hsl(var(--chart-${(i % 5) + 1}))`;
+                if (serveType === "As") fill = "hsl(var(--chart-2))";
+                if (serveType === "Pozytywny") fill = "hsl(var(--chart-1))";
+                if (serveType === "Błędy") fill = "hsl(var(--chart-5))";
+                return { ...data, fill };
+              })}
+              dataKey="quantity"
+              nameKey="serveType"
+              innerRadius={60}
+              strokeWidth={5}
+            >
+              <Label
+                content={({ viewBox }) => {
+                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                    return (
+                      <text
+                        x={viewBox.cx}
+                        y={viewBox.cy}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                      >
+                        <tspan
+                          x={viewBox.cx}
+                          y={viewBox.cy}
+                          className="fill-foreground text-3xl font-bold"
+                        >
+                          {acePerc}%
+                        </tspan>
+                        <tspan
+                          x={viewBox.cx}
+                          y={(viewBox.cy || 0) + 24}
+                          className="fill-muted-foreground"
+                        >
+                          asów
                         </tspan>
                       </text>
                     );
