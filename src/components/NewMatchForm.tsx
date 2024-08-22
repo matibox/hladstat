@@ -67,7 +67,7 @@ export default function NewMatchForm({ teamId }: { teamId: number }) {
   const createMatch = api.match.create.useMutation({
     onSuccess: ({ matchId }) => {
       form.reset();
-      router.push(`/dashboard/${teamId}/${matchId}/analysis`);
+      router.push(`/dashboard/${teamId}/${matchId}`);
     },
   });
 
