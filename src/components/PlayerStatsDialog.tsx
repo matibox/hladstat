@@ -42,12 +42,13 @@ export default function PlayerStatsDialog({
         <Button
           size="icon"
           variant="secondary"
-          className="ml-auto mr-4"
-          aria-label="Zobacz statystyki"
+          className="ml-auto mr-3"
+          aria-label="Statystyki gracza"
         >
           <ClipboardListIcon className="h-5 w-5" />
         </Button>
       }
+      tooltip="Statystyki gracza"
       title={`Statystyki gracza - ${set} set`}
       description={`${firstName} ${lastName}, ${position}${shirtNumber ? `, nr ${shirtNumber}` : ""}`}
       className="sm:max-w-[700px] lg:max-w-[1000px]"

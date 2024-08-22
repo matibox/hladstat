@@ -17,6 +17,12 @@ import {
   DrawerTrigger,
 } from "./drawer";
 import { cn } from "~/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./tooltip";
 
 export default function ResponsiveDialog({
   open,
@@ -25,6 +31,7 @@ export default function ResponsiveDialog({
   description,
   trigger,
   children,
+  tooltip,
   className,
 }: {
   open: boolean;
@@ -33,6 +40,7 @@ export default function ResponsiveDialog({
   description?: string;
   trigger: ReactNode;
   children: ReactNode;
+  tooltip?: string;
   className?: string;
 }) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -40,7 +48,14 @@ export default function ResponsiveDialog({
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogTrigger asChild>{trigger}</DialogTrigger>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <DialogTrigger asChild>{trigger}</DialogTrigger>
+            </TooltipTrigger>
+            <TooltipContent hidden={!tooltip}>{tooltip}</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         <DialogContent className={cn("sm:max-w-[425px]", className)}>
           <DialogHeader>
             {title ? <DialogTitle>{title}</DialogTitle> : null}
@@ -56,7 +71,14 @@ export default function ResponsiveDialog({
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerTrigger asChild>{trigger}</DrawerTrigger>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DrawerTrigger asChild>{trigger}</DrawerTrigger>
+          </TooltipTrigger>
+          <TooltipContent hidden={!tooltip}>{tooltip}</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       <DrawerContent>
         <DrawerHeader className="text-slate-50 sm:text-center">
           <DrawerTitle>{title}</DrawerTitle>

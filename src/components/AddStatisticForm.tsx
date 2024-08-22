@@ -44,6 +44,7 @@ export default function AddStatisticForm({
           <ClipboardPlusIcon className="h-5 w-5" />
         </Button>
       }
+      tooltip="Dodaj statystykę"
       title={`Dodaj statystykę - ${set} set`}
       description={`${firstName} ${lastName}, ${position}${shirtNumber ? `, nr ${shirtNumber}` : ""}`}
     >
