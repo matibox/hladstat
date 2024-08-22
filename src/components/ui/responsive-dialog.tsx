@@ -16,6 +16,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "./drawer";
+import { cn } from "~/lib/utils";
 
 export default function ResponsiveDialog({
   open,
@@ -24,6 +25,7 @@ export default function ResponsiveDialog({
   description,
   trigger,
   children,
+  className,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -31,6 +33,7 @@ export default function ResponsiveDialog({
   description?: string;
   trigger: ReactNode;
   children: ReactNode;
+  className?: string;
 }) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -38,7 +41,7 @@ export default function ResponsiveDialog({
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogTrigger asChild>{trigger}</DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className={cn("sm:max-w-[425px]", className)}>
           <DialogHeader>
             {title ? <DialogTitle>{title}</DialogTitle> : null}
             {description ? (

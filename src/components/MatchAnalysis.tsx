@@ -7,7 +7,15 @@ import { CalendarIcon, SwordsIcon } from "lucide-react";
 import dayjs from "dayjs";
 import { PlayerCard } from "./PlayerCards";
 import AddStatisticForm from "./AddStatisticForm";
-import MatchStats from "./MatchStats";
+import {
+  AttackChart,
+  PointsAndErrorsChart,
+  ReceptionChart,
+  ScorersChart,
+  ServeChart,
+  SetDistributionChart,
+} from "./StatsCharts";
+import PlayerStatsDialog from "./PlayerStatsDialog";
 
 export default function MatchAnalysis({
   teamId,
@@ -20,8 +28,10 @@ export default function MatchAnalysis({
 
   const [match] = api.match.byId.useSuspenseQuery({ matchId });
   const [players] = api.team.players.useSuspenseQuery({ teamId });
+  const [stats] = api.match.stats.useSuspenseQuery({ teamId, matchId });
 
   const setArray = [...new Array(match.numberOfSets).keys()].map((n) => n + 1);
+  const statsBySet = stats.filter((stat) => stat.set === parseInt(set));
 
   return (
     <Tabs value={set} onValueChange={setSet}>
@@ -60,21 +70,32 @@ export default function MatchAnalysis({
                 key={player.id}
                 player={player}
                 header={
-                  <AddStatisticForm
-                    set={parseInt(set)}
-                    player={player}
-                    matchId={matchId}
-                  />
+                  <>
+                    <PlayerStatsDialog
+                      set={parseInt(set)}
+                      player={player}
+                      matchId={matchId}
+                      teamId={teamId}
+                    />
+                    <AddStatisticForm
+                      set={parseInt(set)}
+                      player={player}
+                      matchId={matchId}
+                    />
+                  </>
                 }
               />
             ))}
           </div>
         </section>
         <section className="flex flex-col gap-4">
-          <h2 className="text-2xl font-semibold leading-none">
-            Statystyki live
-          </h2>
-          <MatchStats matchId={matchId} teamId={teamId} set={parseInt(set)} />
+          <h2 className="text-2xl font-semibold leading-none">Statystyki</h2>
+          <ScorersChart stats={statsBySet} />
+          <SetDistributionChart stats={statsBySet} />
+          <PointsAndErrorsChart stats={statsBySet} />
+          <AttackChart stats={statsBySet} />
+          <ReceptionChart stats={statsBySet} />
+          <ServeChart stats={statsBySet} />
         </section>
       </div>
     </Tabs>

@@ -18,7 +18,7 @@ import {
   ChartTooltipContent,
 } from "~/components/ui/chart";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { api, type RouterOutputs } from "~/trpc/react";
+import { type RouterOutputs } from "~/trpc/react";
 import {
   countPointsAndErrors,
   countTeamPointsByPlayer,
@@ -31,32 +31,7 @@ import { colorizeChart } from "~/lib/utils";
 
 type Stats = RouterOutputs["match"]["stats"];
 
-export default function MatchStats({
-  matchId,
-  teamId,
-  set,
-}: {
-  matchId: number;
-  teamId: number;
-  set: number;
-}) {
-  const [stats] = api.match.stats.useSuspenseQuery({ teamId, matchId });
-
-  const statsBySet = stats.filter((stat) => stat.set === set);
-
-  return (
-    <>
-      <ScorersChart stats={statsBySet} />
-      <SetDistributionChart stats={statsBySet} />
-      <PointsAndErrorsChart stats={statsBySet} />
-      <AttackChart stats={statsBySet} />
-      <ReceptionChart stats={statsBySet} />
-      <ServeChart stats={statsBySet} />
-    </>
-  );
-}
-
-function SetDistributionChart({ stats }: { stats: Stats }) {
+export function SetDistributionChart({ stats }: { stats: Stats }) {
   const setDistribution = countSetDistribution(stats);
 
   return (
@@ -105,7 +80,7 @@ function SetDistributionChart({ stats }: { stats: Stats }) {
   );
 }
 
-function PointsAndErrorsChart({ stats }: { stats: Stats }) {
+export function PointsAndErrorsChart({ stats }: { stats: Stats }) {
   const {
     points,
     errors,
@@ -180,7 +155,7 @@ function PointsAndErrorsChart({ stats }: { stats: Stats }) {
   );
 }
 
-function ScorersChart({ stats }: { stats: Stats }) {
+export function ScorersChart({ stats }: { stats: Stats }) {
   const { chartData: pointsByPlayer, legend } = countTeamPointsByPlayer(stats);
 
   return (
@@ -214,7 +189,7 @@ function ScorersChart({ stats }: { stats: Stats }) {
   );
 }
 
-function AttackChart({ stats }: { stats: Stats }) {
+export function AttackChart({ stats }: { stats: Stats }) {
   const { chartData: attackStats, legend, perc } = countAttackStats(stats);
 
   return (
@@ -291,7 +266,7 @@ function AttackChart({ stats }: { stats: Stats }) {
   );
 }
 
-function ReceptionChart({ stats }: { stats: Stats }) {
+export function ReceptionChart({ stats }: { stats: Stats }) {
   const {
     chartData: receptionStats,
     legend,
@@ -377,7 +352,7 @@ function ReceptionChart({ stats }: { stats: Stats }) {
   );
 }
 
-function ServeChart({ stats }: { stats: Stats }) {
+export function ServeChart({ stats }: { stats: Stats }) {
   const { chartData: serveStats, legend, acePerc } = countServeStats(stats);
 
   return (

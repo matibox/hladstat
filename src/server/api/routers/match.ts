@@ -84,4 +84,45 @@ export const matchRouter = createTRPCRouter({
 
       return stats!;
     }),
+  playerStats: protectedProcedure
+    .input(
+      z.object({
+        matchId: z.number(),
+        teamId: z.number(),
+        playerId: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { matchId, playerId, teamId } = input;
+
+      const selectedStats = await ctx.db.query.stats.findMany({
+        where: (stats, { eq, and }) =>
+          and(eq(stats.playerId, playerId), eq(stats.matchId, matchId)),
+        columns: { id: true, code: true, set: true },
+        with: {
+          player: {
+            columns: { id: true, firstName: true, lastName: true },
+            with: {
+              teams: {
+                where: (usersToTeams, { eq }) =>
+                  eq(usersToTeams.teamId, teamId),
+                columns: { position: true },
+              },
+            },
+          },
+        },
+      });
+
+      const stats = selectedStats.map(({ player, ...stat }) => {
+        return {
+          ...stat,
+          player: {
+            name: `${player.firstName} ${player.lastName}`,
+            position: player.teams[0]!.position,
+          },
+        };
+      });
+
+      return stats;
+    }),
 });
