@@ -46,8 +46,8 @@ export function countPointsAndErrors<T extends Stats>(stats: T) {
 
   return {
     chartData: [
-      { type: "Punkty", value: points },
-      { type: "Błędy", value: errors },
+      { type: "Punkty", quantity: points },
+      { type: "Błędy", quantity: errors },
     ],
     points,
     errors,

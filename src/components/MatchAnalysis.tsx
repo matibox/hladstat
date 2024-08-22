@@ -74,7 +74,7 @@ export default function MatchAnalysis({
           <h2 className="text-2xl font-semibold leading-none">
             Statystyki live
           </h2>
-          <MatchStats matchId={matchId} teamId={teamId} />
+          <MatchStats matchId={matchId} teamId={teamId} set={parseInt(set)} />
         </section>
       </div>
     </Tabs>
