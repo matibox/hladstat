@@ -358,7 +358,7 @@ function ServeChart({ stats }: { stats: Stats }) {
       <CardContent className="flex-1 p-4 pt-0">
         <ChartContainer
           config={legend}
-          className="mx-auto aspect-square max-h-[270px]"
+          className="mx-auto aspect-square max-h-[250px]"
         >
           <PieChart>
             <ChartTooltip
