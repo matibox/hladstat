@@ -6,7 +6,7 @@ import {
   ChartNoAxesCombinedIcon,
   SwordsIcon,
 } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 import { Card, CardHeader, CardTitle } from "./ui/card";
 import dayjs from "dayjs";
 import {
@@ -16,6 +16,8 @@ import {
   TooltipTrigger,
 } from "./ui/tooltip";
 import { api, type RouterOutputs } from "~/trpc/react";
+import Link from "next/link";
+import { cn } from "~/lib/utils";
 
 export default function MatchCards({ teamId }: { teamId: number }) {
   const [matches] = api.team.recentMatches.useSuspenseQuery({ teamId });
@@ -23,7 +25,7 @@ export default function MatchCards({ teamId }: { teamId: number }) {
   return (
     <div className="flex flex-col gap-4">
       {matches.map((match) => (
-        <MatchCard key={match.id} match={match} />
+        <MatchCard key={match.id} match={match} teamId={teamId} />
       ))}
       {matches.length === 0 ? (
         <p className="text-center text-muted-foreground">
@@ -41,8 +43,10 @@ export default function MatchCards({ teamId }: { teamId: number }) {
 
 function MatchCard({
   match,
+  teamId,
 }: {
   match: RouterOutputs["team"]["recentMatches"][number];
+  teamId: number;
 }) {
   return (
     <Card className="w-full border-none bg-muted/25">
@@ -64,17 +68,19 @@ function MatchCard({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                size="icon"
-                variant="secondary"
-                className="ml-auto"
-                aria-label="Ekran meczu"
+              <Link
+                href={`/dashboard/${teamId}/${match.id}`}
+                className={cn(
+                  buttonVariants({ size: "icon", variant: "secondary" }),
+                  "ml-auto",
+                )}
+                aria-label="Analiza meczu"
               >
                 <ChartNoAxesCombinedIcon className="h-5 w-5" />
-              </Button>
+              </Link>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Ekran meczu</p>
+              <p>Analiza meczu</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
