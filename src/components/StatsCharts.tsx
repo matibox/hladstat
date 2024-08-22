@@ -85,6 +85,7 @@ export function PointsAndErrorsChart({ stats }: { stats: Stats }) {
     points,
     errors,
     chartData: pointsAndErrors,
+    legend,
   } = countPointsAndErrors(stats);
 
   return (
@@ -97,7 +98,7 @@ export function PointsAndErrorsChart({ stats }: { stats: Stats }) {
           <p className="text-center text-muted-foreground">Brak danych.</p>
         ) : (
           <ChartContainer
-            config={{}}
+            config={legend}
             className="mx-auto aspect-square max-h-[250px]"
           >
             <PieChart>
@@ -105,15 +106,19 @@ export function PointsAndErrorsChart({ stats }: { stats: Stats }) {
                 cursor={false}
                 content={<ChartTooltipContent hideLabel />}
               />
+              <ChartLegend
+                content={<ChartLegendContent nameKey="statType" />}
+                className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
+              />
               <Pie
                 data={pointsAndErrors.map((data, i) => {
                   let fill = `hsl(var(--chart-${(i % 5) + 1}))`;
-                  if (data.type === "Punkty") fill = "hsl(var(--chart-2))";
-                  if (data.type === "Błędy") fill = "hsl(var(--chart-5))";
+                  if (data.statType === "Punkty") fill = "hsl(var(--chart-2))";
+                  if (data.statType === "Błędy") fill = "hsl(var(--chart-5))";
                   return { ...data, fill };
                 })}
                 dataKey="quantity"
-                nameKey="type"
+                nameKey="statType"
                 innerRadius={60}
                 strokeWidth={5}
               >
@@ -161,7 +166,7 @@ export function ScorersChart({ stats }: { stats: Stats }) {
   return (
     <Card className="w-full border-none bg-muted/25">
       <CardHeader className="p-4">
-        <CardTitle className="text-xl leading-none">Punkty drużyny</CardTitle>
+        <CardTitle className="text-xl leading-none">Punkty</CardTitle>
       </CardHeader>
       <CardContent className="flex-1 p-4 pt-0">
         {pointsByPlayer.length === 0 ? (

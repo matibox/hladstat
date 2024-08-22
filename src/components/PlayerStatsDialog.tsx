@@ -54,7 +54,9 @@ export default function PlayerStatsDialog({
     >
       <ScrollArea className="h-[75dvh]">
         <div className="flex flex-col gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3">
-          {isPending && <Loader2Icon className="mx-auto animate-spin" />}
+          {isPending && (
+            <Loader2Icon className="mx-auto animate-spin md:col-span-2 lg:col-span-3" />
+          )}
           {statsBySet && (
             <>
               <AttackChart stats={statsBySet} />

@@ -89,7 +89,9 @@ export default function MatchAnalysis({
           </div>
         </section>
         <section className="flex flex-col gap-4">
-          <h2 className="text-2xl font-semibold leading-none">Statystyki</h2>
+          <h2 className="text-2xl font-semibold leading-none">
+            Statystyki drużyny
+          </h2>
           <ScorersChart stats={statsBySet} />
           <SetDistributionChart stats={statsBySet} />
           <PointsAndErrorsChart stats={statsBySet} />

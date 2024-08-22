@@ -44,11 +44,21 @@ export function countPointsAndErrors<T extends Stats>(stats: T) {
     "other-err",
   ]);
 
+  const data = [
+    { statType: "Punkty", quantity: points },
+    { statType: "Błędy", quantity: errors },
+  ];
+
+  const legend = data.reduce(
+    (acc, { statType }) => {
+      return { ...acc, [statType]: { label: statType } };
+    },
+    {} as Record<string, { label: string }>,
+  );
+
   return {
-    chartData: [
-      { type: "Punkty", quantity: points },
-      { type: "Błędy", quantity: errors },
-    ],
+    chartData: data,
+    legend,
     points,
     errors,
   };
@@ -119,7 +129,7 @@ export function countReceptionStats<T extends Stats>(stats: T) {
 
   const sum = perfect + positive + negative + errors;
   const perfectPerc = formatPercentage(perfect / sum);
-  const positivePerc = formatPercentage(positive / sum);
+  const positivePerc = formatPercentage((perfect + positive) / sum);
 
   const data = [
     { receptionType: "Perfekcyjne", quantity: perfect },
