@@ -130,7 +130,7 @@ export const teamRouter = createTRPCRouter({
         limit: 4,
       });
     }),
-  allMatches: protectedProcedure
+  allMatchesWithStats: protectedProcedure
     .input(z.object({ teamId: z.number() }))
     .query(async ({ ctx, input }) => {
       const { teamId } = input;
@@ -139,6 +139,7 @@ export const teamRouter = createTRPCRouter({
         columns: { id: true, date: true, opponent: true, score: true },
         where: (matches, { eq }) => eq(matches.teamId, teamId),
         orderBy: (matches, { desc }) => desc(matches.date),
+        with: { stats: { columns: { id: true, code: true } } },
       });
     }),
 });

@@ -27,7 +27,8 @@ export function groupBy<T, K extends string | number>(
 }
 
 export function formatPercentage(num: number) {
-  return Math.round(num * 100);
+  const formatted = Math.round(num * 100);
+  return isNaN(formatted) ? 0 : formatted;
 }
 
 export function colorizeChart<T extends object>(arr: T[]) {
