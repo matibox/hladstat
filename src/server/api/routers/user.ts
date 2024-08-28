@@ -44,4 +44,16 @@ export const userRouter = createTRPCRouter({
         )
         .leftJoin(usersToTeams, eq(users.id, usersToTeams.userId));
     }),
+  isInTeam: protectedProcedure
+    .input(z.object({ teamId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const { teamId } = input;
+
+      const foundTeam = await ctx.db.query.usersToTeams.findFirst({
+        columns: { teamId: true },
+        where: (usersToTeams, { eq }) => eq(usersToTeams.teamId, teamId),
+      });
+
+      return { isInTeam: !!foundTeam };
+    }),
 });
