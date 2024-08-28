@@ -1,9 +1,7 @@
-import { redirect } from "next/navigation";
 import AddPlayerForm from "~/components/AddPlayerForm";
 import MatchCards from "~/components/MatchCards";
 import NewMatchForm from "~/components/NewMatchForm";
 import TeamPlayers from "~/components/PlayerCards";
-import { getServerAuthSession } from "~/server/auth";
 import { api, HydrateClient } from "~/trpc/server";
 
 export default async function Team({
@@ -11,10 +9,6 @@ export default async function Team({
 }: {
   params: { teamId: string };
 }) {
-  const session = await getServerAuthSession();
-
-  if (!session) return redirect("/");
-
   await api.team.players.prefetch({ teamId: parseInt(teamId) });
   await api.team.recentMatches.prefetch({ teamId: parseInt(teamId) });
 

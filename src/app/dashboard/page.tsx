@@ -1,14 +1,8 @@
-import { redirect } from "next/navigation";
 import NewTeamForm from "~/components/NewTeamForm";
 import Teams from "~/components/Teams";
-import { getServerAuthSession } from "~/server/auth";
 import { api, HydrateClient } from "~/trpc/server";
 
 export default async function Dashboard() {
-  const session = await getServerAuthSession();
-
-  if (!session) return redirect("/");
-
   void api.team.listMemberOf.prefetch();
 
   return (
