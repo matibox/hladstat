@@ -6,7 +6,7 @@ import {
   ChartNoAxesCombinedIcon,
   SwordsIcon,
 } from "lucide-react";
-import { Button, buttonVariants } from "./ui/button";
+import { buttonVariants } from "./ui/button";
 import { Card, CardHeader, CardTitle } from "./ui/card";
 import dayjs from "dayjs";
 import {
@@ -32,10 +32,16 @@ export default function MatchCards({ teamId }: { teamId: number }) {
           Brak ostatnich meczów.
         </p>
       ) : (
-        <Button className="self-end" size="sm" variant="secondary">
+        <Link
+          href={`/dashboard/${teamId}/matches`}
+          className={cn(
+            buttonVariants({ size: "sm", variant: "secondary" }),
+            "self-end",
+          )}
+        >
           <span>Wszystkie mecze</span>
           <ArrowRightIcon className="ml-1 h-4 w-4" />
-        </Button>
+        </Link>
       )}
     </div>
   );
