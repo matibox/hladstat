@@ -124,10 +124,21 @@ export const teamRouter = createTRPCRouter({
       const { teamId } = input;
 
       return await ctx.db.query.matches.findMany({
-        columns: { teamId: false },
+        columns: { id: true, date: true, opponent: true, score: true },
         where: (matches, { eq }) => eq(matches.teamId, teamId),
         orderBy: (matches, { desc }) => desc(matches.date),
         limit: 4,
+      });
+    }),
+  allMatches: protectedProcedure
+    .input(z.object({ teamId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const { teamId } = input;
+
+      return await ctx.db.query.matches.findMany({
+        columns: { id: true, date: true, opponent: true, score: true },
+        where: (matches, { eq }) => eq(matches.teamId, teamId),
+        orderBy: (matches, { desc }) => desc(matches.date),
       });
     }),
 });

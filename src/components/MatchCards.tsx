@@ -47,12 +47,14 @@ export default function MatchCards({ teamId }: { teamId: number }) {
   );
 }
 
-function MatchCard({
+export function MatchCard({
   match,
   teamId,
+  children,
 }: {
   match: RouterOutputs["team"]["recentMatches"][number];
   teamId: number;
+  children?: React.ReactNode;
 }) {
   return (
     <Card className="w-full border-none bg-muted/25">
@@ -91,6 +93,7 @@ function MatchCard({
           </Tooltip>
         </TooltipProvider>
       </CardHeader>
+      {children}
       {/* <CardContent className="p-4 pt-0">
         <div className="flex flex-col gap-0.5 text-sm">
           <p>{match.teamStats.attackPerc}% w ataku</p>
