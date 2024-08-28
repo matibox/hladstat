@@ -41,7 +41,7 @@ export default function AddStatisticForm({
       open={formOpened}
       onOpenChange={setFormOpened}
       trigger={
-        <Button size="icon" aria-label="Dodaj statystykę">
+        <Button size="icon" aria-label="Dodaj statystykę" className="ml-3">
           <ClipboardPlusIcon className="h-5 w-5" />
         </Button>
       }

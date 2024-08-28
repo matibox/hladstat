@@ -20,6 +20,8 @@ import Link from "next/link";
 import { cn } from "~/lib/utils";
 import { buttonVariants } from "./ui/button";
 
+export type SetID = "1" | "2" | "3" | "4" | "5" | "Ogółem";
+
 export default function MatchAnalysis({
   teamId,
   matchId,
@@ -27,17 +29,24 @@ export default function MatchAnalysis({
   teamId: number;
   matchId: number;
 }) {
-  const [set, setSet] = useState("1");
+  const [set, setSet] = useState<SetID>("1");
 
   const [match] = api.match.byId.useSuspenseQuery({ matchId });
   const [players] = api.team.players.useSuspenseQuery({ teamId });
   const [stats] = api.match.stats.useSuspenseQuery({ teamId, matchId });
 
-  const setArray = [...new Array(match.numberOfSets).keys()].map((n) => n + 1);
-  const statsBySet = stats.filter((stat) => stat.set === parseInt(set));
+  const setArray = [
+    ...[...new Array(match.numberOfSets).keys()].map((n) => n + 1),
+    "Ogółem",
+  ] as Array<SetID>;
+
+  const statsBySet = stats.filter((stat) => {
+    if (set === "Ogółem") return true;
+    return stat.set === parseInt(set);
+  });
 
   return (
-    <Tabs value={set} onValueChange={setSet}>
+    <Tabs value={set} onValueChange={(set) => setSet(set as SetID)}>
       <header className="sticky -top-10 left-0 z-50 flex flex-col items-center gap-4 border-b bg-background px-4 sm:top-0 sm:flex-row sm:justify-between sm:px-4 sm:py-4 md:mx-6 md:justify-start md:px-0 lg:mx-8 lg:gap-16">
         <div className="flex items-center gap-4">
           <h1 className="text-4xl font-semibold leading-none">{match.score}</h1>
@@ -56,9 +65,9 @@ export default function MatchAnalysis({
         <div className="sticky left-0 top-0 flex items-center gap-4 pb-4 sm:pb-0 md:mx-auto">
           {/* <span className="text-muted-foreground">Set</span> */}
           <TabsList>
-            {setArray.map((setNumber) => (
-              <TabsTrigger key={setNumber} value={setNumber.toString()}>
-                {setNumber} set
+            {setArray.map((set) => (
+              <TabsTrigger key={set} value={set.toString()}>
+                {set} {set !== "Ogółem" && "set"}
               </TabsTrigger>
             ))}
           </TabsList>
@@ -90,16 +99,18 @@ export default function MatchAnalysis({
                 header={
                   <>
                     <PlayerStatsDialog
-                      set={parseInt(set)}
+                      set={set}
                       player={player}
                       matchId={matchId}
                       teamId={teamId}
                     />
-                    <AddStatisticForm
-                      set={parseInt(set)}
-                      player={player}
-                      matchId={matchId}
-                    />
+                    {set !== "Ogółem" && (
+                      <AddStatisticForm
+                        set={parseInt(set)}
+                        player={player}
+                        matchId={matchId}
+                      />
+                    )}
                   </>
                 }
               />

@@ -14,6 +14,7 @@ import {
 import { ScrollArea } from "./ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { countStat } from "~/lib/stats";
+import { type SetID } from "./MatchAnalysis";
 
 export default function PlayerStatsDialog({
   matchId,
@@ -23,7 +24,7 @@ export default function PlayerStatsDialog({
 }: {
   matchId: number;
   teamId: number;
-  set: number;
+  set: SetID;
   player: RouterOutputs["team"]["players"][number];
 }) {
   const [formOpened, setFormOpened] = useState(false);
@@ -32,7 +33,11 @@ export default function PlayerStatsDialog({
     { matchId, playerId, teamId },
     { enabled: formOpened },
   );
-  const statsBySet = stats?.filter((stat) => stat.set === set);
+
+  const statsBySet = stats?.filter((stat) => {
+    if (set === "Ogółem") return true;
+    return stat.set === parseInt(set);
+  });
 
   return (
     <ResponsiveDialog
@@ -42,7 +47,7 @@ export default function PlayerStatsDialog({
         <Button
           size="icon"
           variant="secondary"
-          className="ml-auto mr-3"
+          className="ml-auto"
           aria-label="Statystyki gracza"
         >
           <ClipboardListIcon className="h-5 w-5" />
