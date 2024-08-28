@@ -30,23 +30,17 @@ export const teamRouter = createTRPCRouter({
       });
     }),
   listMemberOf: protectedProcedure.query(async ({ ctx }) => {
-    const selectedTeams = await ctx.db.query.teams.findMany({
-      columns: {
-        id: true,
-        name: true,
-        profilePicture: true,
-      },
+    const userId = ctx.session.user.id;
+    const selectedUsersToTeams = await ctx.db.query.usersToTeams.findMany({
+      columns: { teamId: true },
+      where: (usersToTeams, { eq }) => eq(usersToTeams.userId, userId),
       with: {
-        users: {
-          columns: { role: true },
-          where: (usersToTeams, { eq }) =>
-            eq(usersToTeams.userId, ctx.session.user.id),
-        },
+        team: { columns: { id: true, name: true, profilePicture: true } },
       },
     });
 
     return await Promise.all(
-      selectedTeams.map(async (team) => {
+      selectedUsersToTeams.map(async ({ team }) => {
         const [selectedTeam] = await ctx.db
           .select({ playerCount: count() })
           .from(users)
