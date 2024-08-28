@@ -23,6 +23,9 @@ export default async function AllMatchesPage({
       <main className="mx-auto flex w-full max-w-xl flex-col items-start gap-4 px-4 pb-4 md:max-w-7xl md:px-6 md:pb-6 lg:px-8 lg:pb-8">
         <NewMatchForm teamId={teamId} />
         <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
+          {matches.length === 0 && (
+            <p className="text-muted-foreground">Brak meczów.</p>
+          )}
           {matches.map(({ stats, ...match }) => {
             const { points, errors } = countPointsAndErrors(stats);
             const { perc: atkPerc } = countAttackStats(stats);
