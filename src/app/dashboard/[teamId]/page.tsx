@@ -1,7 +1,9 @@
+import { ShirtIcon } from "lucide-react";
 import AddPlayerForm from "~/components/AddPlayerForm";
 import MatchCards from "~/components/MatchCards";
 import NewMatchForm from "~/components/NewMatchForm";
-import TeamPlayers from "~/components/PlayerCards";
+import PlayerCard from "~/components/PlayerCards";
+import PlayerStatsDialog from "~/components/PlayerStatsDialog";
 import {
   AttackChart,
   ReceptionChart,
@@ -20,8 +22,9 @@ export default async function Team({
 }) {
   const teamId = parseInt(_teamId);
 
-  await api.team.players.prefetch({ teamId: teamId });
   await api.team.recentMatches.prefetch({ teamId: teamId });
+
+  const players = await api.team.players({ teamId: teamId });
   const stats = await api.team.stats({ teamId: teamId });
 
   const { points, errors } = countPointsAndErrors(stats);
@@ -43,7 +46,29 @@ export default async function Team({
             <h2 className="text-2xl font-semibold">Zawodnicy</h2>
             <AddPlayerForm teamId={teamId} />
           </div>
-          <TeamPlayers teamId={teamId} />
+          <div className="flex flex-col gap-4">
+            {players.map((player) => (
+              <PlayerCard
+                key={player.id}
+                player={player}
+                header={
+                  <div className="flex items-center gap-4">
+                    <PlayerStatsDialog
+                      player={player}
+                      set="Ogółem"
+                      teamId={teamId}
+                    />
+                    <div className="relative hidden sm:block">
+                      <ShirtIcon className="h-12 w-12 fill-current" />
+                      <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-lg font-bold text-primary-foreground">
+                        {player.shirtNumber ?? "?"}
+                      </span>
+                    </div>
+                  </div>
+                }
+              />
+            ))}
+          </div>
         </section>
         {/* stats */}
         <section className="flex w-full flex-col gap-4 md:col-span-2">

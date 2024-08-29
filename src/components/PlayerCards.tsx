@@ -1,33 +1,9 @@
 "use client";
 
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { ShirtIcon } from "lucide-react";
-import { api, type RouterOutputs } from "~/trpc/react";
+import { type RouterOutputs } from "~/trpc/react";
 
-export default function TeamPlayers({ teamId }: { teamId: number }) {
-  const [players] = api.team.players.useSuspenseQuery({ teamId });
-
-  return (
-    <div className="flex flex-col gap-4">
-      {players.map((player) => (
-        <PlayerCard
-          key={player.id}
-          player={player}
-          header={
-            <div className="relative">
-              <ShirtIcon className="h-12 w-12 fill-current" />
-              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-lg font-bold text-primary-foreground">
-                {player.shirtNumber ?? "?"}
-              </span>
-            </div>
-          }
-        />
-      ))}
-    </div>
-  );
-}
-
-export function PlayerCard({
+export default function PlayerCard({
   player: { firstName, lastName, position },
   header,
   children,

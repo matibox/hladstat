@@ -87,7 +87,7 @@ export const matchRouter = createTRPCRouter({
   playerStats: protectedProcedure
     .input(
       z.object({
-        matchId: z.number(),
+        matchId: z.number().optional(),
         teamId: z.number(),
         playerId: z.string(),
       }),
@@ -97,7 +97,9 @@ export const matchRouter = createTRPCRouter({
 
       const selectedStats = await ctx.db.query.stats.findMany({
         where: (stats, { eq, and }) =>
-          and(eq(stats.playerId, playerId), eq(stats.matchId, matchId)),
+          matchId
+            ? and(eq(stats.playerId, playerId), eq(stats.matchId, matchId))
+            : eq(stats.playerId, playerId),
         columns: { id: true, code: true, set: true },
         with: {
           player: {

@@ -22,7 +22,7 @@ export default function PlayerStatsDialog({
   set,
   player: { id: playerId, firstName, lastName, position, shirtNumber },
 }: {
-  matchId: number;
+  matchId?: number;
   teamId: number;
   set: SetID;
   player: RouterOutputs["team"]["players"][number];
@@ -54,7 +54,7 @@ export default function PlayerStatsDialog({
         </Button>
       }
       tooltip="Statystyki gracza"
-      title={`Statystyki gracza - ${set} set`}
+      title={`Statystyki gracza - ${set} ${set !== "Ogółem" ? "set" : ""}`}
       description={`${firstName} ${lastName}, ${position}${shirtNumber ? `, nr ${shirtNumber}` : ""}`}
       className="sm:max-w-[700px] lg:max-w-[1000px]"
     >
