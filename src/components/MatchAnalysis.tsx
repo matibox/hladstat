@@ -5,7 +5,7 @@ import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
 import { api } from "~/trpc/react";
 import { CalendarIcon, SwordsIcon } from "lucide-react";
 import dayjs from "dayjs";
-import { PlayerCard } from "./PlayerCards";
+import PlayerCard from "./PlayerCards";
 import AddStatisticForm from "./AddStatisticForm";
 import {
   AttackChart,
