@@ -121,8 +121,39 @@ export const teamRouter = createTRPCRouter({
         columns: { id: true, date: true, opponent: true, score: true },
         where: (matches, { eq }) => eq(matches.teamId, teamId),
         orderBy: (matches, { desc }) => desc(matches.date),
-        limit: 4,
+        limit: 6,
       });
+    }),
+  stats: protectedProcedure
+    .input(z.object({ teamId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const { teamId } = input;
+
+      const foundMatches = await ctx.db.query.matches.findMany({
+        columns: { id: true },
+        where: (matches, { eq }) => eq(matches.teamId, teamId),
+        with: {
+          stats: {
+            columns: { id: true, code: true, set: true },
+            with: {
+              player: {
+                columns: { firstName: true, lastName: true },
+                with: { teams: { columns: { position: true } } },
+              },
+            },
+          },
+        },
+      });
+
+      return foundMatches
+        .flatMap((match) => match.stats)
+        .map(({ player, ...stat }) => ({
+          ...stat,
+          player: {
+            name: `${player.firstName} ${player.lastName}`,
+            position: player.teams[0]!.position,
+          },
+        }));
     }),
   allMatchesWithStats: protectedProcedure
     .input(z.object({ teamId: z.number() }))
