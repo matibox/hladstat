@@ -1,7 +1,35 @@
 "use client";
 
+import { ShirtIcon } from "lucide-react";
+import PlayerStatsDialog from "./PlayerStatsDialog";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { type RouterOutputs } from "~/trpc/react";
+import { api, type RouterOutputs } from "~/trpc/react";
+
+export function TeamPlayers({ teamId }: { teamId: number }) {
+  const [players] = api.team.players.useSuspenseQuery({ teamId });
+
+  return (
+    <div className="flex flex-col gap-4">
+      {players.map((player) => (
+        <PlayerCard
+          key={player.id}
+          player={player}
+          header={
+            <div className="flex items-center gap-4">
+              <PlayerStatsDialog player={player} set="Ogółem" teamId={teamId} />
+              <div className="relative hidden sm:block">
+                <ShirtIcon className="h-12 w-12 fill-current" />
+                <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-lg font-bold text-primary-foreground">
+                  {player.shirtNumber ?? "?"}
+                </span>
+              </div>
+            </div>
+          }
+        />
+      ))}
+    </div>
+  );
+}
 
 export default function PlayerCard({
   player: { firstName, lastName, position },
