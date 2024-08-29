@@ -87,7 +87,7 @@ export function countTeamPointsByPlayer<T extends StatsWithPlayer>(stats: T) {
 
       return {
         ...acc,
-        [playerName]: { label: `${firstName[0]}. ${lastName}` },
+        [playerName]: { label: `${firstName[0]}.${lastName}` },
       };
     },
     {} as Record<string, { label: string }>,
