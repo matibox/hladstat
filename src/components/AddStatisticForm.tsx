@@ -6,6 +6,8 @@ import { Button } from "./ui/button";
 import { api, type RouterOutputs } from "~/trpc/react";
 import { ClipboardPlusIcon, Loader2Icon } from "lucide-react";
 import { statsOptions, type StatsCode } from "~/lib/constants";
+import { useToast } from "~/hooks/useToast";
+import { ToastAction } from "./ui/toast";
 
 export default function AddStatisticForm({
   matchId,
@@ -17,13 +19,39 @@ export default function AddStatisticForm({
   player: RouterOutputs["team"]["players"][number];
 }) {
   const [formOpened, setFormOpened] = useState(false);
+  const { toast } = useToast();
 
   const utils = api.useUtils();
-  const addStats = api.stats.add.useMutation({
-    onSuccess: async () => {
+
+  const deleteStat = api.stats.delete.useMutation({
+    onSuccess: async ({ code }) => {
+      await utils.match.stats.invalidate();
+      await utils.match.playerStats.invalidate();
+
+      toast({
+        title: "Cofnięto dodanie statystyki.",
+        description: `${firstName} ${lastName}: ${code}`,
+      });
+    },
+  });
+
+  const addStats = api.stats.addToPlayer.useMutation({
+    onSuccess: async ({ id, code }) => {
       await utils.match.stats.invalidate();
       await utils.match.playerStats.invalidate();
       setFormOpened(false);
+
+      toast({
+        title: "Dodano statystykę.",
+        description: `${firstName} ${lastName}: ${code}`,
+        action: (
+          <ToastAction altText="cofnij" asChild>
+            <button onClick={() => deleteStat.mutate({ statId: id })}>
+              Cofnij
+            </button>
+          </ToastAction>
+        ),
+      });
     },
   });
 

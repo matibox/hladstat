@@ -8,6 +8,7 @@ import { TRPCReactProvider } from "~/trpc/react";
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
 import { fileRouter } from "~/server/uploadthing";
+import { Toaster } from "~/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "Hladstat",
@@ -34,6 +35,7 @@ export default function RootLayout({
         <TRPCReactProvider>
           <NextSSRPlugin routerConfig={extractRouterConfig(fileRouter)} />
           {children}
+          <Toaster />
         </TRPCReactProvider>
       </body>
     </html>
