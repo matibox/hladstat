@@ -109,6 +109,7 @@ export const teamRouter = createTRPCRouter({
           with: {
             user: { columns: { id: true, firstName: true, lastName: true } },
           },
+          orderBy: (table, { asc }) => asc(table.shirtNumber),
         })
       ).map(({ user, ...data }) => ({ ...data, ...user }));
     }),

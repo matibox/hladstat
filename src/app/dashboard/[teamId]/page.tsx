@@ -1,6 +1,7 @@
 import AddPlayerForm from "~/components/AddPlayerForm";
 import MatchCards from "~/components/MatchCards";
 import NewMatchForm from "~/components/NewMatchForm";
+import { TeamPlayers } from "~/components/PlayerCards";
 import {
   AttackChart,
   ReceptionChart,
@@ -43,6 +44,7 @@ export default async function Team({
             <h2 className="text-2xl font-semibold">Zawodnicy</h2>
             <AddPlayerForm teamId={teamId} />
           </div>
+          <TeamPlayers teamId={teamId} />
         </section>
         {/* stats */}
         <section className="flex w-full flex-col gap-4 md:col-span-2">
