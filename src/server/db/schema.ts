@@ -146,8 +146,8 @@ export const stats = createTable("stats", {
     .notNull()
     .references(() => users.id),
   matchId: int("match_id")
-    .notNull()
-    .references(() => matches.id),
+    .references(() => matches.id, { onDelete: "cascade" })
+    .notNull(),
   set: int("set", { mode: "number" }).notNull(),
   code: text("code", { length: 20 }).notNull().$type<StatsCode>(),
 });
