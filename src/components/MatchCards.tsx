@@ -59,9 +59,11 @@ export function MatchCard({
   return (
     <Card className="w-full border-none bg-muted/25">
       <CardHeader className="flex flex-row items-center gap-4 space-y-0 p-4">
-        <CardTitle className="text-4xl font-semibold leading-none">
-          {match.score}
-        </CardTitle>
+        <div className="flex w-[3.25rem] justify-center">
+          <CardTitle className="text-4xl font-semibold leading-none">
+            {match.score}
+          </CardTitle>
+        </div>
         <div className="h-8 w-px bg-primary/20" />
         <div className="flex flex-col text-sm text-muted-foreground">
           <div className="flex items-center gap-1">
