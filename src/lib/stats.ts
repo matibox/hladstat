@@ -1,4 +1,4 @@
-import { type StatsCode } from "./constants";
+import { statsOptions, type StatsCode } from "./constants";
 import { formatPercentage, groupBy } from "./utils";
 
 type Stats = Array<{ code: StatsCode }>;
@@ -6,6 +6,21 @@ type StatsWithPlayer = Array<{
   player: { name: string; position: string };
   code: StatsCode;
 }>;
+
+export function statCodeToLabel(code: StatsCode) {
+  const [group, action] = code.split("-") as [string, string];
+  const foundStatGroup = statsOptions.find((stat) => stat.value === group);
+
+  if (!foundStatGroup) return "inne";
+
+  const foundStatOption = foundStatGroup.options.find(
+    (option) => option.value === action,
+  );
+
+  if (!foundStatOption) return "inne";
+
+  return `${foundStatGroup.label.toLowerCase()} - ${foundStatOption.label}`;
+}
 
 export function countStat<T extends Stats>(arr: T, codes: StatsCode[]) {
   return arr.reduce((sum, stat) => {

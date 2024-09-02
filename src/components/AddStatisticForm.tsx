@@ -8,6 +8,7 @@ import { ClipboardPlusIcon, Loader2Icon } from "lucide-react";
 import { statsOptions, type StatsCode } from "~/lib/constants";
 import { useToast } from "~/hooks/useToast";
 import { ToastAction } from "./ui/toast";
+import { statCodeToLabel } from "~/lib/stats";
 
 export default function AddStatisticForm({
   matchId,
@@ -30,7 +31,7 @@ export default function AddStatisticForm({
 
       toast({
         title: "Cofnięto dodanie statystyki.",
-        description: `${firstName} ${lastName}: ${code}`,
+        description: `${firstName} ${lastName}: ${statCodeToLabel(code)}`,
       });
     },
   });
@@ -43,7 +44,7 @@ export default function AddStatisticForm({
 
       toast({
         title: "Dodano statystykę.",
-        description: `${firstName} ${lastName}: ${code}`,
+        description: `${firstName} ${lastName}: ${statCodeToLabel(code)}`,
         action: (
           <ToastAction altText="cofnij" asChild>
             <button onClick={() => deleteStat.mutate({ statId: id })}>
