@@ -1,7 +1,7 @@
 import { type VariantProps } from "class-variance-authority";
 import { type buttonVariants } from "~/components/ui/button";
 
-export const roles = ["owner", "player"] as const;
+export const roles = ["owner", "player", "shared"] as const;
 
 export const positions = [
   "Przyjmujący",

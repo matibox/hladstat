@@ -44,6 +44,38 @@ export const userRouter = createTRPCRouter({
         )
         .leftJoin(usersToTeams, eq(users.id, usersToTeams.userId));
     }),
+  byQueryNotSharedFromTeam: protectedProcedure
+    .input(z.object({ q: z.string(), teamId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const { q, teamId } = input;
+
+      const pattern = `%${q}%`;
+
+      return await ctx.db
+        .select({
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+        })
+        .from(users)
+        .leftJoin(
+          usersToTeams,
+          and(
+            eq(users.id, usersToTeams.userId),
+            eq(usersToTeams.teamId, teamId),
+          ),
+        )
+        .where(
+          and(
+            isNull(usersToTeams.teamId), // Users not in team 13
+            or(
+              like(users.firstName, pattern),
+              like(users.lastName, pattern),
+              sql`${users.firstName} || ' ' || ${users.lastName} LIKE ${pattern}`,
+            ),
+          ),
+        );
+    }),
   isInTeam: protectedProcedure
     .input(z.object({ teamId: z.number() }))
     .query(async ({ ctx, input }) => {

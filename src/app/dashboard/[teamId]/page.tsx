@@ -3,6 +3,7 @@ import AddPlayerForm from "~/components/AddPlayerForm";
 import MatchCards from "~/components/MatchCards";
 import NewMatchForm from "~/components/NewMatchForm";
 import { TeamPlayers } from "~/components/PlayerCards";
+import ShareAccessForm from "~/components/ShareAccessForm";
 import {
   AttackChart,
   ReceptionChart,
@@ -127,10 +128,7 @@ export default async function Team({
                   </div>
                 ))}
               </div>
-              <Button className="self-start" size="sm">
-                <span>Dodaj osoby</span>
-                <Share2Icon className="ml-1.5 h-4 w-4" />
-              </Button>
+              <ShareAccessForm teamId={teamId} />
             </section>
           </TabsContent>
         </main>
