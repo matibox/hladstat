@@ -33,7 +33,11 @@ export const teamRouter = createTRPCRouter({
     const userId = ctx.session.user.id;
     const selectedUsersToTeams = await ctx.db.query.usersToTeams.findMany({
       columns: { teamId: true },
-      where: (usersToTeams, { eq }) => eq(usersToTeams.userId, userId),
+      where: (usersToTeams, { eq, and, inArray }) =>
+        and(
+          eq(usersToTeams.userId, userId),
+          inArray(usersToTeams.role, ["owner", "player"]),
+        ),
       with: {
         team: { columns: { id: true, name: true, profilePicture: true } },
       },
@@ -105,7 +109,11 @@ export const teamRouter = createTRPCRouter({
       return (
         await ctx.db.query.usersToTeams.findMany({
           columns: { position: true, shirtNumber: true },
-          where: (table, { eq }) => eq(table.teamId, teamId),
+          where: (table, { eq, and, inArray }) =>
+            and(
+              eq(table.teamId, teamId),
+              inArray(table.role, ["owner", "player"]),
+            ),
           with: {
             user: { columns: { id: true, firstName: true, lastName: true } },
           },
@@ -152,7 +160,7 @@ export const teamRouter = createTRPCRouter({
           ...stat,
           player: {
             name: `${player.firstName} ${player.lastName}`,
-            position: player.teams[0]!.position,
+            position: player.teams[0]!.position!,
           },
         }));
     }),

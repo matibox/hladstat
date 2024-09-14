@@ -61,8 +61,11 @@ export const matchRouter = createTRPCRouter({
                 columns: { id: true, firstName: true, lastName: true },
                 with: {
                   teams: {
-                    where: (usersToTeams, { eq }) =>
-                      eq(usersToTeams.teamId, teamId),
+                    where: (usersToTeams, { eq, and, inArray }) =>
+                      and(
+                        eq(usersToTeams.teamId, teamId),
+                        inArray(usersToTeams.role, ["owner", "player"]),
+                      ),
                     columns: { position: true },
                   },
                 },
@@ -77,7 +80,7 @@ export const matchRouter = createTRPCRouter({
           ...stat,
           player: {
             name: `${player.firstName} ${player.lastName}`,
-            position: player.teams[0]!.position,
+            position: player.teams[0]!.position!,
           },
         };
       });
@@ -106,8 +109,11 @@ export const matchRouter = createTRPCRouter({
             columns: { id: true, firstName: true, lastName: true },
             with: {
               teams: {
-                where: (usersToTeams, { eq }) =>
-                  eq(usersToTeams.teamId, teamId),
+                where: (usersToTeams, { eq, and, inArray }) =>
+                  and(
+                    eq(usersToTeams.teamId, teamId),
+                    inArray(usersToTeams.role, ["owner", "player"]),
+                  ),
                 columns: { position: true },
               },
             },
@@ -120,7 +126,7 @@ export const matchRouter = createTRPCRouter({
           ...stat,
           player: {
             name: `${player.firstName} ${player.lastName}`,
-            position: player.teams[0]!.position,
+            position: player.teams[0]!.position!,
           },
         };
       });

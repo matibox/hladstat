@@ -67,7 +67,7 @@ export const userRouter = createTRPCRouter({
         )
         .where(
           and(
-            isNull(usersToTeams.teamId), // Users not in team 13
+            isNull(usersToTeams.teamId),
             or(
               like(users.firstName, pattern),
               like(users.lastName, pattern),
