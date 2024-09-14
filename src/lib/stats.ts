@@ -45,7 +45,14 @@ export function countSetDistribution<T extends StatsWithPlayer>(stats: T) {
     })
     .filter((data) =>
       ["Atakujący", "Środkowy", "Przyjmujący"].includes(data.position),
-    );
+    )
+    .sort((a, b) => {
+      if (a.position === "Przyjmujący") return 1;
+      if (b.position === "Atakujący") return -1;
+      return 0;
+    });
+
+  console.log(data);
 
   return data;
 }
@@ -60,9 +67,9 @@ export function countPointsAndErrors<T extends Stats>(stats: T) {
   ]);
 
   const data = [
-    { statType: "Punkty", quantity: points },
-    { statType: "Błędy", quantity: errors },
-  ];
+    { statType: "Punkty", quantity: points, fill: "var(--chart-perf)" },
+    { statType: "Błędy", quantity: errors, fill: "var(--chart-err)" },
+  ] as const;
 
   const legend = data.reduce(
     (acc, { statType }) => {
@@ -121,10 +128,10 @@ export function countAttackStats<T extends Stats>(stats: T) {
   const efficiency = formatPercentage((kills - errors) / sum);
 
   const data = [
-    { attackType: "Skończone", quantity: kills },
-    { attackType: "Obronione", quantity: defended },
-    { attackType: "Błędy", quantity: errors },
-  ];
+    { attackType: "Skończone", quantity: kills, fill: "var(--chart-perf)" },
+    { attackType: "Obronione", quantity: defended, fill: "var(--chart-pos)" },
+    { attackType: "Błędy", quantity: errors, fill: "var(--chart-err)" },
+  ] as const;
 
   const legend = data.reduce(
     (acc, { attackType }) => {
@@ -147,11 +154,23 @@ export function countReceptionStats<T extends Stats>(stats: T) {
   const positivePerc = formatPercentage((perfect + positive) / sum);
 
   const data = [
-    { receptionType: "Perfekcyjne", quantity: perfect },
-    { receptionType: "Pozytywne", quantity: positive },
-    { receptionType: "Negatywne", quantity: negative },
-    { receptionType: "Błędy", quantity: errors },
-  ];
+    {
+      receptionType: "Perfekcyjne",
+      quantity: perfect,
+      fill: "var(--chart-perf)",
+    },
+    {
+      receptionType: "Pozytywne",
+      quantity: positive,
+      fill: "var(--chart-pos)",
+    },
+    {
+      receptionType: "Negatywne",
+      quantity: negative,
+      fill: "var(--chart-neg)",
+    },
+    { receptionType: "Błędy", quantity: errors, fill: "var(--chart-err)" },
+  ] as const;
 
   const legend = data.reduce(
     (acc, { receptionType }) => {
@@ -172,10 +191,10 @@ export function countServeStats<T extends Stats>(stats: T) {
   const acePerc = formatPercentage(ace / sum);
 
   const data = [
-    { serveType: "As", quantity: ace },
-    { serveType: "Pozytywny", quantity: positive },
-    { serveType: "Błędy", quantity: errors },
-  ];
+    { serveType: "As", quantity: ace, fill: "var(--chart-perf)" },
+    { serveType: "Pozytywny", quantity: positive, fill: "var(--chart-pos)" },
+    { serveType: "Błędy", quantity: errors, fill: "var(--chart-err)" },
+  ] as const;
 
   const legend = data.reduce(
     (acc, { serveType }) => {

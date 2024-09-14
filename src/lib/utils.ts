@@ -34,6 +34,6 @@ export function formatPercentage(num: number) {
 export function colorizeChart<T extends object>(arr: T[]) {
   return arr.map((el, i) => ({
     ...el,
-    fill: `hsl(var(--chart-${(i % 5) + 1}))`,
+    fill: `var(--chart-${(i % 8) + 1})`,
   }));
 }

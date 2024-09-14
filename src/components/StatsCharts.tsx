@@ -111,12 +111,7 @@ export function PointsAndErrorsChart({ stats }: { stats: Stats }) {
                 className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
               />
               <Pie
-                data={pointsAndErrors.map((data, i) => {
-                  let fill = `hsl(var(--chart-${(i % 5) + 1}))`;
-                  if (data.statType === "Punkty") fill = "hsl(var(--chart-2))";
-                  if (data.statType === "Błędy") fill = "hsl(var(--chart-5))";
-                  return { ...data, fill };
-                })}
+                data={[...pointsAndErrors]}
                 dataKey="quantity"
                 nameKey="statType"
                 innerRadius={60}
@@ -220,14 +215,7 @@ export function AttackChart({ stats }: { stats: Stats }) {
                 className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
               />
               <Pie
-                data={attackStats.map((data, i) => {
-                  const { attackType } = data;
-                  let fill = `hsl(var(--chart-${(i % 5) + 1}))`;
-                  if (attackType === "Skończone") fill = "hsl(var(--chart-2))";
-                  if (attackType === "Obronione") fill = "hsl(var(--chart-1))";
-                  if (attackType === "Błędy") fill = "hsl(var(--chart-5))";
-                  return { ...data, fill };
-                })}
+                data={[...attackStats]}
                 dataKey="quantity"
                 nameKey="attackType"
                 innerRadius={60}
@@ -302,18 +290,7 @@ export function ReceptionChart({ stats }: { stats: Stats }) {
                 className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
               />
               <Pie
-                data={receptionStats.map((data, i) => {
-                  const { receptionType } = data;
-                  let fill = `hsl(var(--chart-${(i % 5) + 1}))`;
-                  if (receptionType === "Perfekcyjne")
-                    fill = "hsl(var(--chart-2))";
-                  if (receptionType === "Pozytywne")
-                    fill = "hsl(var(--chart-1))";
-                  if (receptionType === "Negatywne")
-                    fill = "hsl(var(--chart-3))";
-                  if (receptionType === "Błędy") fill = "hsl(var(--chart-5))";
-                  return { ...data, fill };
-                })}
+                data={[...receptionStats]}
                 dataKey="quantity"
                 nameKey="receptionType"
                 innerRadius={60}
@@ -383,14 +360,7 @@ export function ServeChart({ stats }: { stats: Stats }) {
                 className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
               />
               <Pie
-                data={serveStats.map((data, i) => {
-                  const { serveType } = data;
-                  let fill = `hsl(var(--chart-${(i % 5) + 1}))`;
-                  if (serveType === "As") fill = "hsl(var(--chart-2))";
-                  if (serveType === "Pozytywny") fill = "hsl(var(--chart-1))";
-                  if (serveType === "Błędy") fill = "hsl(var(--chart-5))";
-                  return { ...data, fill };
-                })}
+                data={[...serveStats]}
                 dataKey="quantity"
                 nameKey="serveType"
                 innerRadius={60}
