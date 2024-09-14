@@ -119,7 +119,12 @@ export const teamRouter = createTRPCRouter({
           },
           orderBy: (table, { asc }) => asc(table.shirtNumber),
         })
-      ).map(({ user, ...data }) => ({ ...data, ...user }));
+      )
+        .map(({ user, ...data }) => ({ ...data, ...user }))
+        .sort((_, b) => {
+          if (!b.shirtNumber) return -1;
+          return 0;
+        });
     }),
   recentMatches: protectedProcedure
     .input(z.object({ teamId: z.number() }))
