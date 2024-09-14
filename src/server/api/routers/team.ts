@@ -1,7 +1,7 @@
 import { teams, users, usersToTeams } from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import z from "zod";
-import { count, eq } from "drizzle-orm";
+import { and, count, eq } from "drizzle-orm";
 
 export const teamRouter = createTRPCRouter({
   create: protectedProcedure
@@ -167,5 +167,37 @@ export const teamRouter = createTRPCRouter({
         orderBy: (matches, { desc }) => desc(matches.date),
         with: { stats: { columns: { id: true, code: true } } },
       });
+    }),
+  shareTo: protectedProcedure
+    .input(z.object({ teamId: z.number(), userId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { teamId, userId } = input;
+
+      await ctx.db.insert(usersToTeams).values({
+        teamId,
+        userId,
+        role: "shared",
+      });
+    }),
+  shared: protectedProcedure
+    .input(z.object({ teamId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const { teamId } = input;
+
+      return await ctx.db
+        .select({
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+        })
+        .from(users)
+        .leftJoin(
+          usersToTeams,
+          and(
+            eq(users.id, usersToTeams.userId),
+            eq(usersToTeams.teamId, teamId),
+          ),
+        )
+        .where(eq(usersToTeams.role, "shared"));
     }),
 });

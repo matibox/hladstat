@@ -117,7 +117,7 @@ export const usersToTeams = createTable(
     role: text("role", { length: 255 })
       .notNull()
       .$type<(typeof roles)[number]>(),
-    position: text("position", { length: 255 }).notNull(),
+    position: text("position", { length: 255 }),
     shirtNumber: int("shirt_number"),
   },
   (table) => ({

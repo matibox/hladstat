@@ -50,14 +50,25 @@ export default function ShareAccessForm({ teamId }: { teamId: number }) {
     resolver: zodResolver(formSchema),
   });
 
-  const utils = api.useUtils();
   const playersByQuery = api.user.byQueryNotSharedFromTeam.useQuery(
     { q: debouncedQuery, teamId },
     { enabled: Boolean(debouncedQuery) },
   );
 
+  const utils = api.useUtils();
+  const share = api.team.shareTo.useMutation({
+    onSuccess: async () => {
+      await utils.team.shared.invalidate();
+      setFormOpened(false);
+      form.reset();
+    },
+  });
+
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    share.mutate({
+      ...values,
+      teamId,
+    });
   }
 
   return (
@@ -154,11 +165,7 @@ export default function ShareAccessForm({ teamId }: { teamId: number }) {
               </FormItem>
             )}
           />
-          <Button
-            type="submit"
-            className="self-end"
-            // loading={share.isPending}
-          >
+          <Button type="submit" className="self-end" loading={share.isPending}>
             Udostępnij
           </Button>
         </form>

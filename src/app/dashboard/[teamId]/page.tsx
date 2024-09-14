@@ -1,9 +1,7 @@
-import { Share2Icon, TrashIcon } from "lucide-react";
 import AddPlayerForm from "~/components/AddPlayerForm";
 import MatchCards from "~/components/MatchCards";
 import NewMatchForm from "~/components/NewMatchForm";
 import { TeamPlayers } from "~/components/PlayerCards";
-import ShareAccessForm from "~/components/ShareAccessForm";
 import {
   AttackChart,
   ReceptionChart,
@@ -12,22 +10,11 @@ import {
   SetDistributionChart,
 } from "~/components/StatsCharts";
 import TeamPageNavbar from "~/components/TeamPageNavbar";
-import { Button } from "~/components/ui/button";
+import TeamSettings from "~/components/TeamSettings";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { TabsContent } from "~/components/ui/tabs";
 import { countPointsAndErrors, countStat } from "~/lib/stats";
 import { api, HydrateClient } from "~/trpc/server";
-
-const PLACEHOLDER_PLAYERS = [
-  {
-    id: 1,
-    name: "Jan Kowalski",
-  },
-  {
-    id: 2,
-    name: "Adam Nowak",
-  },
-];
 
 export default async function Team({
   params: { teamId: _teamId },
@@ -36,10 +23,11 @@ export default async function Team({
 }) {
   const teamId = parseInt(_teamId);
 
-  await api.team.recentMatches.prefetch({ teamId: teamId });
-  await api.team.players.prefetch({ teamId: teamId });
+  await api.team.recentMatches.prefetch({ teamId });
+  await api.team.players.prefetch({ teamId });
+  await api.team.shared.prefetch({ teamId });
 
-  const stats = await api.team.stats({ teamId: teamId });
+  const stats = await api.team.stats({ teamId });
 
   const { points, errors } = countPointsAndErrors(stats);
 
@@ -99,38 +87,7 @@ export default async function Team({
               </div>
             </section>
           </TabsContent>
-          <TabsContent value="settings">
-            <section className="flex w-full flex-col gap-4">
-              <div className="flex flex-col gap-2">
-                <h2 className="text-xl font-semibold leading-none">
-                  Udostępniony dostęp
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  Lista osób, które mogą zobaczyć statystyki meczów oraz
-                  zawodników.
-                </p>
-              </div>
-              <div className="flex flex-col gap-1">
-                {PLACEHOLDER_PLAYERS.map((player) => (
-                  <div key={player.id} className="flex items-center gap-2">
-                    <div className="h-6 w-px bg-muted" />
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-sm font-medium leading-none">
-                        {player.name}
-                      </span>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      className="ml-auto h-auto w-auto p-2"
-                    >
-                      <TrashIcon className="h-4 w-4 text-red-500" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-              <ShareAccessForm teamId={teamId} />
-            </section>
-          </TabsContent>
+          <TeamSettings teamId={teamId} />
         </main>
       </TeamPageNavbar>
     </HydrateClient>
