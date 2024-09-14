@@ -79,6 +79,7 @@ export default function AddPlayerForm({ teamId }: { teamId: number }) {
       await utils.team.players.invalidate();
       setFormOpened(false);
       form.reset();
+      setQuery("");
     },
   });
 

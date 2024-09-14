@@ -1,10 +1,9 @@
 "use client";
 
-import { TrashIcon } from "lucide-react";
 import ShareAccessForm from "./ShareAccessForm";
-import { Button } from "./ui/button";
 import { TabsContent } from "./ui/tabs";
 import { api } from "~/trpc/react";
+import RevokeAccessDialog from "./RevokeAccessDialog";
 
 export default function TeamSettings({ teamId }: { teamId: number }) {
   const [sharedToUsers] = api.team.shared.useSuspenseQuery({ teamId });
@@ -22,17 +21,15 @@ export default function TeamSettings({ teamId }: { teamId: number }) {
         </div>
         {sharedToUsers.length > 0 && (
           <div className="flex flex-col gap-1">
-            {sharedToUsers.map((player) => (
-              <div key={player.id} className="flex items-center gap-2">
+            {sharedToUsers.map((user) => (
+              <div key={user.id} className="flex items-center gap-2">
                 <div className="h-6 w-px bg-muted" />
                 <div className="flex flex-col gap-0.5">
                   <span className="text-sm font-medium leading-none">
-                    {player.firstName} {player.lastName}
+                    {user.firstName} {user.lastName}
                   </span>
                 </div>
-                <Button variant="ghost" className="ml-auto h-auto w-auto p-2">
-                  <TrashIcon className="h-4 w-4 text-red-500" />
-                </Button>
+                <RevokeAccessDialog userId={user.id} teamId={teamId} />
               </div>
             ))}
           </div>

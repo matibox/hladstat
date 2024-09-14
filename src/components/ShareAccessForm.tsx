@@ -61,6 +61,7 @@ export default function ShareAccessForm({ teamId }: { teamId: number }) {
       await utils.team.shared.invalidate();
       setFormOpened(false);
       form.reset();
+      setQuery("");
     },
   });
 

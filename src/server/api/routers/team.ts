@@ -179,6 +179,17 @@ export const teamRouter = createTRPCRouter({
         role: "shared",
       });
     }),
+  revokeUserAccess: protectedProcedure
+    .input(z.object({ userId: z.string(), teamId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const { userId, teamId } = input;
+
+      await ctx.db
+        .delete(usersToTeams)
+        .where(
+          and(eq(usersToTeams.userId, userId), eq(usersToTeams.teamId, teamId)),
+        );
+    }),
   shared: protectedProcedure
     .input(z.object({ teamId: z.number() }))
     .query(async ({ ctx, input }) => {
