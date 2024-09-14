@@ -46,9 +46,9 @@ export function countSetDistribution<T extends StatsWithPlayer>(stats: T) {
     .filter((data) =>
       ["Atakujący", "Środkowy", "Przyjmujący"].includes(data.position),
     )
-    .sort((a, b) => {
-      if (a.position === "Przyjmujący") return 1;
-      if (b.position === "Atakujący") return -1;
+    .sort((_, { position }) => {
+      if (position === "Przyjmujący") return 1;
+      if (position === "Atakujący") return -1;
       return 0;
     });
 
