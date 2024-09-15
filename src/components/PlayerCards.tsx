@@ -4,8 +4,10 @@ import { ShirtIcon } from "lucide-react";
 import PlayerStatsDialog from "./PlayerStatsDialog";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { api, type RouterOutputs } from "~/trpc/react";
+import { useTeamContext } from "./TeamContext";
 
-export function TeamPlayers({ teamId }: { teamId: number }) {
+export function TeamPlayers() {
+  const { teamId } = useTeamContext();
   const [players] = api.team.players.useSuspenseQuery({ teamId });
 
   return (
@@ -16,7 +18,7 @@ export function TeamPlayers({ teamId }: { teamId: number }) {
           player={player}
           header={
             <div className="flex items-center gap-4">
-              <PlayerStatsDialog player={player} set="Ogółem" teamId={teamId} />
+              <PlayerStatsDialog player={player} set="Ogółem" />
               <div className="relative hidden sm:block">
                 <ShirtIcon className="h-12 w-12 fill-current" />
                 <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-lg font-bold text-primary-foreground">

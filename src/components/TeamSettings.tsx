@@ -4,8 +4,10 @@ import ShareAccessForm from "./ShareAccessForm";
 import { TabsContent } from "./ui/tabs";
 import { api } from "~/trpc/react";
 import RevokeAccessDialog from "./RevokeAccessDialog";
+import { useTeamContext } from "./TeamContext";
 
-export default function TeamSettings({ teamId }: { teamId: number }) {
+export default function TeamSettings() {
+  const { teamId } = useTeamContext();
   const [sharedToUsers] = api.team.shared.useSuspenseQuery({ teamId });
 
   return (
@@ -29,12 +31,12 @@ export default function TeamSettings({ teamId }: { teamId: number }) {
                     {user.firstName} {user.lastName}
                   </span>
                 </div>
-                <RevokeAccessDialog userId={user.id} teamId={teamId} />
+                <RevokeAccessDialog userId={user.id} />
               </div>
             ))}
           </div>
         )}
-        <ShareAccessForm teamId={teamId} />
+        <ShareAccessForm />
       </section>
     </TabsContent>
   );

@@ -42,6 +42,7 @@ import {
 } from "./ui/select";
 import { positions } from "~/lib/constants";
 import { Input } from "./ui/input";
+import { useTeamContext } from "./TeamContext";
 
 export const formSchema = z.object({
   playerId: z
@@ -53,7 +54,8 @@ export const formSchema = z.object({
   shirtNumber: z.string().optional(),
 });
 
-export default function AddPlayerForm({ teamId }: { teamId: number }) {
+export default function AddPlayerForm() {
+  const { teamId } = useTeamContext();
   const [formOpened, setFormOpened] = useState(false);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");

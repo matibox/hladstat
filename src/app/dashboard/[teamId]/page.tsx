@@ -39,18 +39,18 @@ export default async function Team({
             <section className="flex w-full flex-col gap-4">
               <div className="flex w-full items-center justify-between">
                 <h1 className="text-2xl font-semibold">Ostatnie mecze</h1>
-                <NewMatchForm teamId={teamId} />
+                <NewMatchForm />
               </div>
-              <MatchCards teamId={teamId} />
+              <MatchCards />
             </section>
           </TabsContent>
           <TabsContent value="members">
             <section className="flex w-full flex-col gap-4">
               <div className="flex w-full items-center justify-between">
                 <h2 className="text-2xl font-semibold">Zawodnicy</h2>
-                <AddPlayerForm teamId={teamId} />
+                <AddPlayerForm />
               </div>
-              <TeamPlayers teamId={teamId} />
+              <TeamPlayers />
             </section>
           </TabsContent>
           <TabsContent value="stats">
@@ -87,7 +87,7 @@ export default async function Team({
               </div>
             </section>
           </TabsContent>
-          <TeamSettings teamId={teamId} />
+          <TeamSettings />
         </main>
       </TeamPageNavbar>
     </HydrateClient>

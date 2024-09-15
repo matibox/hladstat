@@ -21,7 +21,7 @@ export default async function AllMatchesPage({
   return (
     <HydrateClient>
       <main className="mx-auto flex w-full max-w-xl flex-col items-start gap-4 px-4 pb-4 md:max-w-7xl md:px-6 md:pb-6 lg:px-8 lg:pb-8">
-        <NewMatchForm teamId={teamId} />
+        <NewMatchForm />
         <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
           {matches.length === 0 && (
             <p className="text-muted-foreground">Brak meczów.</p>
@@ -48,7 +48,7 @@ export default async function AllMatchesPage({
             ];
 
             return (
-              <MatchCard key={match.id} match={match} teamId={teamId}>
+              <MatchCard key={match.id} match={match}>
                 <CardContent className="hidden p-4 pt-0 lg:block">
                   {stats.length === 0 ? (
                     <p className="leading-none text-muted-foreground">

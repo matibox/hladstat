@@ -32,6 +32,7 @@ import {
   CommandItem,
   CommandList,
 } from "./ui/command";
+import { useTeamContext } from "./TeamContext";
 
 export const formSchema = z.object({
   userId: z
@@ -39,7 +40,8 @@ export const formSchema = z.object({
     .min(1, "Wybierz użytkownika."),
 });
 
-export default function ShareAccessForm({ teamId }: { teamId: number }) {
+export default function ShareAccessForm() {
+  const { teamId } = useTeamContext();
   const [formOpened, setFormOpened] = useState(false);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");

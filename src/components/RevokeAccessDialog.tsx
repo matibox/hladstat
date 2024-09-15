@@ -3,14 +3,10 @@ import ResponsiveDialog from "./ui/responsive-dialog";
 import { Button } from "./ui/button";
 import { TrashIcon } from "lucide-react";
 import { api } from "~/trpc/react";
+import { useTeamContext } from "./TeamContext";
 
-export default function RevokeAccessDialog({
-  teamId,
-  userId,
-}: {
-  teamId: number;
-  userId: string;
-}) {
+export default function RevokeAccessDialog({ userId }: { userId: string }) {
+  const { teamId } = useTeamContext();
   const [formOpened, setFormOpened] = useState(false);
 
   const utils = api.useUtils();
