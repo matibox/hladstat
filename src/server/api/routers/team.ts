@@ -1,4 +1,4 @@
-import { teams, users, usersToTeams } from "~/server/db/schema";
+import { matches, stats, teams, users, usersToTeams } from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import z from "zod";
 import { and, count, eq } from "drizzle-orm";
@@ -223,5 +223,44 @@ export const teamRouter = createTRPCRouter({
           ),
         )
         .where(eq(usersToTeams.role, "shared"));
+    }),
+  playerStats: protectedProcedure
+    .input(z.object({ playerId: z.string(), teamId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const { playerId, teamId } = input;
+
+      const selectedStats = await ctx.db
+        .select({
+          id: stats.id,
+          code: stats.code,
+          set: stats.set,
+          player: {
+            id: users.id,
+            firstName: users.firstName,
+            lastName: users.lastName,
+            position: usersToTeams.position,
+          },
+        })
+        .from(stats)
+        .innerJoin(matches, eq(stats.matchId, matches.id))
+        .innerJoin(users, eq(stats.playerId, users.id))
+        .innerJoin(
+          usersToTeams,
+          and(
+            eq(usersToTeams.userId, users.id),
+            eq(usersToTeams.teamId, matches.teamId),
+          ),
+        )
+        .where(and(eq(stats.playerId, playerId), eq(matches.teamId, teamId)));
+
+      const formatted = selectedStats.map(({ player, ...stat }) => ({
+        ...stat,
+        player: {
+          name: `${player.firstName} ${player.lastName}`,
+          position: player.position!,
+        },
+      }));
+
+      return formatted;
     }),
 });

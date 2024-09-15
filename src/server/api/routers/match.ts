@@ -90,7 +90,7 @@ export const matchRouter = createTRPCRouter({
   playerStats: protectedProcedure
     .input(
       z.object({
-        matchId: z.number().optional(),
+        matchId: z.number(),
         teamId: z.number(),
         playerId: z.string(),
       }),

@@ -29,10 +29,15 @@ export default function PlayerStatsDialog({
 }) {
   const [formOpened, setFormOpened] = useState(false);
 
-  const { data: stats, isPending } = api.match.playerStats.useQuery(
-    { matchId, playerId, teamId },
-    { enabled: formOpened },
-  );
+  const { data: stats, isPending } = matchId
+    ? api.match.playerStats.useQuery(
+        { matchId, playerId, teamId },
+        { enabled: formOpened && !!matchId },
+      )
+    : api.team.playerStats.useQuery(
+        { playerId, teamId },
+        { enabled: formOpened && !matchId },
+      );
 
   const statsBySet = stats?.filter((stat) => {
     if (set === "Ogółem") return true;
