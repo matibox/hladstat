@@ -1,6 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { users, usersToTeams } from "~/server/db/schema";
-import { and, eq, isNull, like, not, or, sql } from "drizzle-orm";
+import { teams, users, usersToTeams } from "~/server/db/schema";
+import { and, eq, inArray, isNull, like, not, or, sql } from "drizzle-orm";
 import { z } from "zod";
 
 export const userRouter = createTRPCRouter({
@@ -88,4 +88,36 @@ export const userRouter = createTRPCRouter({
 
       return { isInTeam: !!foundTeam };
     }),
+  sharedTeams: protectedProcedure.query(async ({ ctx }) => {
+    const playerCountSubquery = ctx.db
+      .select({
+        teamId: usersToTeams.teamId,
+        playerCount: sql<number>`COUNT(*)`.as("playerCount"),
+      })
+      .from(usersToTeams)
+      .where(inArray(usersToTeams.role, ["owner", "player"]))
+      .groupBy(usersToTeams.teamId)
+      .as("playerCountSubquery");
+
+    // Main query to select teams where the user has the "shared" role
+    const result = await ctx.db
+      .select({
+        id: teams.id,
+        name: teams.name,
+        profilePicture: teams.profilePicture,
+        playerCount: playerCountSubquery.playerCount,
+      })
+      .from(teams)
+      .leftJoin(
+        usersToTeams,
+        and(
+          eq(usersToTeams.teamId, teams.id),
+          eq(usersToTeams.userId, ctx.session.user.id),
+        ),
+      )
+      .leftJoin(playerCountSubquery, eq(teams.id, playerCountSubquery.teamId))
+      .where(eq(usersToTeams.role, "shared"));
+
+    return result;
+  }),
 });

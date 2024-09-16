@@ -12,7 +12,7 @@ export default function RevokeAccessDialog({ userId }: { userId: string }) {
   const utils = api.useUtils();
   const revokeAccess = api.team.revokeUserAccess.useMutation({
     onSuccess: async () => {
-      await utils.team.shared.invalidate();
+      await utils.team.sharedToUsers.invalidate();
       setFormOpened(false);
     },
   });

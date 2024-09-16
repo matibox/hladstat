@@ -203,7 +203,7 @@ export const teamRouter = createTRPCRouter({
           and(eq(usersToTeams.userId, userId), eq(usersToTeams.teamId, teamId)),
         );
     }),
-  shared: protectedProcedure
+  sharedToUsers: protectedProcedure
     .input(z.object({ teamId: z.number() }))
     .query(async ({ ctx, input }) => {
       const { teamId } = input;

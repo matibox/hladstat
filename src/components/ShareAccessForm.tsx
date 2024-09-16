@@ -60,7 +60,7 @@ export default function ShareAccessForm() {
   const utils = api.useUtils();
   const share = api.team.shareTo.useMutation({
     onSuccess: async () => {
-      await utils.team.shared.invalidate();
+      await utils.team.sharedToUsers.invalidate();
       setFormOpened(false);
       form.reset();
       setQuery("");

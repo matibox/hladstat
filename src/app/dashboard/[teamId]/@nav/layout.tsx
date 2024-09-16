@@ -11,7 +11,7 @@ export default async function Nav({ children }: { children: React.ReactNode }) {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard">Drużyny</BreadcrumbLink>
+            <BreadcrumbLink href="/dashboard">Główna</BreadcrumbLink>
           </BreadcrumbItem>
           {children}
         </BreadcrumbList>

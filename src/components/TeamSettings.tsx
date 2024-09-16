@@ -8,7 +8,7 @@ import { useTeamContext } from "./TeamContext";
 
 export default function TeamSettings() {
   const { teamId } = useTeamContext();
-  const [sharedToUsers] = api.team.shared.useSuspenseQuery({ teamId });
+  const [sharedToUsers] = api.team.sharedToUsers.useSuspenseQuery({ teamId });
 
   return (
     <TabsContent value="settings">
