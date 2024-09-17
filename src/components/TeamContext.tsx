@@ -1,8 +1,10 @@
 "use client";
 
+import { useRouter, useSearchParams } from "next/navigation";
 import { createContext, useContext } from "react";
+import { api } from "~/trpc/react";
 
-type TeamContext = { teamId: number };
+type TeamContext = { teamId: number; isPlayerOrOwner: boolean };
 
 const TeamContext = createContext<TeamContext | null>(null);
 
@@ -25,7 +27,18 @@ export default function TeamContextProvider({
   teamId: number;
   children: React.ReactNode;
 }) {
+  const { data } = api.user.isPlayerOrOwner.useQuery({ teamId });
+  const isPlayerOrOwner = data?.isPlayerOrOwner ?? false;
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  if (!isPlayerOrOwner && searchParams.get("t") === "settings") {
+    router.push(`/dashboard/${teamId}?t=matches`);
+  }
+
   return (
-    <TeamContext.Provider value={{ teamId }}>{children}</TeamContext.Provider>
+    <TeamContext.Provider value={{ teamId, isPlayerOrOwner }}>
+      {children}
+    </TeamContext.Provider>
   );
 }

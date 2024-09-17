@@ -88,6 +88,26 @@ export const userRouter = createTRPCRouter({
 
       return { isInTeam: !!foundTeam };
     }),
+  isPlayerOrOwner: protectedProcedure
+    .input(z.object({ teamId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const { teamId } = input;
+
+      const foundTeam = await ctx.db
+        .select({ teamId: usersToTeams.teamId })
+        .from(usersToTeams)
+        .where(
+          and(
+            eq(usersToTeams.teamId, teamId),
+            eq(usersToTeams.userId, ctx.session.user.id),
+            inArray(usersToTeams.role, ["owner", "player"]),
+          ),
+        );
+
+      const isPlayerOrOwner = !!foundTeam[0];
+
+      return { isPlayerOrOwner };
+    }),
   sharedTeams: protectedProcedure.query(async ({ ctx }) => {
     const playerCountSubquery = ctx.db
       .select({
@@ -99,7 +119,6 @@ export const userRouter = createTRPCRouter({
       .groupBy(usersToTeams.teamId)
       .as("playerCountSubquery");
 
-    // Main query to select teams where the user has the "shared" role
     const result = await ctx.db
       .select({
         id: teams.id,
