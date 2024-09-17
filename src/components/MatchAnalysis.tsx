@@ -24,7 +24,7 @@ import { useTeamContext } from "./TeamContext";
 export type SetID = "1" | "2" | "3" | "4" | "5" | "Ogółem";
 
 export default function MatchAnalysis({ matchId }: { matchId: number }) {
-  const { teamId } = useTeamContext();
+  const { teamId, isPlayerOrOwner } = useTeamContext();
   const [set, setSet] = useState<SetID>("1");
 
   const [match] = api.match.byId.useSuspenseQuery({ matchId });
@@ -99,7 +99,7 @@ export default function MatchAnalysis({ matchId }: { matchId: number }) {
                       player={player}
                       matchId={matchId}
                     />
-                    {set !== "Ogółem" && (
+                    {set !== "Ogółem" && isPlayerOrOwner && (
                       <AddStatisticForm
                         set={parseInt(set)}
                         player={player}
