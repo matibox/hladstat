@@ -1,7 +1,7 @@
 import { matches, stats, teams, users, usersToTeams } from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import z from "zod";
-import { and, count, eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 export const teamRouter = createTRPCRouter({
   create: protectedProcedure
@@ -29,35 +29,6 @@ export const teamRouter = createTRPCRouter({
         shirtNumber,
       });
     }),
-  listMemberOf: protectedProcedure.query(async ({ ctx }) => {
-    const userId = ctx.session.user.id;
-    const selectedUsersToTeams = await ctx.db.query.usersToTeams.findMany({
-      columns: { teamId: true },
-      where: (usersToTeams, { eq, and, inArray }) =>
-        and(
-          eq(usersToTeams.userId, userId),
-          inArray(usersToTeams.role, ["owner", "player"]),
-        ),
-      with: {
-        team: { columns: { id: true, name: true, profilePicture: true } },
-      },
-    });
-
-    return await Promise.all(
-      selectedUsersToTeams.map(async ({ team }) => {
-        const [selectedTeam] = await ctx.db
-          .select({ playerCount: count() })
-          .from(users)
-          .where(eq(usersToTeams.teamId, team.id))
-          .leftJoin(usersToTeams, eq(users.id, usersToTeams.userId));
-
-        return {
-          ...team,
-          playerCount: selectedTeam ? selectedTeam.playerCount : 0,
-        };
-      }),
-    );
-  }),
   byId: protectedProcedure
     .input(z.object({ teamId: z.string() }))
     .query(async ({ ctx, input }) => {

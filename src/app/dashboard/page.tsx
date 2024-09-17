@@ -3,7 +3,7 @@ import TeamCard from "~/components/TeamCard";
 import { api, HydrateClient } from "~/trpc/server";
 
 export default async function Dashboard() {
-  const teams = await api.team.listMemberOf();
+  const teams = await api.user.teams();
   const sharedTeams = await api.user.sharedTeams();
 
   return (

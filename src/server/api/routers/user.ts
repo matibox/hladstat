@@ -1,6 +1,16 @@
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { teams, users, usersToTeams } from "~/server/db/schema";
-import { and, eq, inArray, isNull, like, not, or, sql } from "drizzle-orm";
+import {
+  and,
+  count,
+  eq,
+  inArray,
+  isNull,
+  like,
+  not,
+  or,
+  sql,
+} from "drizzle-orm";
 import { z } from "zod";
 
 export const userRouter = createTRPCRouter({
@@ -108,6 +118,40 @@ export const userRouter = createTRPCRouter({
 
       return { isPlayerOrOwner };
     }),
+  teams: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.session.user.id;
+    const selectedUsersToTeams = await ctx.db.query.usersToTeams.findMany({
+      columns: { teamId: true },
+      where: (usersToTeams, { eq, and, inArray }) =>
+        and(
+          eq(usersToTeams.userId, userId),
+          inArray(usersToTeams.role, ["owner", "player"]),
+        ),
+      with: {
+        team: { columns: { id: true, name: true, profilePicture: true } },
+      },
+    });
+
+    return await Promise.all(
+      selectedUsersToTeams.map(async ({ team }) => {
+        const [selectedTeam] = await ctx.db
+          .select({ playerCount: count() })
+          .from(users)
+          .leftJoin(usersToTeams, eq(users.id, usersToTeams.userId))
+          .where(
+            and(
+              eq(usersToTeams.teamId, team.id),
+              inArray(usersToTeams.role, ["player", "owner"]),
+            ),
+          );
+
+        return {
+          ...team,
+          playerCount: selectedTeam ? selectedTeam.playerCount : 0,
+        };
+      }),
+    );
+  }),
   sharedTeams: protectedProcedure.query(async ({ ctx }) => {
     const playerCountSubquery = ctx.db
       .select({

@@ -6,7 +6,7 @@ import { UserIcon, UsersIcon } from "lucide-react";
 export default function TeamCard({
   team,
 }: {
-  team: RouterOutputs["team"]["listMemberOf"][number];
+  team: RouterOutputs["user"]["teams"][number];
 }) {
   return (
     <Link

@@ -65,7 +65,7 @@ export default function NewTeamForm() {
   const utils = api.useUtils();
   const createTeam = api.team.create.useMutation({
     onSuccess: async () => {
-      await utils.team.listMemberOf.invalidate();
+      await utils.user.teams.invalidate();
       form.reset();
       setFormOpened(false);
     },
