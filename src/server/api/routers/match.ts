@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { matches } from "~/server/db/schema";
+import { eq } from "drizzle-orm";
 
 export const matchRouter = createTRPCRouter({
   create: protectedProcedure
@@ -132,5 +133,15 @@ export const matchRouter = createTRPCRouter({
       });
 
       return stats;
+    }),
+  toggleShare: protectedProcedure
+    .input(z.object({ matchId: z.number(), isShared: z.boolean() }))
+    .mutation(async ({ ctx, input }) => {
+      const { matchId, isShared } = input;
+
+      await ctx.db
+        .update(matches)
+        .set({ shared: !isShared })
+        .where(eq(matches.id, matchId));
     }),
 });

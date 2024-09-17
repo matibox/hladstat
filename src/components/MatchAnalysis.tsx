@@ -16,10 +16,8 @@ import {
   SetDistributionChart,
 } from "./StatsCharts";
 import PlayerStatsDialog from "./PlayerStatsDialog";
-import Link from "next/link";
-import { cn } from "~/lib/utils";
-import { buttonVariants } from "./ui/button";
 import { useTeamContext } from "./TeamContext";
+import ShareMatchDialog from "./ShareMatchDialog";
 
 export type SetID = "1" | "2" | "3" | "4" | "5" | "Ogółem";
 
@@ -43,8 +41,8 @@ export default function MatchAnalysis({ matchId }: { matchId: number }) {
 
   return (
     <Tabs value={set} onValueChange={(set) => setSet(set as SetID)}>
-      <header className="sticky -top-10 left-0 z-50 flex flex-col items-center gap-4 border-b bg-background px-4 sm:top-0 sm:flex-row sm:justify-between sm:px-4 sm:py-4 md:mx-6 md:justify-start md:px-0 lg:mx-8 lg:gap-16">
-        <div className="flex items-center gap-4">
+      <header className="sticky -top-10 left-0 z-50 flex flex-col items-center gap-4 border-b bg-background px-4 sm:top-0 sm:flex-row sm:justify-between sm:px-4 sm:py-4 md:mx-6 md:justify-start md:px-0 lg:mx-8">
+        <div className="flex w-full items-center gap-4">
           <h1 className="text-4xl font-semibold leading-none">{match.score}</h1>
           <div className="h-8 w-px bg-primary/20" />
           <div className="flex flex-col text-sm text-muted-foreground">
@@ -57,8 +55,14 @@ export default function MatchAnalysis({ matchId }: { matchId: number }) {
               <span>{dayjs(match.date).format("DD.MM.YYYY")}</span>
             </div>
           </div>
+          {isPlayerOrOwner && (
+            <ShareMatchDialog
+              matchId={matchId}
+              isShared={match.shared ?? false}
+            />
+          )}
         </div>
-        <div className="sticky left-0 top-0 flex items-center gap-4 pb-4 sm:pb-0 md:mx-auto">
+        <div className="sticky left-0 top-0 flex items-center gap-4 pb-4 sm:pb-0">
           {/* <span className="text-muted-foreground">Set</span> */}
           <TabsList>
             {setArray.map((set) => (
@@ -68,24 +72,10 @@ export default function MatchAnalysis({ matchId }: { matchId: number }) {
             ))}
           </TabsList>
         </div>
-        <div className="hidden items-center gap-2 md:flex">
-          <Link
-            className={cn(buttonVariants({ variant: "secondary" }))}
-            href={`/dashboard/${teamId}/${matchId}#players`}
-          >
-            Zawodnicy
-          </Link>
-          <Link
-            className={cn(buttonVariants({ variant: "secondary" }))}
-            href={`/dashboard/${teamId}/${matchId}#stats`}
-          >
-            Statystyki
-          </Link>
-        </div>
       </header>
       <div className="flex flex-col gap-8 px-4 pt-4 md:px-6 md:pt-6 lg:px-8 lg:pt-8">
         <section className="relative flex flex-col gap-4">
-          <div className="absolute -top-20" id="players" />
+          <div className="absolute -top-20" />
           <h2 className="text-2xl font-semibold leading-none">Zawodnicy</h2>
           <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 xl:grid-cols-3">
             {players.map((player) => (
@@ -113,7 +103,7 @@ export default function MatchAnalysis({ matchId }: { matchId: number }) {
           </div>
         </section>
         <section className="relative flex flex-col gap-4">
-          <div className="absolute -top-20" id="stats" />
+          <div className="absolute -top-20" />
           <h2 className="text-2xl font-semibold leading-none">
             Statystyki drużyny
           </h2>
