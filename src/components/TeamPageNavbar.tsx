@@ -21,14 +21,17 @@ export default function TeamPageNavbar({
   const { isPlayerOrOwner } = useTeamContext();
 
   return (
-    <Tabs value={searchParams.get("t") ?? "matches"}>
+    <Tabs
+      value={searchParams.get("t") ?? "matches"}
+      className="flex flex-col md:gap-2"
+    >
       {children}
-      <div className="fixed bottom-0 left-0 right-0 border-t border-border bg-background py-2 md:hidden">
-        <TabsList className="flex h-auto w-full justify-evenly bg-background">
+      <div className="fixed bottom-0 left-0 right-0 border-t border-border bg-background py-2 md:static md:-order-1 md:mx-auto md:w-full md:max-w-7xl md:border-none md:px-6 lg:px-8">
+        <TabsList className="flex h-auto w-full justify-evenly bg-background md:w-min md:justify-start md:bg-muted/25">
           <TabsTrigger value="matches" asChild>
             <Link
               href={`${pathname}?t=matches`}
-              className="flex flex-col gap-1"
+              className="flex flex-col gap-1 md:flex-row md:gap-1.5 md:data-[state=active]:bg-secondary md:data-[state=active]:shadow-none"
               shallow
             >
               <SwordsIcon className="h-5 w-5" />
@@ -38,7 +41,7 @@ export default function TeamPageNavbar({
           <TabsTrigger value="members" asChild>
             <Link
               href={`${pathname}?t=members`}
-              className="flex flex-col gap-1"
+              className="flex flex-col gap-1 md:flex-row md:gap-1.5 md:data-[state=active]:bg-secondary md:data-[state=active]:shadow-none"
               shallow
             >
               <UsersIcon className="h-5 w-5" />
@@ -48,7 +51,7 @@ export default function TeamPageNavbar({
           <TabsTrigger value="stats" asChild>
             <Link
               href={`${pathname}?t=stats`}
-              className="flex flex-col gap-1"
+              className="flex flex-col gap-1 md:flex-row md:gap-1.5 md:data-[state=active]:bg-secondary md:data-[state=active]:shadow-none"
               shallow
             >
               <BarChartIcon className="h-5 w-5" />
@@ -59,7 +62,7 @@ export default function TeamPageNavbar({
             <TabsTrigger value="settings" asChild>
               <Link
                 href={`${pathname}?t=settings`}
-                className="flex flex-col gap-1"
+                className="flex flex-col gap-1 md:flex-row md:gap-1.5 md:data-[state=active]:bg-secondary md:data-[state=active]:shadow-none"
                 shallow
               >
                 <SettingsIcon className="h-5 w-5" />

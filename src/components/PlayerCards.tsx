@@ -11,7 +11,7 @@ export function TeamPlayers() {
   const [players] = api.team.players.useSuspenseQuery({ teamId });
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 md:grid md:grid-cols-2">
       {players.map((player) => (
         <PlayerCard
           key={player.id}
@@ -34,7 +34,7 @@ export function TeamPlayers() {
 }
 
 export default function PlayerCard({
-  player: { firstName, lastName, position },
+  player: { firstName, lastName, position, shirtNumber },
   header,
   children,
 }: {
@@ -49,7 +49,12 @@ export default function PlayerCard({
           <CardTitle>
             {firstName} {lastName}
           </CardTitle>
-          <CardDescription>{position}</CardDescription>
+          <CardDescription>
+            <span>{position}</span>
+            <span className="sm:hidden">
+              {!!shirtNumber && `, ${shirtNumber}`}
+            </span>
+          </CardDescription>
         </div>
         {header}
       </CardHeader>

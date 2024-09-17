@@ -35,7 +35,7 @@ export default async function Team({
     <HydrateClient>
       <TeamPageNavbar>
         <main className="mx-auto flex w-full max-w-xl flex-col gap-8 px-4 pb-[calc(75px_+_1rem)] md:grid md:max-w-7xl md:grid-cols-2 md:px-6 md:pb-6 lg:gap-12 lg:px-8 lg:pb-8">
-          <TabsContent value="matches">
+          <TabsContent value="matches" className="col-span-2">
             <section className="flex w-full flex-col gap-4">
               <div className="flex w-full items-center justify-between">
                 <h1 className="text-2xl font-semibold">Ostatnie mecze</h1>
@@ -44,7 +44,7 @@ export default async function Team({
               <MatchCards />
             </section>
           </TabsContent>
-          <TabsContent value="members">
+          <TabsContent value="members" className="md:col-span-2">
             <section className="flex w-full flex-col gap-4">
               <div className="flex w-full items-center justify-between">
                 <h2 className="text-2xl font-semibold">Zawodnicy</h2>
@@ -53,9 +53,9 @@ export default async function Team({
               <TeamPlayers />
             </section>
           </TabsContent>
-          <TabsContent value="stats">
-            <section className="flex w-full flex-col gap-4 md:col-span-2">
-              <div className="flex flex-col gap-4 md:grid md:grid-cols-2">
+          <TabsContent value="stats" className="md:col-span-2">
+            <section className="flex w-full flex-col gap-4">
+              <div className="flex flex-col gap-4 md:grid md:grid-cols-2 lg:grid-cols-3">
                 <SetDistributionChart stats={stats} />
                 <ScorersChart stats={stats} />
                 <AttackChart stats={stats} />

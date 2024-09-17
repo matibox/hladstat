@@ -25,7 +25,7 @@ export default function MatchCards() {
   const [matches] = api.team.recentMatches.useSuspenseQuery({ teamId });
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 md:grid md:grid-cols-2">
       {matches.map((match) => (
         <MatchCard key={match.id} match={match} />
       ))}
@@ -38,7 +38,7 @@ export default function MatchCards() {
           href={`/dashboard/${teamId}/matches`}
           className={cn(
             buttonVariants({ size: "sm", variant: "secondary" }),
-            "self-end",
+            "self-end md:col-start-2 md:place-self-end",
           )}
         >
           <span>Wszystkie mecze</span>
