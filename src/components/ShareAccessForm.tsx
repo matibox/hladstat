@@ -1,18 +1,19 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useDebounce } from "~/hooks/useDebounce";
+import { api } from "~/trpc/react";
 import ResponsiveDialog from "./ui/responsive-dialog";
 import { Button } from "./ui/button";
 import {
   CheckIcon,
   ChevronsUpDownIcon,
   Loader2Icon,
-  PlusIcon,
-  ShirtIcon,
+  Share2Icon,
 } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
@@ -31,31 +32,16 @@ import {
   CommandItem,
   CommandList,
 } from "./ui/command";
-import { api } from "~/trpc/react";
-import { useDebounce } from "~/hooks/useDebounce";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
-import { positions } from "~/lib/constants";
-import { Input } from "./ui/input";
 import { useTeamContext } from "./TeamContext";
 
 export const formSchema = z.object({
-  playerId: z
-    .string({ required_error: "Wybierz zawodnika." })
-    .min(1, "Wybierz zawodnika."),
-  position: z
-    .string({ required_error: "Pozycja jest wymagana." })
-    .min(1, "Pozycja jest wymagana."),
-  shirtNumber: z.string().optional(),
+  userId: z
+    .string({ required_error: "Wybierz użytkownika." })
+    .min(1, "Wybierz użytkownika."),
 });
 
-export default function AddPlayerForm() {
-  const { teamId, isPlayerOrOwner } = useTeamContext();
+export default function ShareAccessForm() {
+  const { teamId } = useTeamContext();
   const [formOpened, setFormOpened] = useState(false);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -64,32 +50,27 @@ export default function AddPlayerForm() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      position: "",
-      shirtNumber: "",
-    },
   });
 
-  const utils = api.useUtils();
-  const playersByQuery = api.user.byQueryNotInTeam.useQuery(
+  const playersByQuery = api.user.byQueryNotSharedFromTeam.useQuery(
     { q: debouncedQuery, teamId },
     { enabled: Boolean(debouncedQuery) },
   );
 
-  const addPlayer = api.team.addPlayer.useMutation({
+  const utils = api.useUtils();
+  const share = api.team.shareTo.useMutation({
     onSuccess: async () => {
-      await utils.team.players.invalidate();
+      await utils.team.sharedToUsers.invalidate();
       setFormOpened(false);
       form.reset();
       setQuery("");
     },
   });
 
-  function onSubmit({ shirtNumber, ...values }: z.infer<typeof formSchema>) {
-    addPlayer.mutate({
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    share.mutate({
       ...values,
       teamId,
-      shirtNumber: shirtNumber ? parseInt(shirtNumber) : undefined,
     });
   }
 
@@ -98,13 +79,13 @@ export default function AddPlayerForm() {
       open={formOpened}
       onOpenChange={setFormOpened}
       trigger={
-        <Button size="sm" disabled={!isPlayerOrOwner}>
-          <span>Dodaj zawodnika</span>
-          <PlusIcon className="ml-1 h-4 w-4" />
+        <Button className="self-start" size="sm">
+          <span>Dodaj osoby</span>
+          <Share2Icon className="ml-1.5 h-4 w-4" />
         </Button>
       }
-      title="Dodaj zawodnika"
-      description="Nowy transfer? Ale czad!"
+      title="Udostępnij dostęp"
+      description="Wybierz użytkownika i udostępnij mu dostęp do statystyk twojej drużyny."
     >
       <Form {...form}>
         <form
@@ -113,10 +94,10 @@ export default function AddPlayerForm() {
         >
           <FormField
             control={form.control}
-            name="playerId"
+            name="userId"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Zawodnik</FormLabel>
+                <FormLabel>Użytkownik</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -155,7 +136,7 @@ export default function AddPlayerForm() {
                               <Loader2Icon className="h-4 w-4 animate-spin" />
                             </div>
                           ) : (
-                            "Nie znaleziono zawodników."
+                            "Nie znaleziono użytkowników."
                           )}
                         </CommandEmpty>
                         <CommandGroup>
@@ -164,7 +145,7 @@ export default function AddPlayerForm() {
                               key={player.id}
                               value={`${player.firstName} ${player.lastName}`}
                               onSelect={() => {
-                                form.setValue("playerId", player.id);
+                                form.setValue("userId", player.id);
                               }}
                             >
                               <CheckIcon
@@ -187,59 +168,8 @@ export default function AddPlayerForm() {
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="position"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Pozycja</FormLabel>
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Wybierz pozycję" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {positions.map((position) => (
-                      <SelectItem key={position} value={position}>
-                        {position}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="shirtNumber"
-            render={({ field }) => (
-              <FormItem>
-                <div className="flex items-center gap-4">
-                  <div className="grow space-y-2">
-                    <FormLabel>Numer koszulki (opcjonalne)</FormLabel>
-                    <FormControl>
-                      <Input type="number" min={1} max={99} {...field} />
-                    </FormControl>
-                  </div>
-                  <div className="relative">
-                    <ShirtIcon className="h-12 w-12 fill-current" />
-                    <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-lg font-bold text-primary-foreground">
-                      {field.value ? field.value?.slice(0, 2) : "?"}
-                    </span>
-                  </div>
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button
-            type="submit"
-            className="self-end"
-            loading={addPlayer.isPending}
-          >
-            Dodaj
+          <Button type="submit" className="self-end" loading={share.isPending}>
+            Udostępnij
           </Button>
         </form>
       </Form>

@@ -15,24 +15,29 @@ import { ScrollArea } from "./ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { countStat } from "~/lib/stats";
 import { type SetID } from "./MatchAnalysis";
+import { useTeamContext } from "./TeamContext";
 
 export default function PlayerStatsDialog({
   matchId,
-  teamId,
   set,
   player: { id: playerId, firstName, lastName, position, shirtNumber },
 }: {
   matchId?: number;
-  teamId: number;
   set: SetID;
   player: RouterOutputs["team"]["players"][number];
 }) {
+  const { teamId } = useTeamContext();
   const [formOpened, setFormOpened] = useState(false);
 
-  const { data: stats, isPending } = api.match.playerStats.useQuery(
-    { matchId, playerId, teamId },
-    { enabled: formOpened },
-  );
+  const { data: stats, isPending } = matchId
+    ? api.match.playerStats.useQuery(
+        { matchId, playerId, teamId },
+        { enabled: formOpened && !!matchId },
+      )
+    : api.team.playerStats.useQuery(
+        { playerId, teamId },
+        { enabled: formOpened && !matchId },
+      );
 
   const statsBySet = stats?.filter((stat) => {
     if (set === "Ogółem") return true;

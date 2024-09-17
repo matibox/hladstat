@@ -19,16 +19,12 @@ import PlayerStatsDialog from "./PlayerStatsDialog";
 import Link from "next/link";
 import { cn } from "~/lib/utils";
 import { buttonVariants } from "./ui/button";
+import { useTeamContext } from "./TeamContext";
 
 export type SetID = "1" | "2" | "3" | "4" | "5" | "Ogółem";
 
-export default function MatchAnalysis({
-  teamId,
-  matchId,
-}: {
-  teamId: number;
-  matchId: number;
-}) {
+export default function MatchAnalysis({ matchId }: { matchId: number }) {
+  const { teamId, isPlayerOrOwner } = useTeamContext();
   const [set, setSet] = useState<SetID>("1");
 
   const [match] = api.match.byId.useSuspenseQuery({ matchId });
@@ -102,9 +98,8 @@ export default function MatchAnalysis({
                       set={set}
                       player={player}
                       matchId={matchId}
-                      teamId={teamId}
                     />
-                    {set !== "Ogółem" && (
+                    {set !== "Ogółem" && isPlayerOrOwner && (
                       <AddStatisticForm
                         set={parseInt(set)}
                         player={player}

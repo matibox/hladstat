@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import React from "react";
+import TeamContextProvider from "~/components/TeamContext";
 import { api } from "~/trpc/server";
 
 export default async function TeamLayout({
@@ -16,9 +17,11 @@ export default async function TeamLayout({
   if (!isInTeam) redirect("/dashboard");
 
   return (
-    <div className="flex flex-col">
-      {nav}
-      {children}
-    </div>
+    <TeamContextProvider teamId={parseInt(teamId)}>
+      <div className="flex flex-col">
+        {nav}
+        {children}
+      </div>
+    </TeamContextProvider>
   );
 }

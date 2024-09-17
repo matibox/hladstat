@@ -18,14 +18,16 @@ import {
 import { api, type RouterOutputs } from "~/trpc/react";
 import Link from "next/link";
 import { cn } from "~/lib/utils";
+import { useTeamContext } from "./TeamContext";
 
-export default function MatchCards({ teamId }: { teamId: number }) {
+export default function MatchCards() {
+  const { teamId } = useTeamContext();
   const [matches] = api.team.recentMatches.useSuspenseQuery({ teamId });
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 md:grid md:grid-cols-2">
       {matches.map((match) => (
-        <MatchCard key={match.id} match={match} teamId={teamId} />
+        <MatchCard key={match.id} match={match} />
       ))}
       {matches.length === 0 ? (
         <p className="text-center text-muted-foreground">
@@ -36,7 +38,7 @@ export default function MatchCards({ teamId }: { teamId: number }) {
           href={`/dashboard/${teamId}/matches`}
           className={cn(
             buttonVariants({ size: "sm", variant: "secondary" }),
-            "self-end",
+            "self-end md:col-start-2 md:place-self-end",
           )}
         >
           <span>Wszystkie mecze</span>
@@ -49,13 +51,13 @@ export default function MatchCards({ teamId }: { teamId: number }) {
 
 export function MatchCard({
   match,
-  teamId,
   children,
 }: {
   match: RouterOutputs["team"]["recentMatches"][number];
-  teamId: number;
   children?: React.ReactNode;
 }) {
+  const { teamId } = useTeamContext();
+
   return (
     <Card className="w-full border-none bg-muted/25">
       <CardHeader className="flex flex-row items-center gap-4 space-y-0 p-4">

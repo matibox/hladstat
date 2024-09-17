@@ -24,6 +24,7 @@ import { Calendar } from "./ui/calendar";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "./ui/input-otp";
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
+import { useTeamContext } from "./TeamContext";
 
 export const formSchema = z
   .object({
@@ -52,7 +53,8 @@ export const formSchema = z
     }
   });
 
-export default function NewMatchForm({ teamId }: { teamId: number }) {
+export default function NewMatchForm() {
+  const { teamId, isPlayerOrOwner } = useTeamContext();
   const [formOpened, setFormOpened] = useState(false);
   const router = useRouter();
 
@@ -86,7 +88,7 @@ export default function NewMatchForm({ teamId }: { teamId: number }) {
       open={formOpened}
       onOpenChange={setFormOpened}
       trigger={
-        <Button size="sm">
+        <Button size="sm" disabled={!isPlayerOrOwner}>
           <span>Nowy mecz</span>
           <PlusIcon className="ml-1 h-4 w-4" />
         </Button>
