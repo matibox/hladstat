@@ -27,12 +27,12 @@ export default function TeamContextProvider({
   teamId: number;
   children: React.ReactNode;
 }) {
-  const { data } = api.user.isPlayerOrOwner.useQuery({ teamId });
-  const isPlayerOrOwner = data?.isPlayerOrOwner ?? false;
+  const { data, isPending } = api.user.isPlayerOrOwner.useQuery({ teamId });
+  const isPlayerOrOwner = !isPending ? (data?.isPlayerOrOwner ?? false) : true;
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  if (!isPlayerOrOwner && searchParams.get("t") === "settings") {
+  if (!isPlayerOrOwner && !isPending && searchParams.get("t") === "settings") {
     router.push(`/dashboard/${teamId}?t=matches`);
   }
 
