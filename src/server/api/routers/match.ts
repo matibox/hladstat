@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { matches } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 
@@ -28,7 +28,7 @@ export const matchRouter = createTRPCRouter({
 
       return { matchId: data?.matchId };
     }),
-  byId: protectedProcedure
+  byId: publicProcedure
     .input(z.object({ matchId: z.number() }))
     .query(async ({ ctx, input }) => {
       const { matchId } = input;
@@ -46,7 +46,7 @@ export const matchRouter = createTRPCRouter({
             .reduce((a, b) => a + b, 0) ?? 0,
       };
     }),
-  stats: protectedProcedure
+  stats: publicProcedure
     .input(z.object({ teamId: z.number(), matchId: z.number() }))
     .query(async ({ ctx, input }) => {
       const { teamId, matchId } = input;
@@ -88,7 +88,7 @@ export const matchRouter = createTRPCRouter({
 
       return stats!;
     }),
-  playerStats: protectedProcedure
+  playerStats: publicProcedure
     .input(
       z.object({
         matchId: z.number(),

@@ -21,7 +21,13 @@ import ShareMatchDialog from "./ShareMatchDialog";
 
 export type SetID = "1" | "2" | "3" | "4" | "5" | "Ogółem";
 
-export default function MatchAnalysis({ matchId }: { matchId: number }) {
+export default function MatchAnalysis({
+  matchId,
+  isShared = false,
+}: {
+  matchId: number;
+  isShared?: boolean;
+}) {
   const { teamId, isPlayerOrOwner } = useTeamContext();
   const [set, setSet] = useState<SetID>("1");
 
@@ -55,7 +61,7 @@ export default function MatchAnalysis({ matchId }: { matchId: number }) {
               <span>{dayjs(match.date).format("DD.MM.YYYY")}</span>
             </div>
           </div>
-          {isPlayerOrOwner && (
+          {isPlayerOrOwner && !isShared && (
             <ShareMatchDialog
               matchId={matchId}
               isShared={match.shared ?? false}
@@ -89,7 +95,7 @@ export default function MatchAnalysis({ matchId }: { matchId: number }) {
                       player={player}
                       matchId={matchId}
                     />
-                    {set !== "Ogółem" && isPlayerOrOwner && (
+                    {set !== "Ogółem" && isPlayerOrOwner && !isShared && (
                       <AddStatisticForm
                         set={parseInt(set)}
                         player={player}

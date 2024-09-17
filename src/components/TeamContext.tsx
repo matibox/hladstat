@@ -23,12 +23,18 @@ export function useTeamContext() {
 export default function TeamContextProvider({
   teamId,
   children,
+  isShared = false,
 }: {
   teamId: number;
   children: React.ReactNode;
+  isShared?: boolean;
 }) {
-  const { data, isPending } = api.user.isPlayerOrOwner.useQuery({ teamId });
+  const { data, isPending } = api.user.isPlayerOrOwner.useQuery(
+    { teamId },
+    { enabled: !isShared },
+  );
   const isPlayerOrOwner = !isPending ? (data?.isPlayerOrOwner ?? false) : true;
+
   const router = useRouter();
   const searchParams = useSearchParams();
 

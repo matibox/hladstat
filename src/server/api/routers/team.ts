@@ -1,5 +1,5 @@
 import { matches, stats, teams, users, usersToTeams } from "~/server/db/schema";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import z from "zod";
 import { and, eq } from "drizzle-orm";
 
@@ -72,7 +72,7 @@ export const teamRouter = createTRPCRouter({
         role: "player",
       });
     }),
-  players: protectedProcedure
+  players: publicProcedure
     .input(z.object({ teamId: z.number() }))
     .query(async ({ ctx, input }) => {
       const { teamId } = input;
