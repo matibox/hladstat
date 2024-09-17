@@ -136,7 +136,7 @@ export default function ShareAccessForm() {
                               <Loader2Icon className="h-4 w-4 animate-spin" />
                             </div>
                           ) : (
-                            "Nie znaleziono zawodników."
+                            "Nie znaleziono użytkowników."
                           )}
                         </CommandEmpty>
                         <CommandGroup>
