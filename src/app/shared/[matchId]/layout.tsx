@@ -1,4 +1,5 @@
 import { HomeIcon } from "lucide-react";
+import { isRedirectError } from "next/dist/client/components/redirect";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import TeamContextProvider from "~/components/TeamContext";
@@ -37,7 +38,9 @@ export default async function SharedMatchLayout({
   try {
     const { isInTeam } = await api.user.isInTeam({ teamId: match.teamId! });
     if (isInTeam) return redirect(`/dashboard/${match.teamId!}/${matchId}`);
-  } catch (err) {}
+  } catch (err) {
+    if (isRedirectError(err)) throw err;
+  }
 
   return (
     <TeamContextProvider isShared={true} teamId={match.teamId!}>

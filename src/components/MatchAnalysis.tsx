@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
 import { api } from "~/trpc/react";
-import { CalendarIcon, SwordsIcon } from "lucide-react";
+import { CalendarIcon, SettingsIcon, SwordsIcon } from "lucide-react";
 import dayjs from "dayjs";
 import PlayerCard from "./PlayerCards";
 import AddStatisticForm from "./AddStatisticForm";
@@ -18,6 +18,12 @@ import {
 import PlayerStatsDialog from "./PlayerStatsDialog";
 import { useTeamContext } from "./TeamContext";
 import ShareMatchDialog from "./ShareMatchDialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { Button } from "./ui/button";
 
 export type SetID = "1" | "2" | "3" | "4" | "5" | "Ogółem";
 
@@ -30,6 +36,7 @@ export default function MatchAnalysis({
 }) {
   const { teamId, isPlayerOrOwner } = useTeamContext();
   const [set, setSet] = useState<SetID>("1");
+  const [menuOpened, setMenuOpened] = useState(false);
 
   const [match] = api.match.byId.useSuspenseQuery({ matchId });
   const [players] = api.team.players.useSuspenseQuery({ teamId });
@@ -62,10 +69,24 @@ export default function MatchAnalysis({
             </div>
           </div>
           {isPlayerOrOwner && !isShared && (
-            <ShareMatchDialog
-              matchId={matchId}
-              isShared={match.shared ?? false}
-            />
+            <DropdownMenu open={menuOpened} onOpenChange={setMenuOpened}>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="outline"
+                  aria-label={`${menuOpened ? "Zamknij" : "Otwórz"} menu`}
+                  className="ml-auto"
+                >
+                  <SettingsIcon className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <ShareMatchDialog
+                  matchId={matchId}
+                  isShared={match.shared ?? false}
+                />
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </div>
         <div className="sticky left-0 top-0 flex items-center gap-4 pb-4 sm:pb-0">

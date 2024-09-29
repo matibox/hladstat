@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import ResponsiveDialog from "./ui/responsive-dialog";
 import { Button } from "./ui/button";
@@ -12,6 +14,7 @@ import {
 } from "./ui/tooltip";
 import { useToast } from "~/hooks/useToast";
 import { ToastAction } from "./ui/toast";
+import { DropdownMenuItem } from "./ui/dropdown-menu";
 
 export default function ShareMatchDialog({
   matchId,
@@ -24,7 +27,10 @@ export default function ShareMatchDialog({
 
   const [formOpened, setFormOpened] = useState(false);
 
-  const matchURL = `${window.location.host}/shared/${matchId}`;
+  const matchURL =
+    typeof window !== "undefined"
+      ? `${window.location.host}/shared/${matchId}`
+      : "";
 
   async function copyURL() {
     await window.navigator.clipboard.writeText(matchURL);
@@ -59,16 +65,11 @@ export default function ShareMatchDialog({
       open={formOpened}
       onOpenChange={setFormOpened}
       trigger={
-        <Button
-          size="icon"
-          variant="default"
-          aria-label="Udostępnij mecz"
-          className="ml-auto"
-        >
-          <Share2Icon className="h-4 w-4" />
-        </Button>
+        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+          <Share2Icon className="mr-2 h-4 w-4" />
+          <span>Udostępnianie</span>
+        </DropdownMenuItem>
       }
-      tooltip="Udostępnianie meczu"
       title={!isShared ? "Udostępnij mecz" : "Cofnij udostępnienie meczu"}
       description={
         !isShared

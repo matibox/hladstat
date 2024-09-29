@@ -56,7 +56,10 @@ export default function ResponsiveDialog({
             <TooltipContent hidden={!tooltip}>{tooltip}</TooltipContent>
           </Tooltip>
         </TooltipProvider>
-        <DialogContent className={cn("sm:max-w-[425px]", className)}>
+        <DialogContent
+          className={cn("sm:max-w-[425px]", className)}
+          onOpenAutoFocus={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             {title ? <DialogTitle>{title}</DialogTitle> : null}
             {description ? (
@@ -79,7 +82,7 @@ export default function ResponsiveDialog({
           <TooltipContent hidden={!tooltip}>{tooltip}</TooltipContent>
         </Tooltip>
       </TooltipProvider>
-      <DrawerContent>
+      <DrawerContent onOpenAutoFocus={(e) => e.preventDefault()}>
         <DrawerHeader className="text-slate-50 sm:text-center">
           <DrawerTitle>{title}</DrawerTitle>
           {description ? (
