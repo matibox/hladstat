@@ -93,7 +93,11 @@ export const userRouter = createTRPCRouter({
 
       const foundTeam = await ctx.db.query.usersToTeams.findFirst({
         columns: { teamId: true },
-        where: (usersToTeams, { eq }) => eq(usersToTeams.teamId, teamId),
+        where: (usersToTeams, { and, eq }) =>
+          and(
+            eq(usersToTeams.teamId, teamId),
+            eq(usersToTeams.userId, ctx.session.user.id),
+          ),
       });
 
       return { isInTeam: !!foundTeam };

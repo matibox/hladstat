@@ -1,5 +1,6 @@
 import { HomeIcon } from "lucide-react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import TeamContextProvider from "~/components/TeamContext";
 import { buttonVariants } from "~/components/ui/button";
 import { api } from "~/trpc/server";
@@ -32,6 +33,11 @@ export default async function SharedMatchLayout({
       </main>
     );
   }
+
+  try {
+    const { isInTeam } = await api.user.isInTeam({ teamId: match.teamId! });
+    if (isInTeam) return redirect(`/dashboard/${match.teamId!}/${matchId}`);
+  } catch (err) {}
 
   return (
     <TeamContextProvider isShared={true} teamId={match.teamId!}>

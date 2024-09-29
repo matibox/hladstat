@@ -14,7 +14,7 @@ export default async function MatchAnalysisPage({
 
   return (
     <HydrateClient>
-      <main className="relative mx-auto flex w-full flex-col gap-8 pb-4 md:pb-6 lg:max-w-[90vw] lg:gap-12 lg:pb-8">
+      <main className="relative mx-auto flex w-full flex-col gap-8 py-4 md:py-6 lg:max-w-[90vw] lg:gap-12 lg:py-8">
         <MatchAnalysis matchId={matchId} isShared={true} />
       </main>
     </HydrateClient>
