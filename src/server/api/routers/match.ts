@@ -144,4 +144,14 @@ export const matchRouter = createTRPCRouter({
         .set({ shared: !isShared })
         .where(eq(matches.id, matchId));
     }),
+  toggleLockAnalysis: protectedProcedure
+    .input(z.object({ matchId: z.number(), isLocked: z.boolean() }))
+    .mutation(async ({ ctx, input }) => {
+      const { matchId, isLocked } = input;
+
+      await ctx.db
+        .update(matches)
+        .set({ lockedAnalysis: !isLocked })
+        .where(eq(matches.id, matchId));
+    }),
 });

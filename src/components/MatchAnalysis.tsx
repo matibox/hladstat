@@ -21,9 +21,12 @@ import ShareMatchDialog from "./ShareMatchDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
+import LockAnalysisDialog from "./LockAnalysisDialog";
 
 export type SetID = "1" | "2" | "3" | "4" | "5" | "Ogółem";
 
@@ -69,7 +72,11 @@ export default function MatchAnalysis({
             </div>
           </div>
           {isPlayerOrOwner && !isShared && (
-            <DropdownMenu open={menuOpened} onOpenChange={setMenuOpened}>
+            <DropdownMenu
+              open={menuOpened}
+              onOpenChange={setMenuOpened}
+              modal={false}
+            >
               <DropdownMenuTrigger asChild>
                 <Button
                   size="icon"
@@ -81,10 +88,17 @@ export default function MatchAnalysis({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <ShareMatchDialog
-                  matchId={matchId}
-                  isShared={match.shared ?? false}
-                />
+                <DropdownMenuLabel>Ustawienia meczu</DropdownMenuLabel>
+                <DropdownMenuGroup>
+                  <ShareMatchDialog
+                    matchId={matchId}
+                    isShared={match.shared ?? false}
+                  />
+                  <LockAnalysisDialog
+                    matchId={matchId}
+                    isLocked={match.lockedAnalysis ?? false}
+                  />
+                </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
           )}
@@ -121,6 +135,7 @@ export default function MatchAnalysis({
                         set={parseInt(set)}
                         player={player}
                         matchId={matchId}
+                        lockedAnalysis={match.lockedAnalysis ?? false}
                       />
                     )}
                   </>

@@ -4,20 +4,23 @@ import React, { useState } from "react";
 import ResponsiveDialog from "./ui/responsive-dialog";
 import { Button } from "./ui/button";
 import { api, type RouterOutputs } from "~/trpc/react";
-import { ClipboardPlusIcon, Loader2Icon } from "lucide-react";
+import { ClipboardPlusIcon, Loader2Icon, LockIcon } from "lucide-react";
 import { statsOptions, type StatsCode } from "~/lib/constants";
 import { useToast } from "~/hooks/useToast";
 import { ToastAction } from "./ui/toast";
 import { statCodeToLabel } from "~/lib/stats";
+import { cn } from "~/lib/utils";
 
 export default function AddStatisticForm({
   matchId,
   set,
   player: { id: playerId, firstName, lastName, position, shirtNumber },
+  lockedAnalysis = false,
 }: {
   matchId: number;
   set: number;
   player: RouterOutputs["team"]["players"][number];
+  lockedAnalysis?: boolean;
 }) {
   const [formOpened, setFormOpened] = useState(false);
   const { toast } = useToast();
@@ -70,7 +73,19 @@ export default function AddStatisticForm({
       open={formOpened}
       onOpenChange={setFormOpened}
       trigger={
-        <Button size="icon" aria-label="Dodaj statystykę" className="ml-3">
+        <Button
+          size="icon"
+          aria-label="Dodaj statystykę"
+          className={cn("ml-3", {
+            relative: lockedAnalysis,
+          })}
+          disabled={lockedAnalysis}
+        >
+          {lockedAnalysis && (
+            <div className="absolute -right-2 -top-2 flex items-center justify-center rounded-full bg-red-500 p-1">
+              <LockIcon className="h-3 w-3" />
+            </div>
+          )}
           <ClipboardPlusIcon className="h-5 w-5" />
         </Button>
       }

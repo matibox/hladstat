@@ -136,6 +136,7 @@ export const matches = createTable("matches", {
   opponent: text("opponent", { length: 255 }).notNull(),
   score: text("score", { length: 3 }).notNull(),
   shared: int("shared", { mode: "boolean" }).default(false),
+  lockedAnalysis: int("locked_analysis", { mode: "boolean" }).default(false),
 });
 
 export const stats = createTable("stats", {
