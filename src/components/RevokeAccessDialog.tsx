@@ -10,9 +10,9 @@ export default function RevokeAccessDialog({ userId }: { userId: string }) {
   const [formOpened, setFormOpened] = useState(false);
 
   const utils = api.useUtils();
-  const revokeAccess = api.team.revokeUserAccess.useMutation({
+  const revokeAccess = api.team.revokeViewerAccess.useMutation({
     onSuccess: async () => {
-      await utils.team.sharedToUsers.invalidate();
+      await utils.user.byTeamViewers.invalidate();
       setFormOpened(false);
     },
   });

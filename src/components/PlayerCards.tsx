@@ -8,7 +8,7 @@ import { useTeamContext } from "./TeamContext";
 
 export function TeamPlayers() {
   const { teamId } = useTeamContext();
-  const [players] = api.team.players.useSuspenseQuery({ teamId });
+  const [players] = api.user.byTeamPlayers.useSuspenseQuery({ teamId });
 
   return (
     <div className="flex flex-col gap-4 md:grid md:grid-cols-2">
@@ -38,7 +38,7 @@ export default function PlayerCard({
   header,
   children,
 }: {
-  player: RouterOutputs["team"]["players"][number];
+  player: RouterOutputs["user"]["byTeamPlayers"][number];
   header?: React.ReactNode;
   children?: React.ReactNode;
 }) {

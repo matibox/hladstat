@@ -1,9 +1,14 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
 import { matches } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 
 export const matchRouter = createTRPCRouter({
+  // CREATE
   create: protectedProcedure
     .input(
       z.object({
@@ -28,6 +33,7 @@ export const matchRouter = createTRPCRouter({
 
       return { matchId: data?.matchId };
     }),
+  // READ
   byId: publicProcedure
     .input(z.object({ matchId: z.number() }))
     .query(async ({ ctx, input }) => {
@@ -46,94 +52,31 @@ export const matchRouter = createTRPCRouter({
             .reduce((a, b) => a + b, 0) ?? 0,
       };
     }),
-  stats: publicProcedure
-    .input(z.object({ teamId: z.number(), matchId: z.number() }))
+  byTeamRecent: protectedProcedure
+    .input(z.object({ teamId: z.number() }))
     .query(async ({ ctx, input }) => {
-      const { teamId, matchId } = input;
+      const { teamId } = input;
 
-      const selectedMatch = await ctx.db.query.matches.findFirst({
-        where: (matches, { eq }) => eq(matches.id, matchId),
-        columns: { id: true },
-        with: {
-          stats: {
-            columns: { id: true, set: true, code: true },
-            with: {
-              player: {
-                columns: { id: true, firstName: true, lastName: true },
-                with: {
-                  teams: {
-                    where: (usersToTeams, { eq, and, inArray }) =>
-                      and(
-                        eq(usersToTeams.teamId, teamId),
-                        inArray(usersToTeams.role, ["owner", "player"]),
-                      ),
-                    columns: { position: true },
-                  },
-                },
-              },
-            },
-          },
-        },
+      return await ctx.db.query.matches.findMany({
+        columns: { id: true, date: true, opponent: true, score: true },
+        where: (matches, { eq }) => eq(matches.teamId, teamId),
+        orderBy: (matches, { desc }) => desc(matches.date),
+        limit: 6,
       });
-
-      const stats = selectedMatch?.stats.map(({ player, ...stat }) => {
-        return {
-          ...stat,
-          player: {
-            name: `${player.firstName} ${player.lastName}`,
-            position: player.teams[0]!.position!,
-          },
-        };
-      });
-
-      return stats!;
     }),
-  playerStats: publicProcedure
-    .input(
-      z.object({
-        matchId: z.number(),
-        teamId: z.number(),
-        playerId: z.string(),
-      }),
-    )
+  byTeamWithStats: protectedProcedure
+    .input(z.object({ teamId: z.number() }))
     .query(async ({ ctx, input }) => {
-      const { matchId, playerId, teamId } = input;
+      const { teamId } = input;
 
-      const selectedStats = await ctx.db.query.stats.findMany({
-        where: (stats, { eq, and }) =>
-          matchId
-            ? and(eq(stats.playerId, playerId), eq(stats.matchId, matchId))
-            : eq(stats.playerId, playerId),
-        columns: { id: true, code: true, set: true },
-        with: {
-          player: {
-            columns: { id: true, firstName: true, lastName: true },
-            with: {
-              teams: {
-                where: (usersToTeams, { eq, and, inArray }) =>
-                  and(
-                    eq(usersToTeams.teamId, teamId),
-                    inArray(usersToTeams.role, ["owner", "player"]),
-                  ),
-                columns: { position: true },
-              },
-            },
-          },
-        },
+      return await ctx.db.query.matches.findMany({
+        columns: { id: true, date: true, opponent: true, score: true },
+        where: (matches, { eq }) => eq(matches.teamId, teamId),
+        orderBy: (matches, { desc }) => desc(matches.date),
+        with: { stats: { columns: { id: true, code: true } } },
       });
-
-      const stats = selectedStats.map(({ player, ...stat }) => {
-        return {
-          ...stat,
-          player: {
-            name: `${player.firstName} ${player.lastName}`,
-            position: player.teams[0]!.position!,
-          },
-        };
-      });
-
-      return stats;
     }),
+  // UPDATE
   toggleShare: protectedProcedure
     .input(z.object({ matchId: z.number(), isShared: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
@@ -144,7 +87,7 @@ export const matchRouter = createTRPCRouter({
         .set({ shared: !isShared })
         .where(eq(matches.id, matchId));
     }),
-  toggleLockAnalysis: protectedProcedure
+  toggleAnalysisLock: protectedProcedure
     .input(z.object({ matchId: z.number(), isLocked: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
       const { matchId, isLocked } = input;
@@ -154,4 +97,5 @@ export const matchRouter = createTRPCRouter({
         .set({ lockedAnalysis: !isLocked })
         .where(eq(matches.id, matchId));
     }),
+  // DELETE
 });

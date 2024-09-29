@@ -8,7 +8,7 @@ import { useTeamContext } from "./TeamContext";
 
 export default function TeamSettings() {
   const { teamId } = useTeamContext();
-  const [sharedToUsers] = api.team.sharedToUsers.useSuspenseQuery({ teamId });
+  const [viewers] = api.user.byTeamViewers.useSuspenseQuery({ teamId });
 
   return (
     <TabsContent value="settings">
@@ -21,9 +21,9 @@ export default function TeamSettings() {
             Lista osób, które mogą zobaczyć statystyki meczów oraz zawodników.
           </p>
         </div>
-        {sharedToUsers.length > 0 && (
+        {viewers.length > 0 && (
           <div className="flex flex-col gap-1">
-            {sharedToUsers.map((user) => (
+            {viewers.map((user) => (
               <div key={user.id} className="flex items-center gap-2">
                 <div className="h-6 w-px bg-muted" />
                 <div className="flex flex-col gap-0.5">

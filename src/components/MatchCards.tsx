@@ -22,7 +22,7 @@ import { useTeamContext } from "./TeamContext";
 
 export default function MatchCards() {
   const { teamId } = useTeamContext();
-  const [matches] = api.team.recentMatches.useSuspenseQuery({ teamId });
+  const [matches] = api.match.byTeamRecent.useSuspenseQuery({ teamId });
 
   return (
     <div className="flex flex-col gap-4 md:grid md:grid-cols-2">
@@ -53,7 +53,7 @@ export function MatchCard({
   match,
   children,
 }: {
-  match: RouterOutputs["team"]["recentMatches"][number];
+  match: RouterOutputs["match"]["byTeamRecent"][number];
   children?: React.ReactNode;
 }) {
   const { teamId } = useTeamContext();

@@ -23,11 +23,11 @@ export default async function Team({
 }) {
   const teamId = parseInt(_teamId);
 
-  await api.team.recentMatches.prefetch({ teamId });
-  await api.team.players.prefetch({ teamId });
-  await api.team.sharedToUsers.prefetch({ teamId });
+  await api.match.byTeamRecent.prefetch({ teamId });
+  await api.user.byTeamPlayers.prefetch({ teamId });
+  await api.user.byTeamViewers.prefetch({ teamId });
 
-  const stats = await api.team.stats({ teamId });
+  const stats = await api.stats.byTeam({ teamId });
 
   const { points, errors } = countPointsAndErrors(stats);
 

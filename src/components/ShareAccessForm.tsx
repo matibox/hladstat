@@ -52,15 +52,15 @@ export default function ShareAccessForm() {
     resolver: zodResolver(formSchema),
   });
 
-  const playersByQuery = api.user.byQueryNotSharedFromTeam.useQuery(
+  const playersByQuery = api.user.byQueryNotViewerOfTeam.useQuery(
     { q: debouncedQuery, teamId },
     { enabled: Boolean(debouncedQuery) },
   );
 
   const utils = api.useUtils();
-  const share = api.team.shareTo.useMutation({
+  const share = api.team.shareViewerAccess.useMutation({
     onSuccess: async () => {
-      await utils.team.sharedToUsers.invalidate();
+      await utils.user.byTeamViewers.invalidate();
       setFormOpened(false);
       form.reset();
       setQuery("");

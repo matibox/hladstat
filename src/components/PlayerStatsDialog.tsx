@@ -24,17 +24,17 @@ export default function PlayerStatsDialog({
 }: {
   matchId?: number;
   set: SetID;
-  player: RouterOutputs["team"]["players"][number];
+  player: RouterOutputs["user"]["byTeamPlayers"][number];
 }) {
   const { teamId } = useTeamContext();
   const [formOpened, setFormOpened] = useState(false);
 
   const { data: stats, isPending } = matchId
-    ? api.match.playerStats.useQuery(
+    ? api.stats.byMatchPlayer.useQuery(
         { matchId, playerId, teamId },
         { enabled: formOpened && !!matchId },
       )
-    : api.team.playerStats.useQuery(
+    : api.stats.byTeamPlayer.useQuery(
         { playerId, teamId },
         { enabled: formOpened && !matchId },
       );

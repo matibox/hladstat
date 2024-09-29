@@ -31,7 +31,7 @@ export default function WelcomeForm() {
   });
 
   const router = useRouter();
-  const updateNameAndSurname = api.user.updateNameAndSurname.useMutation({
+  const updateFullName = api.user.updateFullName.useMutation({
     onSuccess: () => {
       router.push("/dashboard");
     },
@@ -39,7 +39,7 @@ export default function WelcomeForm() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
-    updateNameAndSurname.mutate(values);
+    updateFullName.mutate(values);
   }
 
   return (

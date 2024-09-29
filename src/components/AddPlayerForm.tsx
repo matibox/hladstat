@@ -78,7 +78,7 @@ export default function AddPlayerForm() {
 
   const addPlayer = api.team.addPlayer.useMutation({
     onSuccess: async () => {
-      await utils.team.players.invalidate();
+      await utils.user.byTeamPlayers.invalidate();
       setFormOpened(false);
       form.reset();
       setQuery("");

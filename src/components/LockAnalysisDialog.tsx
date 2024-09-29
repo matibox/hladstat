@@ -21,7 +21,7 @@ export default function LockAnalysisDialog({
   const [formOpened, setFormOpened] = useState(false);
 
   const utils = api.useUtils();
-  const lockMatchAnalysis = api.match.toggleLockAnalysis.useMutation({
+  const lockMatchAnalysis = api.match.toggleAnalysisLock.useMutation({
     onSuccess: async () => {
       setFormOpened(false);
       toast({

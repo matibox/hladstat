@@ -16,7 +16,7 @@ export default async function AllMatchesPage({
 }) {
   const teamId = parseInt(_teamId);
 
-  const matches = await api.team.allMatchesWithStats({ teamId });
+  const matches = await api.match.byTeamWithStats({ teamId });
 
   return (
     <HydrateClient>

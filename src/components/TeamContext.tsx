@@ -29,7 +29,7 @@ export default function TeamContextProvider({
   children: React.ReactNode;
   isShared?: boolean;
 }) {
-  const { data, isPending } = api.user.isPlayerOrOwner.useQuery(
+  const { data, isPending } = api.user.isPlayerOrOwnerOfTeam.useQuery(
     { teamId },
     { enabled: !isShared },
   );

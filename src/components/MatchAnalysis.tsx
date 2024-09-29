@@ -42,8 +42,8 @@ export default function MatchAnalysis({
   const [menuOpened, setMenuOpened] = useState(false);
 
   const [match] = api.match.byId.useSuspenseQuery({ matchId });
-  const [players] = api.team.players.useSuspenseQuery({ teamId });
-  const [stats] = api.match.stats.useSuspenseQuery({ teamId, matchId });
+  const [players] = api.user.byTeamPlayers.useSuspenseQuery({ teamId });
+  const [stats] = api.stats.byMatch.useSuspenseQuery({ teamId, matchId });
 
   const setArray = [
     ...[...new Array(match.numberOfSets).keys()].map((n) => n + 1),

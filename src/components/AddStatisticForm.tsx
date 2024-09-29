@@ -19,7 +19,7 @@ export default function AddStatisticForm({
 }: {
   matchId: number;
   set: number;
-  player: RouterOutputs["team"]["players"][number];
+  player: RouterOutputs["user"]["byTeamPlayers"][number];
   lockedAnalysis?: boolean;
 }) {
   const [formOpened, setFormOpened] = useState(false);
@@ -29,8 +29,8 @@ export default function AddStatisticForm({
 
   const deleteStat = api.stats.delete.useMutation({
     onSuccess: async ({ code }) => {
-      await utils.match.stats.invalidate();
-      await utils.match.playerStats.invalidate();
+      await utils.stats.byMatch.invalidate();
+      await utils.stats.byMatchPlayer.invalidate();
 
       toast({
         title: "Cofnięto dodanie statystyki.",
@@ -39,10 +39,10 @@ export default function AddStatisticForm({
     },
   });
 
-  const addStats = api.stats.addToPlayer.useMutation({
+  const addStats = api.stats.addByMatchPlayer.useMutation({
     onSuccess: async ({ id, code }) => {
-      await utils.match.stats.invalidate();
-      await utils.match.playerStats.invalidate();
+      await utils.stats.byMatch.invalidate();
+      await utils.stats.byMatchPlayer.invalidate();
       setFormOpened(false);
 
       toast({

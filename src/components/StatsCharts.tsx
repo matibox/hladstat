@@ -29,7 +29,7 @@ import {
 } from "~/lib/stats";
 import { colorizeChart } from "~/lib/utils";
 
-type Stats = RouterOutputs["match"]["stats"];
+type Stats = RouterOutputs["stats"]["byMatch"];
 
 export function SetDistributionChart({ stats }: { stats: Stats }) {
   const setDistribution = countSetDistribution(stats);
