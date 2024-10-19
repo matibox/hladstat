@@ -6,7 +6,7 @@ import {
 } from "~/server/api/trpc";
 import { type StatsCode } from "~/lib/constants";
 import { matches, stats, users, usersToTeams } from "~/server/db/schema";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 
 export const statsRouter = createTRPCRouter({
   // CREATE
@@ -209,5 +209,16 @@ export const statsRouter = createTRPCRouter({
         .returning({ code: stats.code });
 
       return deletedRecords[0]!;
+    }),
+  deleteByMatchIdAndSet: protectedProcedure
+    .input(z.object({ matchId: z.number(), sets: z.array(z.number()) }))
+    .mutation(async ({ ctx, input }) => {
+      const { matchId, sets } = input;
+
+      await ctx.db
+        .delete(stats)
+        .where(and(eq(stats.matchId, matchId), inArray(stats.set, sets)));
+
+      return { sets };
     }),
 });

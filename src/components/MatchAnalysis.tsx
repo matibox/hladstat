@@ -23,10 +23,12 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
 import LockAnalysisDialog from "./LockAnalysisDialog";
+import ResetStatsDialog from "./ResetStatsDialog";
 
 export type SetID = "1" | "2" | "3" | "4" | "5" | "Ogółem";
 
@@ -94,9 +96,17 @@ export default function MatchAnalysis({
                     matchId={matchId}
                     isShared={match.shared ?? false}
                   />
+                  <DropdownMenuSeparator />
                   <LockAnalysisDialog
                     matchId={matchId}
                     isLocked={match.lockedAnalysis ?? false}
+                  />
+                  <ResetStatsDialog
+                    matchId={matchId}
+                    numberOfSets={match.numberOfSets}
+                    isDisabled={
+                      (match.lockedAnalysis ?? false) || stats.length === 0
+                    }
                   />
                 </DropdownMenuGroup>
               </DropdownMenuContent>

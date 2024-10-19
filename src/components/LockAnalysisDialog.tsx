@@ -7,7 +7,6 @@ import { LockIcon, LockOpenIcon } from "lucide-react";
 import { api } from "~/trpc/react";
 import { useToast } from "~/hooks/useToast";
 import { DropdownMenuItem } from "./ui/dropdown-menu";
-import { cn } from "~/lib/utils";
 
 export default function LockAnalysisDialog({
   matchId,
@@ -38,12 +37,7 @@ export default function LockAnalysisDialog({
       open={formOpened}
       onOpenChange={setFormOpened}
       trigger={
-        <DropdownMenuItem
-          onSelect={(e) => e.preventDefault()}
-          className={cn({
-            "text-red-500 focus:text-red-500": !isLocked,
-          })}
-        >
+        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
           {!isLocked ? (
             <LockIcon className="mr-2 h-4 w-4" />
           ) : (

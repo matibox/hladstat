@@ -52,8 +52,6 @@ export function countSetDistribution<T extends StatsWithPlayer>(stats: T) {
       return 0;
     });
 
-  console.log(data);
-
   return data;
 }
 
