@@ -8,7 +8,7 @@ export default function manifest(): MetadataRoute.Manifest {
       "Hladstat to aplikacja ułatwiająca prowadzenie statystyk siatkarskich",
     start_url: "/dashboard",
     background_color: "#0a0a0a",
-    theme_color: "#fafafa",
+    theme_color: "#0a0a0a",
     display: "standalone",
     icons: [
       {
