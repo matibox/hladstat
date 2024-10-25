@@ -18,6 +18,16 @@ export default function Login() {
         />
         <span>Discord</span>
       </Button>
+      <Button variant="outline" onClick={() => void signIn("google")}>
+        <Image
+          src="/Google.png"
+          alt="Google logo"
+          width={22}
+          height={16}
+          className="mr-2"
+        />
+        <span>Google</span>
+      </Button>
     </div>
   );
 }
