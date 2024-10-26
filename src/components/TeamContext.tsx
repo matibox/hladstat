@@ -2,9 +2,12 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { createContext, useContext } from "react";
-import { api } from "~/trpc/react";
 
-type TeamContext = { teamId: number; isPlayerOrOwner: boolean };
+type TeamContext = {
+  teamId: number;
+  isPlayerOrOwner: boolean;
+  tabs: [string, ...string[]];
+};
 
 const TeamContext = createContext<TeamContext | null>(null);
 
@@ -24,26 +27,25 @@ export default function TeamContextProvider({
   teamId,
   children,
   isShared = false,
+  isPlayerOrOwner = false,
 }: {
   teamId: number;
   children: React.ReactNode;
   isShared?: boolean;
+  isPlayerOrOwner?: boolean;
 }) {
-  const { data, isPending } = api.user.isPlayerOrOwnerOfTeam.useQuery(
-    { teamId },
-    { enabled: !isShared },
-  );
-  const isPlayerOrOwner = !isPending ? (data?.isPlayerOrOwner ?? false) : true;
-
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  if (!isPlayerOrOwner && !isPending && searchParams.get("t") === "settings") {
+  const tabs = ["matches", "members", "stats"] as [string, ...string[]];
+  if (isPlayerOrOwner && !isShared) tabs.push("settings");
+
+  if (!isPlayerOrOwner && searchParams.get("t") === "settings") {
     router.push(`/dashboard/${teamId}?t=matches`);
   }
 
   return (
-    <TeamContext.Provider value={{ teamId, isPlayerOrOwner }}>
+    <TeamContext.Provider value={{ teamId, isPlayerOrOwner, tabs }}>
       {children}
     </TeamContext.Provider>
   );

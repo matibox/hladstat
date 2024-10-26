@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useTeamContext } from "./TeamContext";
+import { useSwipeable } from "react-swipeable";
+import { useRouter } from "next/navigation";
 
 export default function TeamPageNavbar({
   children,
@@ -18,16 +20,44 @@ export default function TeamPageNavbar({
 }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { isPlayerOrOwner } = useTeamContext();
+  const { isPlayerOrOwner, tabs } = useTeamContext();
+  const router = useRouter();
+
+  const currentTab = searchParams.get("t") ?? tabs[0];
+
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => handleSwipe("left"),
+    onSwipedRight: () => handleSwipe("right"),
+    trackTouch: true,
+    trackMouse: true,
+  });
+
+  function handleSwipe(direction: "left" | "right") {
+    const currIdx = tabs.indexOf(currentTab);
+    let newIdx;
+
+    if (direction === "left") {
+      newIdx = currIdx < tabs.length - 1 ? currIdx + 1 : currIdx;
+    } else {
+      newIdx = currIdx > 0 ? currIdx - 1 : currIdx;
+    }
+
+    const nextTab = tabs[newIdx];
+    if (!nextTab) return;
+
+    router.push(`${pathname}?t=${nextTab}`);
+  }
 
   return (
-    <Tabs
-      value={searchParams.get("t") ?? "matches"}
-      className="flex flex-col md:gap-2"
-    >
-      {children}
+    <Tabs value={currentTab} className="flex flex-col md:gap-2">
+      <div {...swipeHandlers}>{children}</div>
       <div className="fixed bottom-0 left-0 right-0 border-t border-border bg-background py-2 md:static md:-order-1 md:mx-auto md:w-full md:max-w-7xl md:border-none md:px-6 lg:px-8">
-        <TabsList className="flex h-auto w-full justify-evenly bg-background md:w-min md:justify-start md:bg-muted/25">
+        <TabsList
+          className="grid h-auto w-full bg-background md:w-min md:justify-start md:bg-muted/25"
+          style={{
+            gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))`,
+          }}
+        >
           <TabsTrigger value="matches" asChild>
             <Link
               href={`${pathname}?t=matches`}
