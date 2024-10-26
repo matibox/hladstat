@@ -12,6 +12,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useTeamContext } from "./TeamContext";
 import { useSwipeable } from "react-swipeable";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function TeamPageNavbar({
   children,
@@ -47,6 +48,12 @@ export default function TeamPageNavbar({
 
     router.push(`${pathname}?t=${nextTab}`);
   }
+
+  useEffect(() => {
+    tabs.forEach((tab) => {
+      router.prefetch(`${pathname}?t=${tab}`);
+    });
+  }, [router, pathname, tabs]);
 
   return (
     <Tabs value={currentTab} className="flex flex-col md:gap-2">
