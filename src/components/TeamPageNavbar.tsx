@@ -29,7 +29,7 @@ export default function TeamPageNavbar({
     onSwipedLeft: () => handleSwipe("left"),
     onSwipedRight: () => handleSwipe("right"),
     trackTouch: true,
-    trackMouse: true,
+    trackMouse: false,
   });
 
   function handleSwipe(direction: "left" | "right") {
@@ -53,7 +53,7 @@ export default function TeamPageNavbar({
       <div {...swipeHandlers}>{children}</div>
       <div className="fixed bottom-0 left-0 right-0 border-t border-border bg-background py-2 md:static md:-order-1 md:mx-auto md:w-full md:max-w-7xl md:border-none md:px-6 lg:px-8">
         <TabsList
-          className="grid h-auto w-full bg-background md:w-min md:justify-start md:bg-muted/25"
+          className="grid h-auto w-full bg-background md:flex md:w-min md:justify-start md:bg-muted/25"
           style={{
             gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))`,
           }}
