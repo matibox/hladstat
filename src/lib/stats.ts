@@ -32,8 +32,9 @@ export function countStat<T extends Stats>(arr: T, codes: StatsCode[]) {
 export function countSetDistribution<T extends StatsWithPlayer>(stats: T) {
   const totalAttacks = countStat(stats, ["atk-kill", "atk-def", "atk-err"]);
   const groupedByPos = groupBy(stats, (stat) => stat.player.position);
+  const groupedByPlayer = groupBy(stats, (stat) => stat.player.name);
 
-  const data = Object.entries(groupedByPos)
+  const dataByPos = Object.entries(groupedByPos)
     .map(([position, stats]) => {
       const attacksFraction =
         countStat(stats, ["atk-kill", "atk-def", "atk-err"]) / totalAttacks;
@@ -52,7 +53,35 @@ export function countSetDistribution<T extends StatsWithPlayer>(stats: T) {
       return 0;
     });
 
-  return data;
+  const dataByPlayer = Object.entries(groupedByPlayer)
+    .filter(([_, stats]) =>
+      stats.some((stat) =>
+        ["Atakujący", "Środkowy", "Przyjmujący"].includes(stat.player.position),
+      ),
+    )
+    .map(([name, stats]) => {
+      const attacksFraction =
+        countStat(stats, ["atk-kill", "atk-def", "atk-err"]) / totalAttacks;
+
+      return {
+        name,
+        distributionPerc: formatPercentage(attacksFraction),
+      };
+    });
+
+  const legendByPlayer = dataByPlayer.reduce(
+    (acc, { name }) => {
+      return { ...acc, [name]: { label: name } };
+    },
+    {} as Record<string, { label: string }>,
+  );
+
+  return {
+    chartDataByPos: dataByPos,
+    chartDataByPlayer: dataByPlayer,
+    legendByPlayer,
+    totalAttacks,
+  };
 }
 
 export function countPointsAndErrors<T extends Stats>(stats: T) {

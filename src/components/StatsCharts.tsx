@@ -32,7 +32,9 @@ import { colorizeChart } from "~/lib/utils";
 type Stats = RouterOutputs["stats"]["byMatch"];
 
 export function SetDistributionChart({ stats }: { stats: Stats }) {
-  const setDistribution = countSetDistribution(stats);
+  const { chartDataByPlayer, legendByPlayer } = countSetDistribution(stats);
+
+  console.log(chartDataByPlayer);
 
   return (
     <Card className="w-full border-none bg-muted/25">
@@ -42,26 +44,26 @@ export function SetDistributionChart({ stats }: { stats: Stats }) {
         </CardTitle>
       </CardHeader>
       <CardContent className="p-4 pt-0">
-        {setDistribution.length === 0 ? (
+        {chartDataByPlayer.length === 0 ? (
           <p className="text-center text-muted-foreground">Brak danych.</p>
         ) : (
-          <ChartContainer config={{ tooltip: { label: "%" } }}>
+          <ChartContainer config={legendByPlayer}>
             <BarChart
-              data={colorizeChart(setDistribution)}
+              data={colorizeChart(chartDataByPlayer)}
               margin={{
-                top: 20,
+                top: 30,
               }}
             >
               <CartesianGrid vertical={false} />
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent hideLabel nameKey="tooltip" />}
-              />
               <XAxis
-                dataKey="position"
+                dataKey="name"
                 tickLine={false}
                 tickMargin={10}
                 axisLine={false}
+                tickFormatter={(v: string) => {
+                  const [name, surname] = v.split(" ") as [string, string];
+                  return `${name[0]}. ${surname}`;
+                }}
               />
               <Bar dataKey="distributionPerc" radius={6}>
                 <LabelList
