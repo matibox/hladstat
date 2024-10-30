@@ -40,7 +40,7 @@ export default function MatchAnalysis({
   isShared?: boolean;
 }) {
   const { teamId, isPlayerOrOwner } = useTeamContext();
-  const [set, setSet] = useState<SetID>("1");
+  const [set, setSet] = useState<SetID>("Ogółem");
   const [menuOpened, setMenuOpened] = useState(false);
 
   const [match] = api.match.byId.useSuspenseQuery({ matchId });
@@ -48,8 +48,8 @@ export default function MatchAnalysis({
   const [stats] = api.stats.byMatch.useSuspenseQuery({ teamId, matchId });
 
   const setArray = [
-    ...[...new Array(match.numberOfSets).keys()].map((n) => n + 1),
     "Ogółem",
+    ...[...new Array(match.numberOfSets).keys()].map((n) => n + 1),
   ] as Array<SetID>;
 
   const statsBySet = stats.filter((stat) => {

@@ -29,25 +29,42 @@ import {
   countServeStats,
 } from "~/lib/stats";
 import { colorizeChart } from "~/lib/utils";
+import { Switch } from "./ui/switch";
+import { Label as FormLabel } from "./ui/label";
+import { useState } from "react";
 
 type Stats = RouterOutputs["stats"]["byMatch"];
 
 export function SetDistributionChart({
   stats,
-  mode,
+  defaultMode,
 }: {
   stats: Stats;
-  mode: "position" | "player";
+  defaultMode: "position" | "player";
 }) {
+  const [mode, setMode] = useState(defaultMode);
+
   const { chartDataByPlayer, chartDataByPos, legendByPlayer } =
     countSetDistribution(stats);
 
   return (
     <Card className="w-full border-none bg-muted/25">
-      <CardHeader className="p-4">
+      <CardHeader className="flex flex-row items-center justify-between p-4">
         <CardTitle className="text-xl leading-none">
           Dystrybucja rozegrania
         </CardTitle>
+        <div className="flex items-center gap-2">
+          <FormLabel htmlFor="mode">Zawodnik</FormLabel>
+          <Switch
+            checked={mode === "position"}
+            onCheckedChange={(checked) =>
+              setMode(checked ? "position" : "player")
+            }
+            id="mode"
+            className="!m-0"
+          />
+          <FormLabel htmlFor="mode">Pozycja</FormLabel>
+        </div>
       </CardHeader>
       <CardContent className="p-4 pt-0">
         {chartDataByPlayer.length === 0 ? (
