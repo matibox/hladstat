@@ -63,15 +63,25 @@ export function countSetDistribution<T extends StatsWithPlayer>(stats: T) {
       const attacksFraction =
         countStat(stats, ["atk-kill", "atk-def", "atk-err"]) / totalAttacks;
 
+      const playerPoints = countStat(stats, [
+        "atk-kill",
+        "other-blk",
+        "serve-ace",
+      ]);
+
       return {
         name,
+        points: playerPoints,
         distributionPerc: formatPercentage(attacksFraction),
       };
-    });
+    })
+    .filter((stats) => stats.distributionPerc > 0)
+    .sort((a, b) => b.points - a.points);
 
   const legendByPlayer = dataByPlayer.reduce(
     (acc, { name }) => {
-      return { ...acc, [name]: { label: name } };
+      const [firstName, lastName] = name.split(" ") as [string, string];
+      return { ...acc, [name]: { label: `${firstName[0]}.${lastName}` } };
     },
     {} as Record<string, { label: string }>,
   );

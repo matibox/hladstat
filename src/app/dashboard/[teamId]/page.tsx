@@ -56,7 +56,7 @@ export default async function Team({
           <TabsContent value="stats" className="md:col-span-2">
             <section className="flex w-full flex-col gap-4">
               <div className="flex flex-col gap-4 md:grid md:grid-cols-2 lg:grid-cols-3">
-                <SetDistributionChart stats={stats} />
+                <SetDistributionChart stats={stats} mode="position" />
                 <ScorersChart stats={stats} />
                 <AttackChart stats={stats} />
                 <ReceptionChart stats={stats} />

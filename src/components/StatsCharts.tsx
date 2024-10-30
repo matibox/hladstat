@@ -9,6 +9,7 @@ import {
   Pie,
   PieChart,
   XAxis,
+  YAxis,
 } from "recharts";
 import {
   ChartContainer,
@@ -31,10 +32,15 @@ import { colorizeChart } from "~/lib/utils";
 
 type Stats = RouterOutputs["stats"]["byMatch"];
 
-export function SetDistributionChart({ stats }: { stats: Stats }) {
-  const { chartDataByPlayer, legendByPlayer } = countSetDistribution(stats);
-
-  console.log(chartDataByPlayer);
+export function SetDistributionChart({
+  stats,
+  mode,
+}: {
+  stats: Stats;
+  mode: "position" | "player";
+}) {
+  const { chartDataByPlayer, chartDataByPos, legendByPlayer } =
+    countSetDistribution(stats);
 
   return (
     <Card className="w-full border-none bg-muted/25">
@@ -47,35 +53,112 @@ export function SetDistributionChart({ stats }: { stats: Stats }) {
         {chartDataByPlayer.length === 0 ? (
           <p className="text-center text-muted-foreground">Brak danych.</p>
         ) : (
-          <ChartContainer config={legendByPlayer}>
-            <BarChart
-              data={colorizeChart(chartDataByPlayer)}
-              margin={{
-                top: 30,
-              }}
-            >
-              <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey="name"
-                tickLine={false}
-                tickMargin={10}
-                axisLine={false}
-                tickFormatter={(v: string) => {
-                  const [name, surname] = v.split(" ") as [string, string];
-                  return `${name[0]}. ${surname}`;
-                }}
-              />
-              <Bar dataKey="distributionPerc" radius={6}>
-                <LabelList
-                  position="top"
-                  offset={12}
-                  className="fill-foreground"
-                  fontSize={12}
-                  formatter={(v: number) => `${v}%`}
-                />
-              </Bar>
-            </BarChart>
-          </ChartContainer>
+          <>
+            {mode === "position" ? (
+              <ChartContainer config={{ tooltip: { label: "%" } }}>
+                <BarChart
+                  data={colorizeChart(chartDataByPos)}
+                  margin={{
+                    top: 20,
+                  }}
+                >
+                  <CartesianGrid vertical={false} />
+                  <ChartTooltip
+                    cursor={false}
+                    content={
+                      <ChartTooltipContent hideLabel nameKey="tooltip" />
+                    }
+                  />
+                  <XAxis
+                    dataKey="position"
+                    tickLine={false}
+                    tickMargin={10}
+                    axisLine={false}
+                  />
+                  <Bar dataKey="distributionPerc" radius={6}>
+                    <LabelList
+                      position="top"
+                      offset={12}
+                      className="fill-foreground"
+                      fontSize={12}
+                      formatter={(v: number) => `${v}%`}
+                    />
+                  </Bar>
+                </BarChart>
+              </ChartContainer>
+            ) : (
+              <ChartContainer config={{ distributionPerc: { label: "%" } }}>
+                <BarChart
+                  accessibilityLayer
+                  data={colorizeChart(chartDataByPlayer)}
+                  layout="vertical"
+                  margin={{
+                    left: 0,
+                    right: 40,
+                  }}
+                >
+                  <YAxis
+                    dataKey="name"
+                    type="category"
+                    tickLine={false}
+                    axisLine={false}
+                    width={90}
+                    tickMargin={10}
+                    tickFormatter={(value) =>
+                      legendByPlayer[value as keyof typeof legendByPlayer]!
+                        .label
+                    }
+                  />
+                  <XAxis dataKey="distributionPerc" type="number" hide />
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent />}
+                  />
+                  <Bar dataKey="distributionPerc" layout="vertical" radius={5}>
+                    <LabelList
+                      position="right"
+                      offset={12}
+                      className="fill-foreground"
+                      fontSize={12}
+                      formatter={(v: number) => `${v}%`}
+                    />
+                  </Bar>
+                </BarChart>
+              </ChartContainer>
+            )}
+          </>
+          // <ChartContainer config={{}}>
+          //   <BarChart
+          //     data={colorizeChart([...chartData])}
+          //     margin={{
+          //       top: 30,
+          //     }}
+          //   >
+          //     <CartesianGrid vertical={false} />
+          //     <XAxis
+          //       dataKey={mode === "position" ? "position" : "name"}
+          //       tickLine={false}
+          //       tickMargin={10}
+          //       axisLine={false}
+          //       tickFormatter={(v: string) => {
+          //         if (mode === "player") {
+          //           const [name, surname] = v.split(" ") as [string, string];
+          //           return `${name[0]}. ${surname}`;
+          //         }
+          //         return v;
+          //       }}
+          //     />
+          //     <Bar dataKey="distributionPerc" radius={6}>
+          //       <LabelList
+          //         position="top"
+          //         offset={12}
+          //         className="fill-foreground"
+          //         fontSize={12}
+          //         formatter={(v: number) => `${v}%`}
+          //       />
+          //     </Bar>
+          //   </BarChart>
+          // </ChartContainer>
         )}
       </CardContent>
     </Card>
@@ -205,7 +288,7 @@ export function AttackChart({ stats }: { stats: Stats }) {
         ) : (
           <ChartContainer
             config={legend}
-            className="mx-auto aspect-square max-h-[250px]"
+            className="mx-auto aspect-square max-h-[270px]"
           >
             <PieChart>
               <ChartTooltip
