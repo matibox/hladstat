@@ -161,7 +161,7 @@ export default function MatchAnalysis({
           </h2>
           <div className="flex flex-col gap-4 md:grid md:grid-cols-2 xl:grid-cols-3">
             <ScorersChart stats={statsBySet} />
-            <SetDistributionChart stats={statsBySet} mode="player" />
+            <SetDistributionChart stats={statsBySet} defaultMode="player" />
             <PointsAndErrorsChart stats={statsBySet} />
             <AttackChart stats={statsBySet} />
             <ReceptionChart stats={statsBySet} />
