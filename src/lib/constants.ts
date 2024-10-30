@@ -19,6 +19,7 @@ export const statsOptions = [
     options: [
       { label: "punkt", value: "kill", variant: "default" },
       { label: "podbity", value: "def", variant: "outline" },
+      { label: "zablokowany", value: "blk", variant: "destructive" },
       { label: "błąd", value: "err", variant: "destructive" },
     ],
   },

@@ -58,6 +58,7 @@ export function countSetDistribution<T extends StatsWithPlayer>(stats: T) {
 export function countPointsAndErrors<T extends Stats>(stats: T) {
   const points = countStat(stats, ["atk-kill", "other-blk", "serve-ace"]);
   const errors = countStat(stats, [
+    "atk-blk",
     "atk-err",
     "rec-err",
     "serve-err",
@@ -120,14 +121,16 @@ export function countAttackStats<T extends Stats>(stats: T) {
   const kills = countStat(stats, ["atk-kill"]);
   const defended = countStat(stats, ["atk-def"]);
   const errors = countStat(stats, ["atk-err"]);
+  const blocked = countStat(stats, ["atk-blk"]);
 
-  const sum = kills + defended + errors;
+  const sum = kills + defended + errors + blocked;
   const perc = formatPercentage(kills / sum);
-  const efficiency = formatPercentage((kills - errors) / sum);
+  const efficiency = formatPercentage((kills - errors - blocked) / sum);
 
   const data = [
     { attackType: "Skończone", quantity: kills, fill: "var(--chart-perf)" },
     { attackType: "Obronione", quantity: defended, fill: "var(--chart-pos)" },
+    { attackType: "Zablokowane", quantity: blocked, fill: "var(--chart-neg)" },
     { attackType: "Błędy", quantity: errors, fill: "var(--chart-err)" },
   ] as const;
 
