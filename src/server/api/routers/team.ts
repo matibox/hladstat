@@ -2,6 +2,7 @@ import { teams, users, usersToTeams } from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import z from "zod";
 import { and, eq, inArray, sql, count } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
 
 export const teamRouter = createTRPCRouter({
   // CREATE
@@ -85,22 +86,18 @@ export const teamRouter = createTRPCRouter({
         },
       });
     }),
-  ofPlayerOwner: protectedProcedure.query(async ({ ctx }) => {
+  ofUser: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
     const selectedUsersToTeams = await ctx.db.query.usersToTeams.findMany({
-      columns: { teamId: true },
-      where: (usersToTeams, { eq, and, inArray }) =>
-        and(
-          eq(usersToTeams.userId, userId),
-          inArray(usersToTeams.role, ["owner", "player"]),
-        ),
+      columns: { teamId: true, role: true },
+      where: (usersToTeams, { eq }) => eq(usersToTeams.userId, userId),
       with: {
         team: { columns: { id: true, name: true, profilePicture: true } },
       },
     });
 
     return await Promise.all(
-      selectedUsersToTeams.map(async ({ team }) => {
+      selectedUsersToTeams.map(async ({ role, team }) => {
         const [selectedTeam] = await ctx.db
           .select({ playerCount: count() })
           .from(users)
@@ -112,9 +109,17 @@ export const teamRouter = createTRPCRouter({
             ),
           );
 
+        if (!selectedTeam) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Nie znaleziono drużyny.",
+          });
+        }
+
         return {
           ...team,
-          playerCount: selectedTeam ? selectedTeam.playerCount : 0,
+          userRole: role,
+          playerCount: selectedTeam.playerCount,
         };
       }),
     );

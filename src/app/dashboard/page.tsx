@@ -3,8 +3,11 @@ import TeamCard from "~/components/TeamCard";
 import { api, HydrateClient } from "~/trpc/server";
 
 export default async function Dashboard() {
-  const teams = await api.team.ofPlayerOwner();
-  const sharedTeams = await api.team.ofViewer();
+  const teams = await api.team.ofUser();
+  const sortedTeams = teams.sort((_, b) => {
+    if (b.userRole === "shared") return -1;
+    return 1;
+  });
 
   return (
     <HydrateClient>
@@ -20,19 +23,7 @@ export default async function Dashboard() {
                 Nie należysz do żadnej drużyny.
               </p>
             ) : (
-              teams.map((team) => <TeamCard key={team.id} team={team} />)
-            )}
-          </div>
-        </section>
-        <section className="flex w-full flex-col gap-4">
-          <h2 className="text-2xl font-semibold">Udostępnione drużyny</h2>
-          <div className="grid w-full grid-cols-[repeat(auto-fill,_343px)] justify-center gap-4">
-            {sharedTeams.length === 0 ? (
-              <p className="col-span-full text-center text-muted-foreground">
-                Nie udostępniono ci dostępu do żadnej drużyny.
-              </p>
-            ) : (
-              sharedTeams.map((team) => <TeamCard key={team.id} team={team} />)
+              sortedTeams.map((team) => <TeamCard key={team.id} team={team} />)
             )}
           </div>
         </section>
