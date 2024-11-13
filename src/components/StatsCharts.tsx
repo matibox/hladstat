@@ -144,38 +144,6 @@ export function SetDistributionChart({
               </ChartContainer>
             )}
           </>
-          // <ChartContainer config={{}}>
-          //   <BarChart
-          //     data={colorizeChart([...chartData])}
-          //     margin={{
-          //       top: 30,
-          //     }}
-          //   >
-          //     <CartesianGrid vertical={false} />
-          //     <XAxis
-          //       dataKey={mode === "position" ? "position" : "name"}
-          //       tickLine={false}
-          //       tickMargin={10}
-          //       axisLine={false}
-          //       tickFormatter={(v: string) => {
-          //         if (mode === "player") {
-          //           const [name, surname] = v.split(" ") as [string, string];
-          //           return `${name[0]}. ${surname}`;
-          //         }
-          //         return v;
-          //       }}
-          //     />
-          //     <Bar dataKey="distributionPerc" radius={6}>
-          //       <LabelList
-          //         position="top"
-          //         offset={12}
-          //         className="fill-foreground"
-          //         fontSize={12}
-          //         formatter={(v: number) => `${v}%`}
-          //       />
-          //     </Bar>
-          //   </BarChart>
-          // </ChartContainer>
         )}
       </CardContent>
     </Card>
@@ -257,7 +225,13 @@ export function PointsAndErrorsChart({ stats }: { stats: Stats }) {
   );
 }
 
-export function ScorersChart({ stats }: { stats: Stats }) {
+export function ScorersChart({
+  stats,
+  mode,
+}: {
+  stats: Stats;
+  mode: "pie" | "bar";
+}) {
   const { chartData: pointsByPlayer, legend } = countTeamPointsByPlayer(stats);
 
   return (
@@ -269,22 +243,64 @@ export function ScorersChart({ stats }: { stats: Stats }) {
         {pointsByPlayer.length === 0 ? (
           <p className="text-center text-muted-foreground">Brak danych.</p>
         ) : (
-          <ChartContainer
-            config={legend}
-            className="mx-auto aspect-square max-h-[300px]"
-          >
-            <PieChart>
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent nameKey="player" />}
-              />
-              <Pie data={colorizeChart(pointsByPlayer)} dataKey="points" />
-              <ChartLegend
-                content={<ChartLegendContent nameKey="player" />}
-                className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
-              />
-            </PieChart>
-          </ChartContainer>
+          <>
+            {mode === "bar" ? (
+              <ChartContainer config={{ points: { label: "pkt" } }}>
+                <BarChart
+                  accessibilityLayer
+                  data={colorizeChart(pointsByPlayer)}
+                  layout="vertical"
+                  margin={{
+                    left: 0,
+                    right: 40,
+                  }}
+                >
+                  <YAxis
+                    dataKey="player"
+                    type="category"
+                    tickLine={false}
+                    axisLine={false}
+                    width={90}
+                    tickMargin={10}
+                    tickFormatter={(value) =>
+                      legend[value as keyof typeof legend]!.label
+                    }
+                  />
+                  <XAxis dataKey="points" type="number" hide />
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent />}
+                  />
+                  <Bar dataKey="points" layout="vertical" radius={5}>
+                    <LabelList
+                      position="right"
+                      offset={12}
+                      className="fill-foreground"
+                      fontSize={12}
+                      formatter={(v: number) => `${v}pkt`}
+                    />
+                  </Bar>
+                </BarChart>
+              </ChartContainer>
+            ) : (
+              <ChartContainer
+                config={legend}
+                className="mx-auto aspect-square max-h-[300px]"
+              >
+                <PieChart>
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent nameKey="player" />}
+                  />
+                  <Pie data={colorizeChart(pointsByPlayer)} dataKey="points" />
+                  <ChartLegend
+                    content={<ChartLegendContent nameKey="player" />}
+                    className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
+                  />
+                </PieChart>
+              </ChartContainer>
+            )}
+          </>
         )}
       </CardContent>
     </Card>

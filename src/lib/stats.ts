@@ -37,7 +37,8 @@ export function countSetDistribution<T extends StatsWithPlayer>(stats: T) {
   const dataByPos = Object.entries(groupedByPos)
     .map(([position, stats]) => {
       const attacksFraction =
-        countStat(stats, ["atk-kill", "atk-def", "atk-err"]) / totalAttacks;
+        countStat(stats, ["atk-kill", "atk-def", "atk-err", "atk-blk"]) /
+        totalAttacks;
 
       return {
         position,
@@ -61,7 +62,8 @@ export function countSetDistribution<T extends StatsWithPlayer>(stats: T) {
     )
     .map(([name, stats]) => {
       const attacksFraction =
-        countStat(stats, ["atk-kill", "atk-def", "atk-err"]) / totalAttacks;
+        countStat(stats, ["atk-kill", "atk-def", "atk-err", "atk-blk"]) /
+        totalAttacks;
 
       const playerPoints = countStat(stats, [
         "atk-kill",
@@ -76,7 +78,7 @@ export function countSetDistribution<T extends StatsWithPlayer>(stats: T) {
       };
     })
     .filter((stats) => stats.distributionPerc > 0)
-    .sort((a, b) => b.points - a.points);
+    .sort((a, b) => b.distributionPerc - a.distributionPerc);
 
   const legendByPlayer = dataByPlayer.reduce(
     (acc, { name }) => {
