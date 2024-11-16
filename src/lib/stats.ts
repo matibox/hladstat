@@ -97,21 +97,48 @@ export function countSetDistribution<T extends StatsWithPlayer>(stats: T) {
 }
 
 export function countPointsAndErrors<T extends Stats>(stats: T) {
-  const points = countStat(stats, ["atk-kill", "other-blk", "serve-ace"]);
-  const errors = countStat(stats, [
+  const pointsStats: Array<StatsCode> = [
+    "atk-kill",
+    "other-blk",
+    "serve-ace",
+  ] as const;
+
+  const errorStats: Array<StatsCode> = [
     "atk-blk",
     "atk-err",
     "rec-err",
     "serve-err",
     "other-err",
-  ]);
+  ] as const;
 
-  const data = [
+  const points = countStat(stats, pointsStats);
+  const errors = countStat(stats, errorStats);
+
+  const dataByType = [
     { statType: "Punkty", quantity: points, fill: "var(--chart-perf)" },
     { statType: "Błędy", quantity: errors, fill: "var(--chart-err)" },
   ] as const;
 
-  const legend = data.reduce(
+  const legendByType = dataByType.reduce(
+    (acc, { statType }) => {
+      return { ...acc, [statType]: { label: statType } };
+    },
+    {} as Record<string, { label: string }>,
+  );
+
+  let pointI = 0;
+  let errI = 0;
+  const dataWithDetails = [...pointsStats, ...errorStats].map((code) => {
+    const isPoint = pointsStats.includes(code);
+    isPoint ? pointI++ : errI++;
+    return {
+      statType: statCodeToLabel(code),
+      quantity: countStat(stats, [code]),
+      fill: `var(--chart-${isPoint ? "pos" : "err"}-${(isPoint ? pointI : errI) + 1})`,
+    };
+  });
+
+  const legendWithDetails = dataWithDetails.reduce(
     (acc, { statType }) => {
       return { ...acc, [statType]: { label: statType } };
     },
@@ -119,8 +146,10 @@ export function countPointsAndErrors<T extends Stats>(stats: T) {
   );
 
   return {
-    chartData: data,
-    legend,
+    dataByType,
+    dataWithDetails,
+    legendByType,
+    legendWithDetails,
     points,
     errors,
   };

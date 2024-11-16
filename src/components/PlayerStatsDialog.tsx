@@ -73,7 +73,7 @@ export default function PlayerStatsDialog({
               <AttackChart stats={statsBySet} />
               <ReceptionChart stats={statsBySet} />
               <ServeChart stats={statsBySet} />
-              <PointsAndErrorsChart stats={statsBySet} />
+              <PointsAndErrorsChart stats={statsBySet} defaultMode="details" />
               <Card className="border-none bg-muted/25">
                 <CardHeader className="p-4">
                   <CardTitle className="text-xl leading-none">

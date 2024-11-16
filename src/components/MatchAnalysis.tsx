@@ -162,7 +162,7 @@ export default function MatchAnalysis({
           <div className="flex flex-col gap-4 md:grid md:grid-cols-2 xl:grid-cols-3">
             <ScorersChart stats={statsBySet} mode="bar" />
             <SetDistributionChart stats={statsBySet} defaultMode="player" />
-            <PointsAndErrorsChart stats={statsBySet} />
+            <PointsAndErrorsChart stats={statsBySet} defaultMode="no-details" />
             <AttackChart stats={statsBySet} />
             <ReceptionChart stats={statsBySet} />
             <ServeChart stats={statsBySet} />

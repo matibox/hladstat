@@ -32,6 +32,7 @@ import { colorizeChart } from "~/lib/utils";
 import { Switch } from "./ui/switch";
 import { Label as FormLabel } from "./ui/label";
 import { useState } from "react";
+import { Checkbox } from "./ui/checkbox";
 
 type Stats = RouterOutputs["stats"]["byMatch"];
 
@@ -150,25 +151,46 @@ export function SetDistributionChart({
   );
 }
 
-export function PointsAndErrorsChart({ stats }: { stats: Stats }) {
+export function PointsAndErrorsChart({
+  stats,
+  defaultMode,
+}: {
+  stats: Stats;
+  defaultMode: "no-details" | "details";
+}) {
+  const [mode, setMode] = useState(defaultMode);
+
   const {
     points,
     errors,
-    chartData: pointsAndErrors,
-    legend,
+    dataByType,
+    legendByType,
+    dataWithDetails,
+    legendWithDetails,
   } = countPointsAndErrors(stats);
+
+  console.log(dataWithDetails, legendWithDetails);
 
   return (
     <Card className="w-full border-none bg-muted/25">
-      <CardHeader className="p-4 pb-0">
+      <CardHeader className="flex flex-row items-center justify-between p-4 pb-0">
         <CardTitle className="text-xl leading-none">Pkt/Błędy</CardTitle>
+        <FormLabel className="flex items-center gap-2">
+          <Checkbox
+            checked={mode === "details"}
+            onCheckedChange={(checked) =>
+              setMode(checked ? "details" : "no-details")
+            }
+          />
+          <span>Pokaż szczegóły</span>
+        </FormLabel>
       </CardHeader>
       <CardContent className="p-4 pt-0">
-        {pointsAndErrors.every((stat) => stat.quantity === 0) ? (
+        {dataByType.every((stat) => stat.quantity === 0) ? (
           <p className="text-center text-muted-foreground">Brak danych.</p>
         ) : (
           <ChartContainer
-            config={legend}
+            config={mode === "no-details" ? legendByType : legendWithDetails}
             className="mx-auto aspect-square max-h-[250px]"
           >
             <PieChart>
@@ -176,12 +198,10 @@ export function PointsAndErrorsChart({ stats }: { stats: Stats }) {
                 cursor={false}
                 content={<ChartTooltipContent hideLabel />}
               />
-              <ChartLegend
-                content={<ChartLegendContent nameKey="statType" />}
-                className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
-              />
               <Pie
-                data={[...pointsAndErrors]}
+                data={[
+                  ...(mode === "no-details" ? dataByType : dataWithDetails),
+                ]}
                 dataKey="quantity"
                 nameKey="statType"
                 innerRadius={60}

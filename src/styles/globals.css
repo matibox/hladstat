@@ -38,6 +38,20 @@
     --chart-pos: #2563eb;
     --chart-neg: #f59e0b;
     --chart-err: #ef4444;
+
+    --chart-pos-1: #86efac;
+    --chart-pos-2: #4ade80;
+    --chart-pos-3: #22c55e;
+    --chart-pos-4: #16a34a;
+    --chart-pos-5: #15803d;
+    --chart-pos-6: #166534;
+
+    --chart-err-1: #fca5a5;
+    --chart-err-2: #f87171;
+    --chart-err-3: #ef4444;
+    --chart-err-4: #dc2626;
+    --chart-err-5: #b91c1c;
+    --chart-err-6: #991b1b;
   }
 
   .dark {
