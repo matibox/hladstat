@@ -30,7 +30,12 @@ export function countStat<T extends Stats>(arr: T, codes: StatsCode[]) {
 }
 
 export function countSetDistribution<T extends StatsWithPlayer>(stats: T) {
-  const totalAttacks = countStat(stats, ["atk-kill", "atk-def", "atk-err"]);
+  const totalAttacks = countStat(stats, [
+    "atk-kill",
+    "atk-def",
+    "atk-err",
+    "atk-blk",
+  ]);
   const groupedByPos = groupBy(stats, (stat) => stat.player.position);
   const groupedByPlayer = groupBy(stats, (stat) => stat.player.name);
 
