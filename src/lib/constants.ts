@@ -12,6 +12,8 @@ export const positions = [
   "Nieokreślona",
 ] as const;
 
+export type Position = (typeof positions)[number];
+
 export const statsOptions = [
   {
     label: "Atak",

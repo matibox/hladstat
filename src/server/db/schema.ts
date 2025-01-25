@@ -7,7 +7,7 @@ import {
   text,
 } from "drizzle-orm/sqlite-core";
 import { type AdapterAccount } from "next-auth/adapters";
-import type { roles, StatsCode } from "~/lib/constants";
+import type { Position, roles, StatsCode } from "~/lib/constants";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -117,7 +117,7 @@ export const usersToTeams = createTable(
     role: text("role", { length: 255 })
       .notNull()
       .$type<(typeof roles)[number]>(),
-    position: text("position", { length: 255 }),
+    position: text("position", { length: 255 }).$type<Position>(),
     shirtNumber: int("shirt_number"),
   },
   (table) => ({

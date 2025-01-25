@@ -1,9 +1,9 @@
-import { statsOptions, type StatsCode } from "./constants";
+import { statsOptions, type Position, type StatsCode } from "./constants";
 import { formatPercentage, groupBy } from "./utils";
 
 type Stats = Array<{ code: StatsCode }>;
 type StatsWithPlayer = Array<{
-  player: { name: string; position: string };
+  player: { name: string; position: Position };
   code: StatsCode;
 }>;
 
@@ -62,7 +62,9 @@ export function countSetDistribution<T extends StatsWithPlayer>(stats: T) {
   const dataByPlayer = Object.entries(groupedByPlayer)
     .filter(([_, stats]) =>
       stats.some((stat) =>
-        ["Atakujący", "Środkowy", "Przyjmujący"].includes(stat.player.position),
+        ["Atakujący", "Środkowy", "Przyjmujący", "Nieokreślona"].includes(
+          stat.player.position,
+        ),
       ),
     )
     .map(([name, stats]) => {
