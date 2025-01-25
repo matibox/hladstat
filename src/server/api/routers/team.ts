@@ -3,6 +3,7 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import z from "zod";
 import { and, eq, inArray, sql, count } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
+import { positions } from "~/lib/constants";
 
 export const teamRouter = createTRPCRouter({
   // CREATE
@@ -11,7 +12,7 @@ export const teamRouter = createTRPCRouter({
       z.object({
         name: z.string(),
         profilePicture: z.string().optional(),
-        position: z.string(),
+        position: z.enum(positions),
         shirtNumber: z.number().optional(),
       }),
     )
@@ -36,7 +37,7 @@ export const teamRouter = createTRPCRouter({
       z.object({
         teamId: z.number(),
         playerId: z.string(),
-        position: z.string(),
+        position: z.enum(positions),
         shirtNumber: z.number().optional(),
       }),
     )

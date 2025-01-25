@@ -48,9 +48,7 @@ export const formSchema = z.object({
   playerId: z
     .string({ required_error: "Wybierz zawodnika." })
     .min(1, "Wybierz zawodnika."),
-  position: z
-    .string({ required_error: "Pozycja jest wymagana." })
-    .min(1, "Pozycja jest wymagana."),
+  position: z.enum(positions, { required_error: "Pozycja jest wymagana." }),
   shirtNumber: z.string().optional(),
 });
 
@@ -65,7 +63,7 @@ export default function AddPlayerForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      position: "",
+      position: "Nieokreślona",
       shirtNumber: "",
     },
   });

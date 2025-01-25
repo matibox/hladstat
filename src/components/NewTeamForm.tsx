@@ -42,9 +42,7 @@ export const formSchema = z.object({
         file === null || (file && acceptedImageTypes.includes(file.type)),
       "Tylko pliki .jpg, .jpeg, .png i .webp są wspierane.",
     ),
-  position: z
-    .string({ required_error: "Pozycja jest wymagana." })
-    .min(1, "Pozycja jest wymagana."),
+  position: z.enum(positions, { required_error: "Pozycja jest wymagana." }),
   shirtNumber: z.string().optional(),
 });
 
@@ -57,7 +55,7 @@ export default function NewTeamForm() {
     defaultValues: {
       name: "",
       profilePicture: null,
-      position: "",
+      position: "Nieokreślona",
       shirtNumber: "",
     },
   });
