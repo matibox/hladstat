@@ -26,6 +26,7 @@ export default async function Team({
   await api.match.byTeamRecent.prefetch({ teamId });
   await api.user.byTeamPlayers.prefetch({ teamId });
   await api.user.byTeamViewers.prefetch({ teamId });
+  await api.team.matchSettings.prefetch({ teamId });
 
   const stats = await api.stats.byTeam({ teamId });
 

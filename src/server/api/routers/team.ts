@@ -156,7 +156,28 @@ export const teamRouter = createTRPCRouter({
 
     return result;
   }),
+  matchSettings: protectedProcedure
+    .input(z.object({ teamId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const { teamId } = input;
+      const settings = await ctx.db
+        .select({ allowTwoSetMatches: teams.allowTwoSetMatches })
+        .from(teams)
+        .where(eq(teams.id, teamId));
+
+      return settings[0]!;
+    }),
   // UPDATE
+  saveMatchSettings: protectedProcedure
+    .input(z.object({ teamId: z.number(), allowTwoSetMatches: z.boolean() }))
+    .mutation(async ({ ctx, input }) => {
+      const { teamId, ...settings } = input;
+
+      await ctx.db
+        .update(teams)
+        .set({ ...settings })
+        .where(eq(teams.id, teamId));
+    }),
   // DELETE
   revokeViewerAccess: protectedProcedure
     .input(z.object({ userId: z.string(), teamId: z.number() }))

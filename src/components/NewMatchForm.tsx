@@ -33,8 +33,11 @@ export const formSchema = z
     score: z
       .string({ required_error: "Wynik meczu jest wymagany." })
       .min(2, "Wpisz poprawny wynik meczu."),
+    allowTwoSetMatches: z.boolean().default(false),
   })
-  .superRefine(({ score }, ctx) => {
+  .superRefine(({ score, allowTwoSetMatches }, ctx) => {
+    if (allowTwoSetMatches) return;
+
     const scores = (score.split("") as [string, string]).map(Number);
     const scoreNotBetween0And3 = scores
       .map((score) => score >= 0 && score <= 3)
@@ -65,6 +68,8 @@ export default function NewMatchForm() {
       score: "",
     },
   });
+
+  const [matchSettings] = api.team.matchSettings.useSuspenseQuery({ teamId });
 
   const createMatch = api.match.create.useMutation({
     onSuccess: ({ matchId }) => {
@@ -101,6 +106,12 @@ export default function NewMatchForm() {
           onSubmit={form.handleSubmit(onSubmit)}
           className="flex flex-col gap-4"
         >
+          <FormField
+            control={form.control}
+            name="allowTwoSetMatches"
+            render={() => <></>}
+            defaultValue={matchSettings.allowTwoSetMatches ?? false}
+          />
           <FormField
             control={form.control}
             name="date"

@@ -103,6 +103,9 @@ export const teams = createTable("team", {
     .notNull(),
   name: text("name", { length: 255 }).notNull(),
   profilePicture: text("profile_picture", { length: 255 }),
+  allowTwoSetMatches: int("allow_two_set_matches", { mode: "boolean" }).default(
+    false,
+  ),
 });
 
 export const usersToTeams = createTable(
