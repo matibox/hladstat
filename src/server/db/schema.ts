@@ -1,11 +1,14 @@
-import { relations, sql } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import {
   index,
-  int,
+  integer,
   primaryKey,
-  sqliteTableCreator,
+  pgTableCreator,
   text,
-} from "drizzle-orm/sqlite-core";
+  timestamp,
+  serial,
+  boolean,
+} from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
 import type { Position, roles, StatsCode } from "~/lib/constants";
 
@@ -15,28 +18,26 @@ import type { Position, roles, StatsCode } from "~/lib/constants";
  *
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
-export const createTable = sqliteTableCreator((name) => `hladstat_${name}`);
+export const createTable = pgTableCreator((name) => `hladstat_${name}`);
 
 // ==== next auth ====
 
 export const accounts = createTable(
   "account",
   {
-    userId: text("user_id", { length: 255 })
+    userId: text("user_id")
       .notNull()
       .references(() => users.id),
-    type: text("type", { length: 255 })
-      .$type<AdapterAccount["type"]>()
-      .notNull(),
-    provider: text("provider", { length: 255 }).notNull(),
-    providerAccountId: text("provider_account_id", { length: 255 }).notNull(),
+    type: text("type").$type<AdapterAccount["type"]>().notNull(),
+    provider: text("provider").notNull(),
+    providerAccountId: text("provider_account_id").notNull(),
     refresh_token: text("refresh_token"),
     access_token: text("access_token"),
-    expires_at: int("expires_at"),
-    token_type: text("token_type", { length: 255 }),
-    scope: text("scope", { length: 255 }),
+    expires_at: integer("expires_at"),
+    token_type: text("token_type"),
+    scope: text("scope"),
     id_token: text("id_token"),
-    session_state: text("session_state", { length: 255 }),
+    session_state: text("session_state"),
   },
   (account) => ({
     compoundKey: primaryKey({
@@ -53,11 +54,11 @@ export const accountsRelations = relations(accounts, ({ one }) => ({
 export const sessions = createTable(
   "session",
   {
-    sessionToken: text("session_token", { length: 255 }).notNull().primaryKey(),
-    userId: text("userId", { length: 255 })
+    sessionToken: text("session_token").notNull().primaryKey(),
+    userId: text("userId")
       .notNull()
       .references(() => users.id),
-    expires: int("expires", { mode: "timestamp" }).notNull(),
+    expires: timestamp("expires").notNull(),
   },
   (session) => ({
     userIdIdx: index("session_userId_idx").on(session.userId),
@@ -71,9 +72,9 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
 export const verificationTokens = createTable(
   "verification_token",
   {
-    identifier: text("identifier", { length: 255 }).notNull(),
-    token: text("token", { length: 255 }).notNull(),
-    expires: int("expires", { mode: "timestamp" }).notNull(),
+    identifier: text("identifier").notNull(),
+    token: text("token").notNull(),
+    expires: timestamp("expires").notNull(),
   },
   (vt) => ({
     compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
@@ -83,45 +84,37 @@ export const verificationTokens = createTable(
 // ====
 
 export const users = createTable("user", {
-  id: text("id", { length: 255 })
+  id: text("id")
     .notNull()
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  name: text("name", { length: 255 }),
-  firstName: text("first_name", { length: 255 }),
-  lastName: text("last_name", { length: 255 }),
-  email: text("email", { length: 255 }).notNull(),
-  emailVerified: int("email_verified", {
-    mode: "timestamp",
-  }).default(sql`(unixepoch())`),
-  image: text("image", { length: 255 }),
+  name: text("name"),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  email: text("email").notNull(),
+  emailVerified: timestamp("email_verified").defaultNow(),
+  image: text("image"),
 });
 
 export const teams = createTable("team", {
-  id: int("id", { mode: "number" })
-    .primaryKey({ autoIncrement: true })
-    .notNull(),
-  name: text("name", { length: 255 }).notNull(),
-  profilePicture: text("profile_picture", { length: 255 }),
-  allowTwoSetMatches: int("allow_two_set_matches", { mode: "boolean" }).default(
-    false,
-  ),
+  id: serial("teams").primaryKey().notNull(),
+  name: text("name").notNull(),
+  profilePicture: text("profile_picture"),
+  allowTwoSetMatches: boolean("allow_two_set_matches").default(false),
 });
 
 export const usersToTeams = createTable(
   "users_to_teams",
   {
-    userId: text("user_id", { length: 255 })
+    userId: text("user_id")
       .notNull()
       .references(() => users.id),
-    teamId: int("team_id")
+    teamId: integer("team_id")
       .notNull()
       .references(() => teams.id),
-    role: text("role", { length: 255 })
-      .notNull()
-      .$type<(typeof roles)[number]>(),
-    position: text("position", { length: 255 }).$type<Position>(),
-    shirtNumber: int("shirt_number"),
+    role: text("role").notNull().$type<(typeof roles)[number]>(),
+    position: text("position").$type<Position>(),
+    shirtNumber: integer("shirt_number"),
   },
   (table) => ({
     compoundKey: primaryKey({ columns: [table.teamId, table.userId] }),
@@ -129,32 +122,30 @@ export const usersToTeams = createTable(
 );
 
 export const matches = createTable("matches", {
-  id: int("id", { mode: "number" })
-    .primaryKey({ autoIncrement: true })
-    .notNull(),
-  teamId: int("team_id")
+  id: serial("id").primaryKey().notNull(),
+  teamId: integer("team_id")
     .notNull()
     .references(() => teams.id),
-  date: int("date", { mode: "timestamp" }).notNull(),
-  opponent: text("opponent", { length: 255 }).notNull(),
-  score: text("score", { length: 3 }).notNull(),
-  shared: int("shared", { mode: "boolean" }).default(false),
-  lockedAnalysis: int("locked_analysis", { mode: "boolean" }).default(false),
+  date: timestamp("date").notNull(),
+  opponent: text("opponent").notNull(),
+  score: text("score").notNull(),
+  shared: boolean("shared").default(false),
+  lockedAnalysis: boolean("locked_analysis").default(false),
 });
 
 export const stats = createTable("stats", {
-  id: text("id", { length: 255 })
+  id: text("id")
     .notNull()
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   playerId: text("player_id")
     .notNull()
     .references(() => users.id),
-  matchId: int("match_id")
+  matchId: integer("match_id")
     .references(() => matches.id, { onDelete: "cascade" })
     .notNull(),
-  set: int("set", { mode: "number" }).notNull(),
-  code: text("code", { length: 20 }).notNull().$type<StatsCode>(),
+  set: integer("set").notNull(),
+  code: text("code").notNull().$type<StatsCode>(),
 });
 
 // ==== relations ====
