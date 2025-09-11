@@ -121,6 +121,10 @@ export const usersToTeams = createTable(
   }),
 );
 
+// i.e. 2025/2026
+type Season =
+  `${number}${number}${number}${number}/${number}${number}${number}${number}`;
+
 export const matches = createTable("matches", {
   id: serial("id").primaryKey().notNull(),
   teamId: integer("team_id")
@@ -131,6 +135,7 @@ export const matches = createTable("matches", {
   score: text("score").notNull(),
   shared: boolean("shared").default(false),
   lockedAnalysis: boolean("locked_analysis").default(false),
+  season: text("season").$type<Season>(),
 });
 
 export const stats = createTable("stats", {
