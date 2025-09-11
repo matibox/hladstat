@@ -23,9 +23,12 @@ export function SeasonSelect() {
 
   return (
     <Select value={currentSeason} onValueChange={setCurrentSeason}>
-      <SelectTrigger>
-        <SelectValue placeholder="Wybierz sezon" />
-      </SelectTrigger>
+      <div className="flex flex-col gap-1">
+        <p className="hidden text-lg font-medium sm:inline-block">Sezon</p>
+        <SelectTrigger className="sm:max-w-xs">
+          <SelectValue placeholder="Wybierz sezon" />
+        </SelectTrigger>
+      </div>
       <SelectContent>
         <SelectGroup>
           {list.map((item) => (
