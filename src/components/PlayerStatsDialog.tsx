@@ -4,7 +4,13 @@ import React, { useState } from "react";
 import ResponsiveDialog from "./ui/responsive-dialog";
 import { Button } from "./ui/button";
 import { api, type RouterOutputs } from "~/trpc/react";
-import { ClipboardListIcon, Loader2Icon } from "lucide-react";
+import {
+  ClipboardListIcon,
+  Loader2Icon,
+  TrashIcon,
+  UserMinusIcon,
+  UserPlusIcon,
+} from "lucide-react";
 import {
   AttackChart,
   PointsAndErrorsChart,
@@ -20,13 +26,20 @@ import { useTeamContext } from "./TeamContext";
 export default function PlayerStatsDialog({
   matchId,
   set,
-  player: { id: playerId, firstName, lastName, position, shirtNumber },
+  player: {
+    id: playerId,
+    firstName,
+    lastName,
+    position,
+    shirtNumber,
+    isActive,
+  },
 }: {
   matchId?: number;
   set: SetID;
   player: RouterOutputs["user"]["byTeamPlayers"][number];
 }) {
-  const { teamId } = useTeamContext();
+  const { teamId, isPlayerOrOwner } = useTeamContext();
   const [formOpened, setFormOpened] = useState(false);
 
   const { data: stats, isPending } = matchId
@@ -64,36 +77,67 @@ export default function PlayerStatsDialog({
       className="sm:max-w-[700px] lg:max-w-[1000px]"
     >
       <ScrollArea className="h-[75dvh]">
-        <div className="flex flex-col gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3">
-          {isPending && (
-            <Loader2Icon className="mx-auto animate-spin md:col-span-2 lg:col-span-3" />
-          )}
-          {statsBySet && (
-            <>
-              <AttackChart stats={statsBySet} />
-              <ReceptionChart stats={statsBySet} />
-              <ServeChart stats={statsBySet} />
-              <PointsAndErrorsChart stats={statsBySet} defaultMode="details" />
-              <Card className="border-none bg-muted/25">
-                <CardHeader className="p-4">
-                  <CardTitle className="text-xl leading-none">
-                    Inne statystyki
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 pt-0">
-                  <div className="grid grid-cols-2">
-                    <div className="flex flex-col text-muted-foreground">
-                      <span>Bloki</span>
-                      <span>Obrony</span>
+        <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3">
+            {isPending && (
+              <Loader2Icon className="mx-auto animate-spin md:col-span-2 lg:col-span-3" />
+            )}
+            {statsBySet && (
+              <>
+                <AttackChart stats={statsBySet} />
+                <ReceptionChart stats={statsBySet} />
+                <ServeChart stats={statsBySet} />
+                <PointsAndErrorsChart
+                  stats={statsBySet}
+                  defaultMode="details"
+                />
+                <Card className="border-none bg-muted/25">
+                  <CardHeader className="p-4">
+                    <CardTitle className="text-xl leading-none">
+                      Inne statystyki
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 pt-0">
+                    <div className="grid grid-cols-2">
+                      <div className="flex flex-col text-muted-foreground">
+                        <span>Bloki</span>
+                        <span>Obrony</span>
+                      </div>
+                      <div className="flex flex-col">
+                        <span>{countStat(statsBySet, ["other-blk"])}</span>
+                        <span>{countStat(statsBySet, ["other-dig"])}</span>
+                      </div>
                     </div>
-                    <div className="flex flex-col">
-                      <span>{countStat(statsBySet, ["other-blk"])}</span>
-                      <span>{countStat(statsBySet, ["other-dig"])}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </>
+                  </CardContent>
+                </Card>
+              </>
+            )}
+          </div>
+          {isPlayerOrOwner && (
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-0.5">
+                <h2 className="text-xl font-semibold leading-none">
+                  Ustawienia
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Zarządzaj zawodnikiem w drużynie.
+                </p>
+              </div>
+              <div className="flex flex-col gap-2 md:self-start">
+                <Button variant={isActive ? "secondary" : "default"}>
+                  {isActive ? "Dezaktywuj" : "Aktywuj"}
+                  {isActive ? (
+                    <UserMinusIcon className="ml-1 h-4 w-4" />
+                  ) : (
+                    <UserPlusIcon className="ml-1 h-4 w-4" />
+                  )}
+                </Button>
+                <Button variant="destructive">
+                  Usuń
+                  <TrashIcon className="ml-1 h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           )}
         </div>
       </ScrollArea>

@@ -112,7 +112,7 @@ export const userRouter = createTRPCRouter({
 
       return (
         await ctx.db.query.usersToTeams.findMany({
-          columns: { position: true, shirtNumber: true },
+          columns: { position: true, shirtNumber: true, isActive: true },
           where: (table, { eq, and, inArray }) =>
             and(
               eq(table.teamId, teamId),
@@ -162,6 +162,20 @@ export const userRouter = createTRPCRouter({
         .update(users)
         .set({ firstName, lastName })
         .where(eq(users.id, ctx.session.user.id));
+    }),
+  updateIsActive: protectedProcedure
+    .input(
+      z.object({ userId: z.string(), teamId: z.number(), active: z.boolean() }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { userId, teamId, active } = input;
+
+      await ctx.db
+        .update(usersToTeams)
+        .set({ isActive: active })
+        .where(
+          and(eq(usersToTeams.userId, userId), eq(usersToTeams.teamId, teamId)),
+        );
     }),
 
   // DELETE

@@ -115,6 +115,7 @@ export const usersToTeams = createTable(
     role: text("role").notNull().$type<(typeof roles)[number]>(),
     position: text("position").$type<Position>(),
     shirtNumber: integer("shirt_number"),
+    isActive: boolean("is_active").default(true),
   },
   (table) => ({
     compoundKey: primaryKey({ columns: [table.teamId, table.userId] }),

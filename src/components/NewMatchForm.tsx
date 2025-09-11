@@ -25,7 +25,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "./ui/input-otp";
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
 import { useTeamContext } from "./TeamContext";
-import { getCurrentSeason, seasonFromDate } from "~/lib/seasons";
+import { seasonFromDate } from "~/lib/seasons";
 
 export const formSchema = z
   .object({
