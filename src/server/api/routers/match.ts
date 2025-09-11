@@ -17,10 +17,11 @@ export const matchRouter = createTRPCRouter({
         date: z.date(),
         opponent: z.string(),
         score: z.string(),
+        season: z.custom<Season>(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { date, opponent, score, teamId } = input;
+      const { date, opponent, score, teamId, season } = input;
 
       const [data] = await ctx.db
         .insert(matches)
@@ -29,6 +30,7 @@ export const matchRouter = createTRPCRouter({
           date,
           opponent,
           score,
+          season,
         })
         .returning({ matchId: matches.id });
 

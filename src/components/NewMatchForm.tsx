@@ -25,6 +25,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "./ui/input-otp";
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
 import { useTeamContext } from "./TeamContext";
+import { getCurrentSeason, seasonFromDate } from "~/lib/seasons";
 
 export const formSchema = z
   .object({
@@ -80,10 +81,12 @@ export default function NewMatchForm() {
 
   function onSubmit({ score, ...values }: z.infer<typeof formSchema>) {
     const formattedScore = `${score.charAt(0)}:${score.charAt(1)}`;
+    const season = seasonFromDate(values.date);
 
     createMatch.mutate({
       teamId,
       score: formattedScore,
+      season,
       ...values,
     });
   }

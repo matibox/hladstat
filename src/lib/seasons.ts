@@ -26,3 +26,14 @@ export function generateSeasonList({
 
   return seasons.reverse();
 }
+
+export function seasonFromDate(date: Date): Season {
+  const year = dayjs(date).year();
+  const month = dayjs(date).month() + 1;
+
+  let startingYear;
+  if (month >= 9) startingYear = year;
+  else startingYear = year - 1;
+
+  return `${startingYear}/${startingYear + 1}`;
+}
