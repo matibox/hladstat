@@ -65,6 +65,13 @@ export default function PlayerStatsDialog({
     },
   });
 
+  const deleteFromTeam = api.user.deleteFromTeam.useMutation({
+    onSuccess: async () => {
+      await utils.user.byTeamPlayers.invalidate();
+      setFormOpened(false);
+    },
+  });
+
   return (
     <ResponsiveDialog
       open={formOpened}
@@ -121,7 +128,7 @@ export default function PlayerStatsDialog({
               </>
             )}
           </div>
-          {isPlayerOrOwner && (
+          {isPlayerOrOwner && !matchId && (
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-0.5">
                 <h2 className="text-xl font-semibold leading-none">
@@ -151,7 +158,14 @@ export default function PlayerStatsDialog({
                     <UserPlusIcon className="ml-1 h-4 w-4" />
                   )}
                 </Button>
-                <Button className="md:self-start" variant="destructive">
+                <Button
+                  className="md:self-start"
+                  variant="destructive"
+                  loading={deleteFromTeam.isPending}
+                  onClick={() =>
+                    deleteFromTeam.mutate({ userId: playerId, teamId })
+                  }
+                >
                   Usuń
                   <TrashIcon className="ml-1 h-4 w-4" />
                 </Button>
