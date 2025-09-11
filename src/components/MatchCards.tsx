@@ -21,8 +21,11 @@ import { cn } from "~/lib/utils";
 import { useTeamContext } from "./TeamContext";
 
 export default function MatchCards() {
-  const { teamId } = useTeamContext();
-  const [matches] = api.match.byTeamRecent.useSuspenseQuery({ teamId });
+  const { teamId, currentSeason } = useTeamContext();
+  const [matches] = api.match.byTeamRecent.useSuspenseQuery({
+    teamId,
+    season: currentSeason,
+  });
 
   return (
     <div className="flex flex-col gap-4 md:grid md:grid-cols-2">
@@ -30,8 +33,8 @@ export default function MatchCards() {
         <MatchCard key={match.id} match={match} />
       ))}
       {matches.length === 0 ? (
-        <p className="text-center text-muted-foreground">
-          Brak ostatnich meczów.
+        <p className="text-center text-muted-foreground md:col-start-1 md:col-end-3">
+          Brak ostatnich meczów. Uważasz, że to błąd? Spróbuj zmienić sezon.
         </p>
       ) : (
         <Link

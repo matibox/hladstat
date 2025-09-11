@@ -6,6 +6,7 @@ import {
 } from "~/server/api/trpc";
 import { matches } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
+import { type Season } from "~/lib/constants";
 
 export const matchRouter = createTRPCRouter({
   // CREATE
@@ -53,9 +54,9 @@ export const matchRouter = createTRPCRouter({
       };
     }),
   byTeamRecent: protectedProcedure
-    .input(z.object({ teamId: z.number() }))
+    .input(z.object({ teamId: z.number(), season: z.custom<Season>() }))
     .query(async ({ ctx, input }) => {
-      const { teamId } = input;
+      const { teamId, season } = input;
 
       return await ctx.db.query.matches.findMany({
         columns: {
@@ -65,7 +66,8 @@ export const matchRouter = createTRPCRouter({
           score: true,
           season: true,
         },
-        where: (matches, { eq }) => eq(matches.teamId, teamId),
+        where: (matches, { and, eq }) =>
+          and(eq(matches.teamId, teamId), eq(matches.season, season)),
         orderBy: (matches, { desc }) => desc(matches.date),
         limit: 6,
       });

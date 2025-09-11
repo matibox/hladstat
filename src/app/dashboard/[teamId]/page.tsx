@@ -14,6 +14,7 @@ import TeamPageNavbar from "~/components/TeamPageNavbar";
 import TeamSettings from "~/components/TeamSettings";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { TabsContent } from "~/components/ui/tabs";
+import { getCurrentSeason } from "~/lib/seasons";
 import { countPointsAndErrors, countStat } from "~/lib/stats";
 import { api, HydrateClient } from "~/trpc/server";
 
@@ -24,7 +25,7 @@ export default async function Team({
 }) {
   const teamId = parseInt(_teamId);
 
-  await api.match.byTeamRecent.prefetch({ teamId });
+  await api.match.byTeamRecent.prefetch({ teamId, season: getCurrentSeason() });
   await api.user.byTeamPlayers.prefetch({ teamId });
   await api.user.byTeamViewers.prefetch({ teamId });
   await api.team.matchSettings.prefetch({ teamId });

@@ -181,8 +181,6 @@ export const teamRouter = createTRPCRouter({
 
       if (!firstMatch[0]) return null;
 
-      console.log(firstMatch);
-
       return firstMatch[0].season;
     }),
   // UPDATE

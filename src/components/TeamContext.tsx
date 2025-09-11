@@ -1,6 +1,5 @@
 "use client";
 
-import dayjs from "dayjs";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createContext, useContext, useState } from "react";
 import { type Season } from "~/lib/constants";
