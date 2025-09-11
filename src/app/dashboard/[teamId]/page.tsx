@@ -2,6 +2,7 @@ import AddPlayerForm from "~/components/AddPlayerForm";
 import MatchCards from "~/components/MatchCards";
 import NewMatchForm from "~/components/NewMatchForm";
 import { TeamPlayers } from "~/components/PlayerCards";
+import { SeasonSelect } from "~/components/SeasonSelect";
 import {
   AttackChart,
   ReceptionChart,
@@ -38,6 +39,7 @@ export default async function Team({
         <main className="mx-auto flex w-full max-w-xl flex-col gap-8 px-4 pb-[calc(75px_+_1rem)] md:grid md:max-w-7xl md:grid-cols-2 md:px-6 md:pb-6 lg:gap-12 lg:px-8 lg:pb-8">
           <TabsContent value="matches" className="col-span-2">
             <section className="flex w-full flex-col gap-4">
+              <SeasonSelect />
               <div className="flex w-full items-center justify-between">
                 <h1 className="text-2xl font-semibold">Ostatnie mecze</h1>
                 <NewMatchForm />

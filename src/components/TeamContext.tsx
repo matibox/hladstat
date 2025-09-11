@@ -1,12 +1,17 @@
 "use client";
 
+import dayjs from "dayjs";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createContext, useContext } from "react";
+import { createContext, useContext, useState } from "react";
+import { type Season } from "~/lib/constants";
+import { getCurrentSeason } from "~/lib/seasons";
 
 type TeamContext = {
   teamId: number;
   isPlayerOrOwner: boolean;
   tabs: [string, ...string[]];
+  currentSeason: Season;
+  setCurrentSeason: (season: Season) => void;
 };
 
 const TeamContext = createContext<TeamContext | null>(null);
@@ -37,6 +42,10 @@ export default function TeamContextProvider({
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const [currentSeason, setCurrentSeason] = useState<Season>(() =>
+    getCurrentSeason(),
+  );
+
   const tabs = ["matches", "members", "stats"] as [string, ...string[]];
   if (isPlayerOrOwner && !isShared) tabs.push("settings");
 
@@ -45,7 +54,9 @@ export default function TeamContextProvider({
   }
 
   return (
-    <TeamContext.Provider value={{ teamId, isPlayerOrOwner, tabs }}>
+    <TeamContext.Provider
+      value={{ teamId, isPlayerOrOwner, tabs, currentSeason, setCurrentSeason }}
+    >
       {children}
     </TeamContext.Provider>
   );

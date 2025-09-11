@@ -1,7 +1,7 @@
-import { teams, users, usersToTeams } from "~/server/db/schema";
+import { matches, teams, users, usersToTeams } from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import z from "zod";
-import { and, eq, inArray, sql, count } from "drizzle-orm";
+import { and, eq, inArray, sql, count, desc, asc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { positions } from "~/lib/constants";
 
@@ -166,6 +166,24 @@ export const teamRouter = createTRPCRouter({
         .where(eq(teams.id, teamId));
 
       return settings[0]!;
+    }),
+  firstSeason: protectedProcedure
+    .input(z.object({ teamId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const { teamId } = input;
+
+      const firstMatch = await ctx.db
+        .select({ season: matches.season })
+        .from(matches)
+        .leftJoin(teams, eq(teams.id, teamId))
+        .orderBy(asc(matches.season))
+        .limit(1);
+
+      if (!firstMatch[0]) return null;
+
+      console.log(firstMatch);
+
+      return firstMatch[0].season;
     }),
   // UPDATE
   saveMatchSettings: protectedProcedure

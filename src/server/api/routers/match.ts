@@ -58,7 +58,13 @@ export const matchRouter = createTRPCRouter({
       const { teamId } = input;
 
       return await ctx.db.query.matches.findMany({
-        columns: { id: true, date: true, opponent: true, score: true },
+        columns: {
+          id: true,
+          date: true,
+          opponent: true,
+          score: true,
+          season: true,
+        },
         where: (matches, { eq }) => eq(matches.teamId, teamId),
         orderBy: (matches, { desc }) => desc(matches.date),
         limit: 6,

@@ -67,3 +67,6 @@ type StatsOptions = typeof statsOptions;
 export type StatsCode = {
   [T in StatsOptions[number] as T["value"]]: `${T["value"]}-${T["options"][number]["value"]}`;
 }[StatsOptions[number]["value"]];
+
+// i.e. 2025/2026
+export type Season = `${number}/${number}`;

@@ -10,7 +10,7 @@ import {
   boolean,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
-import type { Position, roles, StatsCode } from "~/lib/constants";
+import type { Position, roles, Season, StatsCode } from "~/lib/constants";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -121,10 +121,6 @@ export const usersToTeams = createTable(
   }),
 );
 
-// i.e. 2025/2026
-type Season =
-  `${number}${number}${number}${number}/${number}${number}${number}${number}`;
-
 export const matches = createTable("matches", {
   id: serial("id").primaryKey().notNull(),
   teamId: integer("team_id")
@@ -135,7 +131,7 @@ export const matches = createTable("matches", {
   score: text("score").notNull(),
   shared: boolean("shared").default(false),
   lockedAnalysis: boolean("locked_analysis").default(false),
-  season: text("season").$type<Season>(),
+  season: text("season").$type<Season>().default("2024/2025").notNull(),
 });
 
 export const stats = createTable("stats", {
