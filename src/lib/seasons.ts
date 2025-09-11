@@ -12,15 +12,16 @@ export function getCurrentSeason(): Season {
   return `${startingYear}/${startingYear + 1}`;
 }
 
-export function generateSeasonList({ firstSeason }: { firstSeason: Season }) {
+export function generateSeasonList({
+  seasons,
+}: {
+  seasons: Season[] | null | undefined;
+}) {
   const currSeason = getCurrentSeason();
-  const [currSeasonStart] = currSeason.split("/").map(Number);
-  const [firstSeasonStart] = firstSeason.split("/").map(Number);
+  if (!seasons?.[0]) return [currSeason];
 
-  const seasons: Season[] = [];
-
-  for (let i = firstSeasonStart!; i <= currSeasonStart!; i++) {
-    seasons.push(`${i}/${i + 1}`);
+  if (!seasons.includes(currSeason)) {
+    return [...seasons, currSeason].reverse();
   }
 
   return seasons.reverse();

@@ -15,11 +15,9 @@ import { generateSeasonList } from "~/lib/seasons";
 export function SeasonSelect() {
   const { currentSeason, setCurrentSeason, teamId } = useTeamContext();
 
-  const { data: firstSeason } = api.team.firstSeason.useQuery({ teamId });
+  const { data: seasons } = api.team.seasons.useQuery({ teamId });
 
-  const list = firstSeason
-    ? generateSeasonList({ firstSeason })
-    : [currentSeason];
+  const list = generateSeasonList({ seasons });
 
   return (
     <Select value={currentSeason} onValueChange={setCurrentSeason}>
