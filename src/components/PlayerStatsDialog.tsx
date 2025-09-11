@@ -57,6 +57,14 @@ export default function PlayerStatsDialog({
     return stat.set === parseInt(set);
   });
 
+  const utils = api.useUtils();
+  const updateIsActive = api.user.updateIsActive.useMutation({
+    onSuccess: async () => {
+      await utils.user.byTeamPlayers.invalidate();
+      setFormOpened(false);
+    },
+  });
+
   return (
     <ResponsiveDialog
       open={formOpened}
@@ -123,8 +131,19 @@ export default function PlayerStatsDialog({
                   Zarządzaj zawodnikiem w drużynie.
                 </p>
               </div>
-              <div className="flex flex-col gap-2 md:self-start">
-                <Button variant={isActive ? "secondary" : "default"}>
+              <div className="flex flex-col gap-2">
+                <Button
+                  className="md:self-start"
+                  variant={isActive ? "secondary" : "default"}
+                  loading={updateIsActive.isPending}
+                  onClick={() =>
+                    updateIsActive.mutate({
+                      userId: playerId,
+                      teamId,
+                      active: !isActive,
+                    })
+                  }
+                >
                   {isActive ? "Dezaktywuj" : "Aktywuj"}
                   {isActive ? (
                     <UserMinusIcon className="ml-1 h-4 w-4" />
@@ -132,7 +151,7 @@ export default function PlayerStatsDialog({
                     <UserPlusIcon className="ml-1 h-4 w-4" />
                   )}
                 </Button>
-                <Button variant="destructive">
+                <Button className="md:self-start" variant="destructive">
                   Usuń
                   <TrashIcon className="ml-1 h-4 w-4" />
                 </Button>
