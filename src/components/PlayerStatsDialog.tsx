@@ -7,7 +7,6 @@ import { api, type RouterOutputs } from "~/trpc/react";
 import {
   ClipboardListIcon,
   Loader2Icon,
-  TrashIcon,
   UserMinusIcon,
   UserPlusIcon,
 } from "lucide-react";
@@ -59,13 +58,6 @@ export default function PlayerStatsDialog({
 
   const utils = api.useUtils();
   const updateIsActive = api.user.updateIsActive.useMutation({
-    onSuccess: async () => {
-      await utils.user.byTeamPlayers.invalidate();
-      setFormOpened(false);
-    },
-  });
-
-  const deleteFromTeam = api.user.deleteFromTeam.useMutation({
     onSuccess: async () => {
       await utils.user.byTeamPlayers.invalidate();
       setFormOpened(false);
@@ -157,17 +149,6 @@ export default function PlayerStatsDialog({
                   ) : (
                     <UserPlusIcon className="ml-1 h-4 w-4" />
                   )}
-                </Button>
-                <Button
-                  className="md:self-start"
-                  variant="destructive"
-                  loading={deleteFromTeam.isPending}
-                  onClick={() =>
-                    deleteFromTeam.mutate({ userId: playerId, teamId })
-                  }
-                >
-                  Usuń
-                  <TrashIcon className="ml-1 h-4 w-4" />
                 </Button>
               </div>
             </div>
