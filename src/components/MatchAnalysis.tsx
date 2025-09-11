@@ -140,14 +140,17 @@ export default function MatchAnalysis({
                       player={player}
                       matchId={matchId}
                     />
-                    {set !== "Ogółem" && isPlayerOrOwner && !isShared && (
-                      <AddStatisticForm
-                        set={parseInt(set)}
-                        player={player}
-                        matchId={matchId}
-                        lockedAnalysis={match.lockedAnalysis ?? false}
-                      />
-                    )}
+                    {set !== "Ogółem" &&
+                      isPlayerOrOwner &&
+                      !isShared &&
+                      player.isActive && (
+                        <AddStatisticForm
+                          set={parseInt(set)}
+                          player={player}
+                          matchId={matchId}
+                          lockedAnalysis={match.lockedAnalysis ?? false}
+                        />
+                      )}
                   </>
                 }
               />

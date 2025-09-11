@@ -121,14 +121,9 @@ export const userRouter = createTRPCRouter({
           with: {
             user: { columns: { id: true, firstName: true, lastName: true } },
           },
-          orderBy: (table, { asc }) => asc(table.shirtNumber),
+          orderBy: sql`${usersToTeams.isActive} desc, ${usersToTeams.shirtNumber} asc`,
         })
-      )
-        .map(({ user, ...data }) => ({ ...data, ...user }))
-        .sort((_, b) => {
-          if (!b.shirtNumber) return -1;
-          return 0;
-        });
+      ).map(({ user, ...data }) => ({ ...data, ...user }));
     }),
   byTeamViewers: protectedProcedure
     .input(z.object({ teamId: z.number() }))

@@ -5,6 +5,7 @@ import PlayerStatsDialog from "./PlayerStatsDialog";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { api, type RouterOutputs } from "~/trpc/react";
 import { useTeamContext } from "./TeamContext";
+import { cn } from "~/lib/utils";
 
 export function TeamPlayers() {
   const { teamId } = useTeamContext();
@@ -19,7 +20,11 @@ export function TeamPlayers() {
           header={
             <div className="flex items-center gap-4">
               <PlayerStatsDialog player={player} set="Ogółem" />
-              <div className="relative hidden sm:block">
+              <div
+                className={cn("relative hidden sm:block", {
+                  "opacity-50": !player.isActive,
+                })}
+              >
                 <ShirtIcon className="h-12 w-12 fill-current" />
                 <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-lg font-bold text-primary-foreground">
                   {player.shirtNumber ?? "?"}
@@ -34,7 +39,7 @@ export function TeamPlayers() {
 }
 
 export default function PlayerCard({
-  player: { firstName, lastName, position, shirtNumber },
+  player: { firstName, lastName, position, shirtNumber, isActive },
   header,
   children,
 }: {
@@ -43,13 +48,17 @@ export default function PlayerCard({
   children?: React.ReactNode;
 }) {
   return (
-    <Card className="w-full border-none bg-muted/25">
+    <Card
+      className={cn("w-full border-none bg-muted/25", {
+        "bg-muted/10": !isActive,
+      })}
+    >
       <CardHeader className="flex-row items-center justify-between space-y-0 p-4">
         <div>
-          <CardTitle>
+          <CardTitle className={cn({ "opacity-50": !isActive })}>
             {firstName} {lastName}
           </CardTitle>
-          <CardDescription>
+          <CardDescription className={cn({ "opacity-50": !isActive })}>
             <span>{position}</span>
             <span className="sm:hidden">
               {!!shirtNumber && `, ${shirtNumber}`}
@@ -59,17 +68,6 @@ export default function PlayerCard({
         {header}
       </CardHeader>
       {children}
-      {/* <CardContent className="p-4 pt-0">
-        <div className="flex flex-col gap-0.5 text-sm">
-          <span>{player.stats.matches} meczy/ów</span>
-          <span>{player.stats.points} punkty/ów</span>
-          <span>{player.stats.attackPerc}% w ataku</span>
-          <span>{player.stats.posReceptionPerc}% pozytywnego przyjęcia</span>
-          <span>{player.stats.aces} asy/ów</span>
-          <span>{player.stats.blocks} bloki/ów</span>
-        </div>
-      </CardContent> */}
-      {/* maybe stats, delete player, etc. */}
     </Card>
   );
 }
