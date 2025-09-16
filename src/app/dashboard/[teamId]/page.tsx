@@ -3,19 +3,11 @@ import MatchCards from "~/components/MatchCards";
 import NewMatchForm from "~/components/NewMatchForm";
 import { TeamPlayers } from "~/components/PlayerCards";
 import { SeasonSelect } from "~/components/SeasonSelect";
-import {
-  AttackChart,
-  ReceptionChart,
-  ScorersChart,
-  ServeChart,
-  SetDistributionChart,
-} from "~/components/StatsCharts";
 import TeamPageNavbar from "~/components/TeamPageNavbar";
 import TeamSettings from "~/components/TeamSettings";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import TeamStats from "~/components/TeamStats";
 import { TabsContent } from "~/components/ui/tabs";
 import { getCurrentSeason } from "~/lib/seasons";
-import { countPointsAndErrors, countStat } from "~/lib/stats";
 import { api, HydrateClient } from "~/trpc/server";
 
 export default async function Team({
@@ -24,15 +16,13 @@ export default async function Team({
   params: { teamId: string };
 }) {
   const teamId = parseInt(_teamId);
+  const season = getCurrentSeason();
 
-  await api.match.byTeamRecent.prefetch({ teamId, season: getCurrentSeason() });
+  await api.match.byTeamRecent.prefetch({ teamId, season });
   await api.user.byTeamPlayers.prefetch({ teamId });
   await api.user.byTeamViewers.prefetch({ teamId });
   await api.team.matchSettings.prefetch({ teamId });
-
-  const stats = await api.stats.byTeam({ teamId });
-
-  const { points, errors } = countPointsAndErrors(stats);
+  await api.stats.byTeamAndSeason.prefetch({ teamId, season });
 
   return (
     <HydrateClient>
@@ -59,35 +49,9 @@ export default async function Team({
           </TabsContent>
           <TabsContent value="stats" className="md:col-span-2">
             <section className="flex w-full flex-col gap-4">
+              <SeasonSelect />
               <div className="flex flex-col gap-4 md:grid md:grid-cols-2 lg:grid-cols-3">
-                <SetDistributionChart stats={stats} defaultMode="position" />
-                <ScorersChart stats={stats} mode="pie" />
-                <AttackChart stats={stats} />
-                <ReceptionChart stats={stats} />
-                <ServeChart stats={stats} />
-                <Card className="border-none bg-muted/25">
-                  <CardHeader className="p-4">
-                    <CardTitle className="text-xl leading-none">
-                      Inne statystyki
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-4 pt-0">
-                    <div className="flex gap-16">
-                      <div className="flex flex-col text-muted-foreground">
-                        <span>Punkty</span>
-                        <span>Błędy</span>
-                        <span>Bloki</span>
-                        <span>Obrony</span>
-                      </div>
-                      <div className="flex flex-col">
-                        <span>{points}</span>
-                        <span>{errors}</span>
-                        <span>{countStat(stats, ["other-blk"])}</span>
-                        <span>{countStat(stats, ["other-dig"])}</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <TeamStats />
               </div>
             </section>
           </TabsContent>

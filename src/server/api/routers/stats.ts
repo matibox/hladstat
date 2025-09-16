@@ -4,7 +4,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { type StatsCode } from "~/lib/constants";
+import { type Season, type StatsCode } from "~/lib/constants";
 import { matches, stats, users, usersToTeams } from "~/server/db/schema";
 import { and, eq, inArray } from "drizzle-orm";
 
@@ -126,14 +126,15 @@ export const statsRouter = createTRPCRouter({
 
       return stats;
     }),
-  byTeam: protectedProcedure
-    .input(z.object({ teamId: z.number() }))
+  byTeamAndSeason: protectedProcedure
+    .input(z.object({ teamId: z.number(), season: z.custom<Season>() }))
     .query(async ({ ctx, input }) => {
-      const { teamId } = input;
+      const { teamId, season } = input;
 
       const foundMatches = await ctx.db.query.matches.findMany({
         columns: { id: true },
-        where: (matches, { eq }) => eq(matches.teamId, teamId),
+        where: (matches, { and, eq }) =>
+          and(eq(matches.teamId, teamId), eq(matches.season, season)),
         with: {
           stats: {
             columns: { id: true, code: true, set: true },
