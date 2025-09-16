@@ -159,9 +159,15 @@ export const statsRouter = createTRPCRouter({
         }));
     }),
   byTeamPlayer: protectedProcedure
-    .input(z.object({ playerId: z.string(), teamId: z.number() }))
+    .input(
+      z.object({
+        playerId: z.string(),
+        teamId: z.number(),
+        season: z.custom<Season>(),
+      }),
+    )
     .query(async ({ ctx, input }) => {
-      const { playerId, teamId } = input;
+      const { playerId, teamId, season } = input;
 
       const selectedStats = await ctx.db
         .select({
@@ -185,7 +191,13 @@ export const statsRouter = createTRPCRouter({
             eq(usersToTeams.teamId, matches.teamId),
           ),
         )
-        .where(and(eq(stats.playerId, playerId), eq(matches.teamId, teamId)));
+        .where(
+          and(
+            eq(stats.playerId, playerId),
+            eq(matches.teamId, teamId),
+            eq(matches.season, season),
+          ),
+        );
 
       const formatted = selectedStats.map(({ player, ...stat }) => ({
         ...stat,

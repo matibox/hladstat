@@ -21,6 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { countStat } from "~/lib/stats";
 import { type SetID } from "./MatchAnalysis";
 import { useTeamContext } from "./TeamContext";
+import { SeasonSelect } from "./SeasonSelect";
 
 export default function PlayerStatsDialog({
   matchId,
@@ -38,7 +39,7 @@ export default function PlayerStatsDialog({
   set: SetID;
   player: RouterOutputs["user"]["byTeamPlayers"][number];
 }) {
-  const { teamId, isPlayerOrOwner } = useTeamContext();
+  const { teamId, isPlayerOrOwner, currentSeason } = useTeamContext();
   const [formOpened, setFormOpened] = useState(false);
 
   const { data: stats, isPending } = matchId
@@ -47,7 +48,7 @@ export default function PlayerStatsDialog({
         { enabled: formOpened && !!matchId },
       )
     : api.stats.byTeamPlayer.useQuery(
-        { playerId, teamId },
+        { playerId, teamId, season: currentSeason },
         { enabled: formOpened && !matchId },
       );
 
@@ -83,6 +84,11 @@ export default function PlayerStatsDialog({
       description={`${firstName} ${lastName}, ${position}${shirtNumber ? `, nr ${shirtNumber}` : ""}`}
       className="sm:max-w-[700px] lg:max-w-[1000px]"
     >
+      {!matchId ? (
+        <div className="mb-4 md:mb-0">
+          <SeasonSelect />
+        </div>
+      ) : null}
       <ScrollArea className="h-[75dvh]">
         <div className="flex flex-col gap-8">
           <div className="flex flex-col gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3">
