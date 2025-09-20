@@ -39,7 +39,7 @@ export default function MatchAnalysis({
   matchId: number;
   isShared?: boolean;
 }) {
-  const { teamId, isPlayerOrOwner } = useTeamContext();
+  const { teamId, isOwner } = useTeamContext();
   const [set, setSet] = useState<SetID>("Ogółem");
   const [menuOpened, setMenuOpened] = useState(false);
 
@@ -73,7 +73,7 @@ export default function MatchAnalysis({
               <span>{dayjs(match.date).format("DD.MM.YYYY")}</span>
             </div>
           </div>
-          {isPlayerOrOwner && !isShared && (
+          {isOwner && !isShared && (
             <DropdownMenu
               open={menuOpened}
               onOpenChange={setMenuOpened}
@@ -141,7 +141,7 @@ export default function MatchAnalysis({
                       matchId={matchId}
                     />
                     {set !== "Ogółem" &&
-                      isPlayerOrOwner &&
+                      isOwner &&
                       !isShared &&
                       player.isActive && (
                         <AddStatisticForm

@@ -7,7 +7,7 @@ import { getCurrentSeason } from "~/lib/seasons";
 
 type TeamContext = {
   teamId: number;
-  isPlayerOrOwner: boolean;
+  isOwner: boolean;
   tabs: [string, ...string[]];
   currentSeason: Season;
   setCurrentSeason: (season: Season) => void;
@@ -31,12 +31,12 @@ export default function TeamContextProvider({
   teamId,
   children,
   isShared = false,
-  isPlayerOrOwner = false,
+  isOwner = false,
 }: {
   teamId: number;
   children: React.ReactNode;
   isShared?: boolean;
-  isPlayerOrOwner?: boolean;
+  isOwner?: boolean;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -46,15 +46,21 @@ export default function TeamContextProvider({
   );
 
   const tabs = ["matches", "members", "stats"] as [string, ...string[]];
-  if (isPlayerOrOwner && !isShared) tabs.push("settings");
+  if (isOwner && !isShared) tabs.push("settings");
 
-  if (!isPlayerOrOwner && searchParams.get("t") === "settings") {
+  if (!isOwner && searchParams.get("t") === "settings") {
     router.push(`/dashboard/${teamId}?t=matches`);
   }
 
   return (
     <TeamContext.Provider
-      value={{ teamId, isPlayerOrOwner, tabs, currentSeason, setCurrentSeason }}
+      value={{
+        teamId,
+        isOwner,
+        tabs,
+        currentSeason,
+        setCurrentSeason,
+      }}
     >
       {children}
     </TeamContext.Provider>

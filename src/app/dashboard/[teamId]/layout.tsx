@@ -13,17 +13,14 @@ export default async function TeamLayout({
   params: { teamId: string };
 }) {
   const { isInTeam } = await api.user.isInTeam({ teamId: parseInt(teamId) });
-  const { isPlayerOrOwner } = await api.user.isPlayerOrOwnerOfTeam({
+  const { isOwner } = await api.user.isOwnerOfTeam({
     teamId: parseInt(teamId),
   });
 
   if (!isInTeam) redirect("/dashboard");
 
   return (
-    <TeamContextProvider
-      teamId={parseInt(teamId)}
-      isPlayerOrOwner={isPlayerOrOwner}
-    >
+    <TeamContextProvider teamId={parseInt(teamId)} isOwner={isOwner}>
       <div className="flex flex-col">
         {nav}
         {children}

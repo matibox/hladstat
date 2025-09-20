@@ -53,7 +53,7 @@ export const formSchema = z.object({
 });
 
 export default function AddPlayerForm() {
-  const { teamId, isPlayerOrOwner } = useTeamContext();
+  const { teamId, isOwner } = useTeamContext();
   const [formOpened, setFormOpened] = useState(false);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -96,7 +96,7 @@ export default function AddPlayerForm() {
       open={formOpened}
       onOpenChange={setFormOpened}
       trigger={
-        <Button size="sm" disabled={!isPlayerOrOwner}>
+        <Button size="sm" disabled={!isOwner}>
           <span>Dodaj zawodnika</span>
           <PlusIcon className="ml-1 h-4 w-4" />
         </Button>

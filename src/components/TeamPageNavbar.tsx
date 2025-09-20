@@ -21,7 +21,7 @@ export default function TeamPageNavbar({
 }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { isPlayerOrOwner, tabs } = useTeamContext();
+  const { isOwner, tabs } = useTeamContext();
   const router = useRouter();
 
   const currentTab = searchParams.get("t") ?? tabs[0];
@@ -95,7 +95,7 @@ export default function TeamPageNavbar({
               <span className="text-sm leading-none">Statystyki</span>
             </Link>
           </TabsTrigger>
-          {isPlayerOrOwner && (
+          {isOwner && (
             <TabsTrigger value="settings" asChild>
               <Link
                 href={`${pathname}?t=settings`}

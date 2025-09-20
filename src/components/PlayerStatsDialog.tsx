@@ -39,7 +39,7 @@ export default function PlayerStatsDialog({
   set: SetID;
   player: RouterOutputs["user"]["byTeamPlayers"][number];
 }) {
-  const { teamId, isPlayerOrOwner, currentSeason } = useTeamContext();
+  const { teamId, isOwner, currentSeason } = useTeamContext();
   const [formOpened, setFormOpened] = useState(false);
 
   const { data: stats, isPending } = matchId
@@ -126,7 +126,7 @@ export default function PlayerStatsDialog({
               </>
             )}
           </div>
-          {isPlayerOrOwner && !matchId && (
+          {isOwner && !matchId && (
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-0.5">
                 <h2 className="text-xl font-semibold leading-none">

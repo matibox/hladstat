@@ -1,6 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { users, usersToTeams } from "~/server/db/schema";
-import { and, eq, inArray, isNull, like, not, or, sql } from "drizzle-orm";
+import { and, eq, isNull, like, not, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { publicProcedure } from "~/server/api/trpc";
 
@@ -23,7 +23,7 @@ export const userRouter = createTRPCRouter({
 
       return { isInTeam: !!foundTeam };
     }),
-  isPlayerOrOwnerOfTeam: protectedProcedure
+  isOwnerOfTeam: protectedProcedure
     .input(z.object({ teamId: z.number() }))
     .query(async ({ ctx, input }) => {
       const { teamId } = input;
@@ -35,13 +35,13 @@ export const userRouter = createTRPCRouter({
           and(
             eq(usersToTeams.teamId, teamId),
             eq(usersToTeams.userId, ctx.session.user.id),
-            inArray(usersToTeams.role, ["owner", "player"]),
+            eq(usersToTeams.role, "owner"),
           ),
         );
 
-      const isPlayerOrOwner = !!foundTeam[0];
+      const isOwner = !!foundTeam[0];
 
-      return { isPlayerOrOwner };
+      return { isOwner };
     }),
   byQueryNotInTeam: protectedProcedure
     .input(z.object({ q: z.string(), teamId: z.number() }))
