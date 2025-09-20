@@ -67,6 +67,13 @@ export default function PlayerStatsDialog({
     },
   });
 
+  const updateTeamRole = api.user.updateTeamRole.useMutation({
+    onSuccess: async () => {
+      await utils.user.byTeamPlayers.invalidate();
+      setFormOpened(false);
+    },
+  });
+
   return (
     <ResponsiveDialog
       open={formOpened}
@@ -162,7 +169,14 @@ export default function PlayerStatsDialog({
                   <Button
                     className="md:self-start"
                     variant={role === "owner" ? "destructive" : "default"}
-                    // loading={updateIsActive.isPending}
+                    loading={updateTeamRole.isPending}
+                    onClick={() => {
+                      updateTeamRole.mutate({
+                        userId: playerId,
+                        teamId,
+                        role: role === "owner" ? "player" : "owner",
+                      });
+                    }}
                   >
                     {role === "owner"
                       ? "Odbierz rolę właściciela"

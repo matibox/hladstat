@@ -3,6 +3,8 @@ import { type buttonVariants } from "~/components/ui/button";
 
 export const roles = ["owner", "player", "shared"] as const;
 
+export type Role = (typeof roles)[number];
+
 export const positions = [
   "Przyjmujący",
   "Rozgrywający",

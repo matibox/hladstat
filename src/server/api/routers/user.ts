@@ -3,6 +3,7 @@ import { users, usersToTeams } from "~/server/db/schema";
 import { and, eq, isNull, like, not, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { publicProcedure } from "~/server/api/trpc";
+import { type Role } from "~/lib/constants";
 
 export const userRouter = createTRPCRouter({
   // CREATE
@@ -173,6 +174,24 @@ export const userRouter = createTRPCRouter({
       await ctx.db
         .update(usersToTeams)
         .set({ isActive: active })
+        .where(
+          and(eq(usersToTeams.userId, userId), eq(usersToTeams.teamId, teamId)),
+        );
+    }),
+  updateTeamRole: protectedProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+        teamId: z.number(),
+        role: z.custom<Role>(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { userId, teamId, role } = input;
+
+      await ctx.db
+        .update(usersToTeams)
+        .set({ role })
         .where(
           and(eq(usersToTeams.userId, userId), eq(usersToTeams.teamId, teamId)),
         );
