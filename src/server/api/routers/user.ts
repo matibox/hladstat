@@ -112,7 +112,12 @@ export const userRouter = createTRPCRouter({
 
       return (
         await ctx.db.query.usersToTeams.findMany({
-          columns: { position: true, shirtNumber: true, isActive: true },
+          columns: {
+            position: true,
+            shirtNumber: true,
+            isActive: true,
+            role: true,
+          },
           where: (table, { eq, and, inArray }) =>
             and(
               eq(table.teamId, teamId),

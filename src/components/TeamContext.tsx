@@ -1,5 +1,6 @@
 "use client";
 
+import { type Session } from "next-auth";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createContext, useContext, useState } from "react";
 import { type Season } from "~/lib/constants";
@@ -11,6 +12,7 @@ type TeamContext = {
   tabs: [string, ...string[]];
   currentSeason: Season;
   setCurrentSeason: (season: Season) => void;
+  session: Session | null;
 };
 
 const TeamContext = createContext<TeamContext | null>(null);
@@ -32,11 +34,13 @@ export default function TeamContextProvider({
   children,
   isShared = false,
   isOwner = false,
+  session = null,
 }: {
   teamId: number;
   children: React.ReactNode;
   isShared?: boolean;
   isOwner?: boolean;
+  session?: Session | null;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -60,6 +64,7 @@ export default function TeamContextProvider({
         tabs,
         currentSeason,
         setCurrentSeason,
+        session,
       }}
     >
       {children}

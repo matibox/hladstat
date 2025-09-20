@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import React from "react";
 import TeamContextProvider from "~/components/TeamContext";
+import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/server";
 
 export default async function TeamLayout({
@@ -12,15 +13,20 @@ export default async function TeamLayout({
   nav: React.ReactNode;
   params: { teamId: string };
 }) {
+  const session = await getServerAuthSession();
   const { isInTeam } = await api.user.isInTeam({ teamId: parseInt(teamId) });
   const { isOwner } = await api.user.isOwnerOfTeam({
     teamId: parseInt(teamId),
   });
 
-  if (!isInTeam) redirect("/dashboard");
+  if (!isInTeam || !session) redirect("/dashboard");
 
   return (
-    <TeamContextProvider teamId={parseInt(teamId)} isOwner={isOwner}>
+    <TeamContextProvider
+      teamId={parseInt(teamId)}
+      isOwner={isOwner}
+      session={session}
+    >
       <div className="flex flex-col">
         {nav}
         {children}

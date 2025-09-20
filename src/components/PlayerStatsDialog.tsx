@@ -6,6 +6,7 @@ import { Button } from "./ui/button";
 import { api, type RouterOutputs } from "~/trpc/react";
 import {
   ClipboardListIcon,
+  CrownIcon,
   Loader2Icon,
   UserMinusIcon,
   UserPlusIcon,
@@ -33,13 +34,14 @@ export default function PlayerStatsDialog({
     position,
     shirtNumber,
     isActive,
+    role,
   },
 }: {
   matchId?: number;
   set: SetID;
   player: RouterOutputs["user"]["byTeamPlayers"][number];
 }) {
-  const { teamId, isOwner, currentSeason } = useTeamContext();
+  const { teamId, isOwner, currentSeason, session } = useTeamContext();
   const [formOpened, setFormOpened] = useState(false);
 
   const { data: stats, isPending } = matchId
@@ -156,6 +158,18 @@ export default function PlayerStatsDialog({
                     <UserPlusIcon className="ml-1 h-4 w-4" />
                   )}
                 </Button>
+                {session && session.user.id !== playerId && (
+                  <Button
+                    className="md:self-start"
+                    variant={role === "owner" ? "destructive" : "default"}
+                    // loading={updateIsActive.isPending}
+                  >
+                    {role === "owner"
+                      ? "Odbierz rolę właściciela"
+                      : "Ustaw jako właściciela"}
+                    <CrownIcon className="ml-1 h-4 w-4" />
+                  </Button>
+                )}
               </div>
             </div>
           )}
