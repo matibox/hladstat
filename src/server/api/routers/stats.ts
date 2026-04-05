@@ -141,7 +141,12 @@ export const statsRouter = createTRPCRouter({
             with: {
               player: {
                 columns: { firstName: true, lastName: true },
-                with: { teams: { columns: { position: true } } },
+                with: {
+                  teams: {
+                    columns: { position: true },
+                    where: (teams, { eq }) => eq(teams.teamId, teamId),
+                  },
+                },
               },
             },
           },

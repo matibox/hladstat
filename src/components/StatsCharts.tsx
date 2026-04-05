@@ -45,7 +45,7 @@ export function SetDistributionChart({
 }) {
   const [mode, setMode] = useState(defaultMode);
 
-  const { chartDataByPlayer, chartDataByPos, legendByPlayer } =
+  const { chartDataByPos, chartDataByPlayer, legendByPlayer } =
     countSetDistribution(stats);
 
   return (
@@ -255,17 +255,20 @@ export function ScorersChart({
   const { chartData: pointsByPlayer, legend } = countTeamPointsByPlayer(stats);
 
   return (
-    <Card className="w-full border-none bg-muted/25">
+    <Card className="flex w-full flex-col border-none bg-muted/25">
       <CardHeader className="p-4">
         <CardTitle className="text-xl leading-none">Punkty</CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 p-4 pt-0">
+      <CardContent className="h-full w-full p-4 pt-0">
         {pointsByPlayer.length === 0 ? (
           <p className="text-center text-muted-foreground">Brak danych.</p>
         ) : (
           <>
             {mode === "bar" ? (
-              <ChartContainer config={{ points: { label: "pkt" } }}>
+              <ChartContainer
+                className="h-full min-h-72 max-w-full"
+                config={{ points: { label: "pkt" } }}
+              >
                 <BarChart
                   accessibilityLayer
                   data={colorizeChart(pointsByPlayer)}

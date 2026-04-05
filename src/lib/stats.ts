@@ -36,6 +36,7 @@ export function countSetDistribution<T extends StatsWithPlayer>(stats: T) {
     "atk-err",
     "atk-blk",
   ]);
+
   const groupedByPos = groupBy(stats, (stat) => stat.player.position);
   const groupedByPlayer = groupBy(stats, (stat) => stat.player.name);
 

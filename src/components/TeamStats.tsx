@@ -25,7 +25,7 @@ export default function TeamStats() {
   return (
     <>
       <SetDistributionChart stats={stats} defaultMode="position" />
-      <ScorersChart stats={stats} mode="pie" />
+      <ScorersChart stats={stats} mode="bar" />
       <AttackChart stats={stats} />
       <ReceptionChart stats={stats} />
       <ServeChart stats={stats} />
