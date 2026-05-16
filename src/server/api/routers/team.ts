@@ -1,4 +1,9 @@
-import { matches, teams, users, usersToTeams } from "~/server/db/schema";
+import {
+  matches,
+  teams,
+  users,
+  usersToTeams,
+} from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import z from "zod";
 import { and, eq, inArray, sql, count, asc } from "drizzle-orm";
@@ -175,7 +180,7 @@ export const teamRouter = createTRPCRouter({
       const seasons = await ctx.db
         .selectDistinct({ season: matches.season })
         .from(matches)
-        .leftJoin(teams, eq(teams.id, teamId))
+        .innerJoin(teams, eq(teams.id, teamId))
         .orderBy(asc(matches.season));
 
       if (!seasons) return null;
@@ -204,5 +209,50 @@ export const teamRouter = createTRPCRouter({
         .where(
           and(eq(usersToTeams.userId, userId), eq(usersToTeams.teamId, teamId)),
         );
+    }),
+  delete: protectedProcedure
+    .input(z.object({ teamId: z.number(), name: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { teamId, name } = input;
+
+      const owner = await ctx.db.query.usersToTeams.findFirst({
+        columns: { teamId: true },
+        where: (usersToTeams, { and, eq }) =>
+          and(
+            eq(usersToTeams.teamId, teamId),
+            eq(usersToTeams.userId, ctx.session.user.id),
+            eq(usersToTeams.role, "owner"),
+          ),
+      });
+
+      if (!owner) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Tylko właściciel może usunąć drużynę.",
+        });
+      }
+
+      const team = await ctx.db.query.teams.findFirst({
+        columns: { id: true, name: true },
+        where: eq(teams.id, teamId),
+      });
+
+      if (!team) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Nie znaleziono drużyny.",
+        });
+      }
+
+      if (team.name !== name) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Podana nazwa nie zgadza się z nazwą drużyny.",
+        });
+      }
+
+      await ctx.db.delete(matches).where(eq(matches.teamId, teamId));
+      await ctx.db.delete(usersToTeams).where(eq(usersToTeams.teamId, teamId));
+      await ctx.db.delete(teams).where(eq(teams.id, teamId));
     }),
 });
