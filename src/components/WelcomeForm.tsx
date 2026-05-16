@@ -38,8 +38,10 @@ export default function WelcomeForm() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    updateFullName.mutate(values);
+    updateFullName.mutate({
+      firstName: values.firstName.trim(),
+      lastName: values.lastName.trim(),
+    });
   }
 
   return (
