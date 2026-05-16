@@ -1,9 +1,4 @@
-import {
-  matches,
-  teams,
-  users,
-  usersToTeams,
-} from "~/server/db/schema";
+import { matches, teams, users, usersToTeams } from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import z from "zod";
 import { and, eq, inArray, sql, count, asc } from "drizzle-orm";
@@ -75,7 +70,12 @@ export const teamRouter = createTRPCRouter({
       const { teamId } = input;
 
       return await ctx.db.query.teams.findFirst({
-        columns: { id: true, name: true, profilePicture: true },
+        columns: {
+          id: true,
+          name: true,
+          profilePicture: true,
+          archived: true,
+        },
         where: eq(teams.id, parseInt(teamId)),
         with: {
           users: {
@@ -196,6 +196,58 @@ export const teamRouter = createTRPCRouter({
       await ctx.db
         .update(teams)
         .set({ ...settings })
+        .where(eq(teams.id, teamId));
+    }),
+  archive: protectedProcedure
+    .input(z.object({ userId: z.string(), teamId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const { userId, teamId } = input;
+
+      const owner = await ctx.db.query.usersToTeams.findFirst({
+        columns: { teamId: true },
+        where: and(
+          eq(usersToTeams.userId, userId),
+          eq(usersToTeams.teamId, teamId),
+          eq(usersToTeams.role, "owner"),
+        ),
+      });
+
+      if (!owner) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Tylko właściciel może zarchiwizować drużynę.",
+        });
+      }
+
+      await ctx.db
+        .update(teams)
+        .set({ archived: true })
+        .where(eq(teams.id, teamId));
+    }),
+  unarchive: protectedProcedure
+    .input(z.object({ userId: z.string(), teamId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const { userId, teamId } = input;
+
+      const owner = await ctx.db.query.usersToTeams.findFirst({
+        columns: { teamId: true },
+        where: and(
+          eq(usersToTeams.userId, userId),
+          eq(usersToTeams.teamId, teamId),
+          eq(usersToTeams.role, "owner"),
+        ),
+      });
+
+      if (!owner) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Tylko właściciel może odarchiwizować drużynę.",
+        });
+      }
+
+      await ctx.db
+        .update(teams)
+        .set({ archived: false })
         .where(eq(teams.id, teamId));
     }),
   // DELETE

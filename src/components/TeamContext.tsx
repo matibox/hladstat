@@ -5,10 +5,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createContext, useContext, useState } from "react";
 import { type Season } from "~/lib/constants";
 import { getCurrentSeason } from "~/lib/seasons";
+import { api } from "~/trpc/react";
 
 type TeamContext = {
   teamId: number;
   isOwner: boolean;
+  isArchived: boolean;
   tabs: [string, ...string[]];
   currentSeason: Season;
   setCurrentSeason: (season: Season) => void;
@@ -49,6 +51,9 @@ export default function TeamContextProvider({
     getCurrentSeason(),
   );
 
+  const [team] = api.team.byId.useSuspenseQuery({ teamId: String(teamId) });
+  const isArchived = team?.archived ?? false;
+
   const tabs = ["matches", "members", "stats"] as [string, ...string[]];
   if (isOwner && !isShared) tabs.push("settings");
 
@@ -61,6 +66,7 @@ export default function TeamContextProvider({
       value={{
         teamId,
         isOwner,
+        isArchived,
         tabs,
         currentSeason,
         setCurrentSeason,

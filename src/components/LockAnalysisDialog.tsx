@@ -11,9 +11,11 @@ import { DropdownMenuItem } from "./ui/dropdown-menu";
 export default function LockAnalysisDialog({
   matchId,
   isLocked = false,
+  isDisabled = false,
 }: {
   matchId: number;
   isLocked?: boolean;
+  isDisabled?: boolean;
 }) {
   const { toast } = useToast();
 
@@ -37,7 +39,10 @@ export default function LockAnalysisDialog({
       open={formOpened}
       onOpenChange={setFormOpened}
       trigger={
-        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+        <DropdownMenuItem
+          disabled={isDisabled}
+          onSelect={(e) => e.preventDefault()}
+        >
           {!isLocked ? (
             <LockIcon className="mr-2 h-4 w-4" />
           ) : (

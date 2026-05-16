@@ -58,7 +58,7 @@ export const formSchema = z
   });
 
 export default function NewMatchForm() {
-  const { teamId, isOwner } = useTeamContext();
+  const { teamId, isOwner, isArchived } = useTeamContext();
   const [formOpened, setFormOpened] = useState(false);
   const router = useRouter();
 
@@ -96,7 +96,7 @@ export default function NewMatchForm() {
       open={formOpened}
       onOpenChange={setFormOpened}
       trigger={
-        <Button size="sm" disabled={!isOwner}>
+        <Button size="sm" disabled={!isOwner || Boolean(isArchived)}>
           <span>Nowy mecz</span>
           <PlusIcon className="ml-1 h-4 w-4" />
         </Button>

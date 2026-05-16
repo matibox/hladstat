@@ -42,6 +42,8 @@ export default async function SharedMatchLayout({
     if (isRedirectError(err)) throw err;
   }
 
+  await api.team.byId.prefetch({ teamId: String(match.teamId) });
+
   return (
     <TeamContextProvider isShared={true} teamId={match.teamId!}>
       {children}

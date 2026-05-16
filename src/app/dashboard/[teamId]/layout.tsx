@@ -21,6 +21,8 @@ export default async function TeamLayout({
 
   if (!isInTeam || !session) redirect("/dashboard");
 
+  await api.team.byId.prefetch({ teamId });
+
   return (
     <TeamContextProvider
       teamId={parseInt(teamId)}

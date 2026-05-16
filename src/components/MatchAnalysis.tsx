@@ -39,7 +39,7 @@ export default function MatchAnalysis({
   matchId: number;
   isShared?: boolean;
 }) {
-  const { teamId, isOwner } = useTeamContext();
+  const { teamId, isOwner, isArchived } = useTeamContext();
   const [set, setSet] = useState<SetID>("Ogółem");
   const [menuOpened, setMenuOpened] = useState(false);
 
@@ -56,6 +56,9 @@ export default function MatchAnalysis({
     if (set === "Ogółem") return true;
     return stat.set === parseInt(set);
   });
+
+  const canAddStatistic =
+    set !== "Ogółem" && isOwner && !isShared && !isArchived;
 
   return (
     <Tabs value={set} onValueChange={(set) => setSet(set as SetID)}>
@@ -100,6 +103,7 @@ export default function MatchAnalysis({
                   <LockAnalysisDialog
                     matchId={matchId}
                     isLocked={match.lockedAnalysis ?? false}
+                    isDisabled={isArchived}
                   />
                   <ResetStatsDialog
                     matchId={matchId}
@@ -140,17 +144,14 @@ export default function MatchAnalysis({
                       player={player}
                       matchId={matchId}
                     />
-                    {set !== "Ogółem" &&
-                      isOwner &&
-                      !isShared &&
-                      player.isActive && (
-                        <AddStatisticForm
-                          set={parseInt(set)}
-                          player={player}
-                          matchId={matchId}
-                          lockedAnalysis={match.lockedAnalysis ?? false}
-                        />
-                      )}
+                    {canAddStatistic && player.isActive && (
+                      <AddStatisticForm
+                        set={parseInt(set)}
+                        player={player}
+                        matchId={matchId}
+                        lockedAnalysis={match.lockedAnalysis ?? false}
+                      />
+                    )}
                   </>
                 }
               />
