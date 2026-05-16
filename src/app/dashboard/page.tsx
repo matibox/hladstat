@@ -1,13 +1,9 @@
 import NewTeamForm from "~/components/NewTeamForm";
-import TeamCard from "~/components/TeamCard";
+import TeamList from "~/components/TeamList";
 import { api, HydrateClient } from "~/trpc/server";
 
 export default async function Dashboard() {
-  const teams = await api.team.ofUser();
-  const sortedTeams = teams.sort((_, b) => {
-    if (b.userRole === "shared") return -1;
-    return 1;
-  });
+  await api.team.ofUser.prefetch();
 
   return (
     <HydrateClient>
@@ -17,15 +13,7 @@ export default async function Dashboard() {
             <h1 className="text-2xl font-semibold">Drużyny</h1>
             <NewTeamForm />
           </div>
-          <div className="grid w-full grid-cols-[repeat(auto-fill,_343px)] justify-center gap-4">
-            {teams.length === 0 ? (
-              <p className="col-span-full text-center text-muted-foreground">
-                Nie należysz do żadnej drużyny.
-              </p>
-            ) : (
-              sortedTeams.map((team) => <TeamCard key={team.id} team={team} />)
-            )}
-          </div>
+          <TeamList />
         </section>
       </main>
     </HydrateClient>
