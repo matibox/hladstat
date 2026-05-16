@@ -1,6 +1,16 @@
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { users, usersToTeams } from "~/server/db/schema";
-import { and, eq, isNull, like, not, or, sql } from "drizzle-orm";
+import {
+  and,
+  eq,
+  ilike,
+  isNull,
+  like,
+  not,
+  notExists,
+  or,
+  sql,
+} from "drizzle-orm";
 import { z } from "zod";
 import { publicProcedure } from "~/server/api/trpc";
 import { type Role } from "~/lib/constants";
@@ -61,18 +71,24 @@ export const userRouter = createTRPCRouter({
         .where(
           and(
             not(eq(users.id, ctx.session.user.id)),
-            or(
-              isNull(usersToTeams.teamId),
-              not(eq(usersToTeams.teamId, teamId)),
+            notExists(
+              ctx.db
+                .select({ userId: usersToTeams.userId })
+                .from(usersToTeams)
+                .where(
+                  and(
+                    eq(usersToTeams.userId, users.id),
+                    eq(usersToTeams.teamId, teamId),
+                  ),
+                ),
             ),
             or(
-              like(users.firstName, pattern),
-              like(users.lastName, pattern),
-              sql`${users.firstName} || ' ' || ${users.lastName} LIKE ${pattern}`,
+              ilike(users.firstName, pattern),
+              ilike(users.lastName, pattern),
+              sql`${users.firstName} || ' ' || ${users.lastName} ILIKE ${pattern}`,
             ),
           ),
-        )
-        .leftJoin(usersToTeams, eq(users.id, usersToTeams.userId));
+        );
     }),
   byQueryNotViewerOfTeam: protectedProcedure
     .input(z.object({ q: z.string(), teamId: z.number() }))
