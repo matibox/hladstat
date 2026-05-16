@@ -4,6 +4,7 @@ import ShareAccessForm from "./ShareAccessForm";
 import { TabsContent } from "./ui/tabs";
 import { api } from "~/trpc/react";
 import RevokeAccessDialog from "./RevokeAccessDialog";
+import DeleteTeamDialog from "./DeleteTeamDialog";
 import { useTeamContext } from "./TeamContext";
 import { Checkbox } from "./ui/checkbox";
 import { Button } from "./ui/button";
@@ -16,6 +17,7 @@ export default function TeamSettings() {
   const { teamId } = useTeamContext();
   const [viewers] = api.user.byTeamViewers.useSuspenseQuery({ teamId });
   const [matchSettings] = api.team.matchSettings.useSuspenseQuery({ teamId });
+  const [team] = api.team.byId.useSuspenseQuery({ teamId: String(teamId) });
 
   const [checked, setIsCheked] = useState(
     matchSettings.allowTwoSetMatches ?? false,
@@ -100,6 +102,15 @@ export default function TeamSettings() {
           <span>Zapisz</span>
           <SaveIcon className="ml-1.5 h-4 w-4" />
         </Button>
+      </section>
+      <section className="flex w-full flex-col gap-4">
+        <div className="flex flex-col gap-0.5">
+          <h2 className="text-xl font-semibold leading-none">Usuń drużynę</h2>
+          <p className="text-sm text-muted-foreground">
+            Trwale usuń drużynę wraz ze wszystkimi meczami i statystykami.
+          </p>
+        </div>
+        {team && <DeleteTeamDialog teamName={team.name} />}
       </section>
     </TabsContent>
   );
