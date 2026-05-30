@@ -102,6 +102,7 @@ export const teams = createTable("team", {
   profilePicture: text("profile_picture"),
   allowTwoSetMatches: boolean("allow_two_set_matches").default(false),
   archived: boolean("archived").default(false),
+  archivedAt: timestamp("archived_at"),
 });
 
 export const usersToTeams = createTable(

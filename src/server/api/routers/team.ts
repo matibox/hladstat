@@ -102,6 +102,7 @@ export const teamRouter = createTRPCRouter({
         name: teams.name,
         profilePicture: teams.profilePicture,
         archived: teams.archived,
+        archivedAt: teams.archivedAt,
       })
       .from(usersToTeams)
       .innerJoin(teams, eq(usersToTeams.teamId, teams.id))
@@ -228,7 +229,7 @@ export const teamRouter = createTRPCRouter({
 
       await ctx.db
         .update(teams)
-        .set({ archived: true })
+        .set({ archived: true, archivedAt: new Date() })
         .where(eq(teams.id, teamId));
     }),
   unarchive: protectedProcedure
@@ -254,7 +255,7 @@ export const teamRouter = createTRPCRouter({
 
       await ctx.db
         .update(teams)
-        .set({ archived: false })
+        .set({ archived: false, archivedAt: null })
         .where(eq(teams.id, teamId));
     }),
   // DELETE

@@ -45,10 +45,23 @@ function getSharedTeams(teams: RouterOutputs["team"]["ofUser"] | undefined) {
   );
 }
 
-function getArchivedTeams(teams: RouterOutputs["team"]["ofUser"] | undefined) {
+function getArchivedTeamsByArchivedDate(
+  teams: RouterOutputs["team"]["ofUser"] | undefined,
+) {
   if (!teams || teams.length === 0) return [];
 
-  return teams.filter((team) => team.archived);
+  return teams
+    .filter((team) => team.archived)
+    .sort((a, b) => {
+      if (a.archivedAt && b.archivedAt) {
+        return b.archivedAt.getTime() - a.archivedAt.getTime();
+      }
+
+      if (a.archivedAt) return -1;
+      if (b.archivedAt) return 1;
+
+      return 0;
+    });
 }
 
 function TeamGrid({ teams }: { teams: RouterOutputs["team"]["ofUser"] }) {
@@ -72,7 +85,10 @@ export default function TeamList() {
 
   const sharedTeams = useMemo(() => getSharedTeams(teams), [teams]);
 
-  const archivedTeams = useMemo(() => getArchivedTeams(teams), [teams]);
+  const archivedTeams = useMemo(
+    () => getArchivedTeamsByArchivedDate(teams),
+    [teams],
+  );
 
   const hasNoTeams =
     playerOrOwnerTeams.length === 0 &&
