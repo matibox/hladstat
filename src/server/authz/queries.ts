@@ -1,9 +1,9 @@
 import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 
 import type { Role } from "~/lib/constants";
 import type { db } from "~/server/db";
-import { matches } from "~/server/db/schema";
+import { matches, usersToTeams } from "~/server/db/schema";
 
 type Db = typeof db;
 
@@ -48,6 +48,28 @@ export function assertMatchBelongsToTeam(
     throw new TRPCError({
       code: "FORBIDDEN",
       message: "Mecz nie należy do tej drużyny.",
+    });
+  }
+}
+
+export async function assertPlayerOnTeamRoster(
+  db: Db,
+  playerId: string,
+  teamId: number,
+): Promise<void> {
+  const rosterMember = await db.query.usersToTeams.findFirst({
+    columns: { userId: true },
+    where: and(
+      eq(usersToTeams.userId, playerId),
+      eq(usersToTeams.teamId, teamId),
+      inArray(usersToTeams.role, ["owner", "player"]),
+    ),
+  });
+
+  if (!rosterMember) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Zawodnik nie należy do tej drużyny.",
     });
   }
 }

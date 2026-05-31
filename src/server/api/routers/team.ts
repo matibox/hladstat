@@ -210,7 +210,11 @@ export const teamRouter = createTRPCRouter({
       await ctx.db
         .delete(usersToTeams)
         .where(
-          and(eq(usersToTeams.userId, userId), eq(usersToTeams.teamId, teamId)),
+          and(
+            eq(usersToTeams.userId, userId),
+            eq(usersToTeams.teamId, teamId),
+            eq(usersToTeams.role, "shared"),
+          ),
         );
     }),
   delete: teamOwnerProcedure

@@ -8,6 +8,7 @@ import {
   teamMemberProcedure,
 } from "~/server/api/trpc";
 import { type Season, type StatsCode } from "~/lib/constants";
+import { assertPlayerOnTeamRoster } from "~/server/authz/queries";
 import { matches, stats, users, usersToTeams } from "~/server/db/schema";
 import { and, eq, inArray } from "drizzle-orm";
 
@@ -23,7 +24,10 @@ export const statsRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { playerId, matchId, set, code } = input;
+      const { playerId, set, code } = input;
+      const matchId = ctx.match.id;
+
+      await assertPlayerOnTeamRoster(ctx.db, playerId, ctx.match.teamId);
 
       const insertedValues = await ctx.db
         .insert(stats)
@@ -224,19 +228,30 @@ export const statsRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { statId } = input;
 
-      const deletedRecords = await ctx.db
-        .delete(stats)
-        .where(and(eq(stats.id, statId), eq(stats.matchId, ctx.match.id)))
-        .returning({ code: stats.code });
+      const existing = await ctx.db.query.stats.findFirst({
+        columns: { id: true, playerId: true },
+        where: and(eq(stats.id, statId), eq(stats.matchId, ctx.match.id)),
+      });
 
-      if (!deletedRecords[0]) {
+      if (!existing) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Nie znaleziono statystyki.",
         });
       }
 
-      return deletedRecords[0];
+      await assertPlayerOnTeamRoster(
+        ctx.db,
+        existing.playerId,
+        ctx.match.teamId,
+      );
+
+      const deletedRecords = await ctx.db
+        .delete(stats)
+        .where(and(eq(stats.id, statId), eq(stats.matchId, ctx.match.id)))
+        .returning({ code: stats.code });
+
+      return deletedRecords[0]!;
     }),
   deleteByMatchIdAndSet: matchOwnerProcedure
     .input(z.object({ matchId: z.number(), sets: z.array(z.number()) }))
