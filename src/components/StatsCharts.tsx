@@ -169,8 +169,6 @@ export function PointsAndErrorsChart({
     legendWithDetails,
   } = countPointsAndErrors(stats);
 
-  console.log(dataWithDetails, legendWithDetails);
-
   return (
     <Card className="w-full border-none bg-muted/25">
       <CardHeader className="flex flex-row items-center justify-between p-4 pb-0">

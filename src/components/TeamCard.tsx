@@ -1,15 +1,14 @@
 import Link from "next/link";
 import { type RouterOutputs } from "~/trpc/react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Share2Icon, UserIcon, UsersIcon } from "lucide-react";
+import { CrownIcon, Share2Icon, UserIcon, UsersIcon } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 export default function TeamCard({
   team,
 }: {
   team: RouterOutputs["team"]["ofUser"][number];
 }) {
-  console.log(team);
-
   return (
     <Link
       key={team.id}
@@ -35,7 +34,19 @@ export default function TeamCard({
             <Share2Icon className="h-3.5 w-3.5 text-primary-foreground" />
           </div>
         )}
-        <span className="text-lg font-semibold">{team.name}</span>
+        <span className="flex items-center gap-1.5 text-lg font-semibold">
+          {team.name}
+          {team.userRole === "owner" && (
+            <Tooltip>
+              <TooltipTrigger>
+                <CrownIcon className="size-3 shrink-0 fill-current text-yellow-500" />
+              </TooltipTrigger>
+              <TooltipContent className="-translate-y-1">
+                <p>Właściciel drużyny</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </span>
         <div className="flex gap-0.5 text-muted-foreground">
           <UserIcon className="h-4 w-4" />
           <span>{team.playerCount}</span>
