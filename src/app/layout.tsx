@@ -22,9 +22,16 @@ const fontSans = Inter({
   variable: "--font-sans",
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const DevAuthzShell =
+    process.env.NODE_ENV === "development"
+      ? (await import("~/components/dev/DevAuthzShell")).default
+      : null;
+
+  const pageContent = <TooltipProvider>{children}</TooltipProvider>;
+
   return (
     <html lang="pl">
       <body
@@ -35,7 +42,11 @@ export default function RootLayout({
       >
         <TRPCReactProvider>
           <NextSSRPlugin routerConfig={extractRouterConfig(fileRouter)} />
-          <TooltipProvider>{children}</TooltipProvider>
+          {DevAuthzShell ? (
+            <DevAuthzShell>{pageContent}</DevAuthzShell>
+          ) : (
+            pageContent
+          )}
           <Toaster />
         </TRPCReactProvider>
       </body>

@@ -1,4 +1,10 @@
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  teamOwnerProcedure,
+  teamPlayersReaderProcedure,
+} from "~/server/api/trpc";
+import { getTeamMembership } from "~/server/authz/queries";
 import { users, usersToTeams } from "~/server/db/schema";
 import {
   and,
@@ -12,7 +18,6 @@ import {
   sql,
 } from "drizzle-orm";
 import { z } from "zod";
-import { publicProcedure } from "~/server/api/trpc";
 import { type Role } from "~/lib/constants";
 
 export const userRouter = createTRPCRouter({
@@ -23,38 +28,18 @@ export const userRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const { teamId } = input;
 
-      const foundTeam = await ctx.db.query.usersToTeams.findFirst({
-        columns: { teamId: true },
-        where: (usersToTeams, { and, eq }) =>
-          and(
-            eq(usersToTeams.teamId, teamId),
-            eq(usersToTeams.userId, ctx.session.user.id),
-          ),
-      });
+      const membership = await getTeamMembership(
+        ctx.db,
+        ctx.session.user.id,
+        teamId,
+      );
 
-      return { isInTeam: !!foundTeam };
+      return {
+        isInTeam: !!membership,
+        role: membership?.role ?? null,
+      };
     }),
-  isOwnerOfTeam: protectedProcedure
-    .input(z.object({ teamId: z.number() }))
-    .query(async ({ ctx, input }) => {
-      const { teamId } = input;
-
-      const foundTeam = await ctx.db
-        .select({ teamId: usersToTeams.teamId })
-        .from(usersToTeams)
-        .where(
-          and(
-            eq(usersToTeams.teamId, teamId),
-            eq(usersToTeams.userId, ctx.session.user.id),
-            eq(usersToTeams.role, "owner"),
-          ),
-        );
-
-      const isOwner = !!foundTeam[0];
-
-      return { isOwner };
-    }),
-  byQueryNotInTeam: protectedProcedure
+  byQueryNotInTeam: teamOwnerProcedure
     .input(z.object({ q: z.string(), teamId: z.number() }))
     .query(async ({ ctx, input }) => {
       const { q, teamId } = input;
@@ -90,7 +75,7 @@ export const userRouter = createTRPCRouter({
           ),
         );
     }),
-  byQueryNotViewerOfTeam: protectedProcedure
+  byQueryNotViewerOfTeam: teamOwnerProcedure
     .input(z.object({ q: z.string(), teamId: z.number() }))
     .query(async ({ ctx, input }) => {
       const { q, teamId } = input;
@@ -122,8 +107,13 @@ export const userRouter = createTRPCRouter({
           ),
         );
     }),
-  byTeamPlayers: publicProcedure
-    .input(z.object({ teamId: z.number() }))
+  byTeamPlayers: teamPlayersReaderProcedure
+    .input(
+      z.object({
+        teamId: z.number(),
+        matchId: z.number().optional(),
+      }),
+    )
     .query(async ({ ctx, input }) => {
       const { teamId } = input;
 
@@ -147,7 +137,7 @@ export const userRouter = createTRPCRouter({
         })
       ).map(({ user, ...data }) => ({ ...data, ...user }));
     }),
-  byTeamViewers: protectedProcedure
+  byTeamViewers: teamOwnerProcedure
     .input(z.object({ teamId: z.number() }))
     .query(async ({ ctx, input }) => {
       const { teamId } = input;
@@ -180,7 +170,7 @@ export const userRouter = createTRPCRouter({
         .set({ firstName, lastName })
         .where(eq(users.id, ctx.session.user.id));
     }),
-  updateIsActive: protectedProcedure
+  updateIsActive: teamOwnerProcedure
     .input(
       z.object({ userId: z.string(), teamId: z.number(), active: z.boolean() }),
     )
@@ -194,7 +184,7 @@ export const userRouter = createTRPCRouter({
           and(eq(usersToTeams.userId, userId), eq(usersToTeams.teamId, teamId)),
         );
     }),
-  updateTeamRole: protectedProcedure
+  updateTeamRole: teamOwnerProcedure
     .input(
       z.object({
         userId: z.string(),

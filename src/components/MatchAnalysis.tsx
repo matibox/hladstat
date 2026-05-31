@@ -39,12 +39,14 @@ export default function MatchAnalysis({
   matchId: number;
   isShared?: boolean;
 }) {
-  const { teamId, isOwner, isArchived } = useTeamContext();
+  const { teamId, canEdit, isOwner, isArchived } = useTeamContext();
   const [set, setSet] = useState<SetID>("Ogółem");
   const [menuOpened, setMenuOpened] = useState(false);
 
   const [match] = api.match.byId.useSuspenseQuery({ matchId });
-  const [players] = api.user.byTeamPlayers.useSuspenseQuery({ teamId });
+  const [players] = api.user.byTeamPlayers.useSuspenseQuery(
+    isShared ? { teamId, matchId } : { teamId },
+  );
   const [stats] = api.stats.byMatch.useSuspenseQuery({ teamId, matchId });
 
   const setArray = [
@@ -58,7 +60,11 @@ export default function MatchAnalysis({
   });
 
   const canAddStatistic =
-    set !== "Ogółem" && isOwner && !isShared && !isArchived;
+    set !== "Ogółem" &&
+    canEdit &&
+    !isShared &&
+    !isArchived &&
+    !(match.lockedAnalysis ?? false);
 
   return (
     <Tabs value={set} onValueChange={(set) => setSet(set as SetID)}>

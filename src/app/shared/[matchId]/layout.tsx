@@ -1,9 +1,9 @@
 import { HomeIcon } from "lucide-react";
-import { isRedirectError } from "next/dist/client/components/redirect";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import TeamContextProvider from "~/components/TeamContext";
 import { buttonVariants } from "~/components/ui/button";
+import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/server";
 
 export default async function SharedMatchLayout({
@@ -35,17 +35,14 @@ export default async function SharedMatchLayout({
     );
   }
 
-  try {
-    const { isInTeam } = await api.user.isInTeam({ teamId: match.teamId! });
-    if (isInTeam) return redirect(`/dashboard/${match.teamId!}/${matchId}`);
-  } catch (err) {
-    if (isRedirectError(err)) throw err;
+  const session = await getServerAuthSession();
+  if (session?.user) {
+    const { isInTeam } = await api.user.isInTeam({ teamId: match.teamId });
+    if (isInTeam) return redirect(`/dashboard/${match.teamId}/${matchId}`);
   }
 
-  await api.team.byId.prefetch({ teamId: String(match.teamId) });
-
   return (
-    <TeamContextProvider isShared={true} teamId={match.teamId!}>
+    <TeamContextProvider isShared={true} teamId={match.teamId}>
       {children}
     </TeamContextProvider>
   );

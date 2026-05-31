@@ -1,7 +1,13 @@
 import { matches, teams, usersToTeams } from "~/server/db/schema";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  teamEditorProcedure,
+  teamMemberProcedure,
+  teamOwnerProcedure,
+} from "~/server/api/trpc";
 import z from "zod";
-import { and, eq, inArray, sql, count, asc, max } from "drizzle-orm";
+import { and, eq, inArray, count, asc, max } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { positions } from "~/lib/constants";
 
@@ -32,7 +38,7 @@ export const teamRouter = createTRPCRouter({
         shirtNumber,
       });
     }),
-  addPlayer: protectedProcedure
+  addPlayer: teamOwnerProcedure
     .input(
       z.object({
         teamId: z.number(),
@@ -52,7 +58,7 @@ export const teamRouter = createTRPCRouter({
         role: "player",
       });
     }),
-  shareViewerAccess: protectedProcedure
+  shareViewerAccess: teamOwnerProcedure
     .input(z.object({ teamId: z.number(), userId: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const { teamId, userId } = input;
@@ -64,7 +70,7 @@ export const teamRouter = createTRPCRouter({
       });
     }),
   // READ
-  byId: protectedProcedure
+  byId: teamMemberProcedure
     .input(z.object({ teamId: z.string() }))
     .query(async ({ ctx, input }) => {
       const { teamId } = input;
@@ -138,38 +144,7 @@ export const teamRouter = createTRPCRouter({
       }),
     );
   }),
-  ofViewer: protectedProcedure.query(async ({ ctx }) => {
-    const playerCountSubquery = ctx.db
-      .select({
-        teamId: usersToTeams.teamId,
-        playerCount: sql<number>`COUNT(*)`.as("playerCount"),
-      })
-      .from(usersToTeams)
-      .where(inArray(usersToTeams.role, ["owner", "player"]))
-      .groupBy(usersToTeams.teamId)
-      .as("playerCountSubquery");
-
-    const result = await ctx.db
-      .select({
-        id: teams.id,
-        name: teams.name,
-        profilePicture: teams.profilePicture,
-        playerCount: playerCountSubquery.playerCount,
-      })
-      .from(teams)
-      .leftJoin(
-        usersToTeams,
-        and(
-          eq(usersToTeams.teamId, teams.id),
-          eq(usersToTeams.userId, ctx.session.user.id),
-        ),
-      )
-      .leftJoin(playerCountSubquery, eq(teams.id, playerCountSubquery.teamId))
-      .where(eq(usersToTeams.role, "shared"));
-
-    return result;
-  }),
-  matchSettings: protectedProcedure
+  matchSettings: teamEditorProcedure
     .input(z.object({ teamId: z.number() }))
     .query(async ({ ctx, input }) => {
       const { teamId } = input;
@@ -180,7 +155,7 @@ export const teamRouter = createTRPCRouter({
 
       return settings[0]!;
     }),
-  seasons: protectedProcedure
+  seasons: teamMemberProcedure
     .input(z.object({ teamId: z.number() }))
     .query(async ({ ctx, input }) => {
       const { teamId } = input;
@@ -196,7 +171,7 @@ export const teamRouter = createTRPCRouter({
       return seasons.map((s) => s.season);
     }),
   // UPDATE
-  saveMatchSettings: protectedProcedure
+  saveMatchSettings: teamOwnerProcedure
     .input(z.object({ teamId: z.number(), allowTwoSetMatches: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
       const { teamId, ...settings } = input;
@@ -206,52 +181,20 @@ export const teamRouter = createTRPCRouter({
         .set({ ...settings })
         .where(eq(teams.id, teamId));
     }),
-  archive: protectedProcedure
-    .input(z.object({ userId: z.string(), teamId: z.number() }))
+  archive: teamOwnerProcedure
+    .input(z.object({ teamId: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      const { userId, teamId } = input;
-
-      const owner = await ctx.db.query.usersToTeams.findFirst({
-        columns: { teamId: true },
-        where: and(
-          eq(usersToTeams.userId, userId),
-          eq(usersToTeams.teamId, teamId),
-          eq(usersToTeams.role, "owner"),
-        ),
-      });
-
-      if (!owner) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Tylko właściciel może zarchiwizować drużynę.",
-        });
-      }
+      const { teamId } = input;
 
       await ctx.db
         .update(teams)
         .set({ archived: true, archivedAt: new Date() })
         .where(eq(teams.id, teamId));
     }),
-  unarchive: protectedProcedure
-    .input(z.object({ userId: z.string(), teamId: z.number() }))
+  unarchive: teamOwnerProcedure
+    .input(z.object({ teamId: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      const { userId, teamId } = input;
-
-      const owner = await ctx.db.query.usersToTeams.findFirst({
-        columns: { teamId: true },
-        where: and(
-          eq(usersToTeams.userId, userId),
-          eq(usersToTeams.teamId, teamId),
-          eq(usersToTeams.role, "owner"),
-        ),
-      });
-
-      if (!owner) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Tylko właściciel może odarchiwizować drużynę.",
-        });
-      }
+      const { teamId } = input;
 
       await ctx.db
         .update(teams)
@@ -259,7 +202,7 @@ export const teamRouter = createTRPCRouter({
         .where(eq(teams.id, teamId));
     }),
   // DELETE
-  revokeViewerAccess: protectedProcedure
+  revokeViewerAccess: teamOwnerProcedure
     .input(z.object({ userId: z.string(), teamId: z.number() }))
     .mutation(async ({ ctx, input }) => {
       const { userId, teamId } = input;
@@ -270,27 +213,10 @@ export const teamRouter = createTRPCRouter({
           and(eq(usersToTeams.userId, userId), eq(usersToTeams.teamId, teamId)),
         );
     }),
-  delete: protectedProcedure
+  delete: teamOwnerProcedure
     .input(z.object({ teamId: z.number(), name: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const { teamId, name } = input;
-
-      const owner = await ctx.db.query.usersToTeams.findFirst({
-        columns: { teamId: true },
-        where: (usersToTeams, { and, eq }) =>
-          and(
-            eq(usersToTeams.teamId, teamId),
-            eq(usersToTeams.userId, ctx.session.user.id),
-            eq(usersToTeams.role, "owner"),
-          ),
-      });
-
-      if (!owner) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Tylko właściciel może usunąć drużynę.",
-        });
-      }
 
       const team = await ctx.db.query.teams.findFirst({
         columns: { id: true, name: true },

@@ -2,13 +2,18 @@
 
 import { type Session } from "next-auth";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createContext, useContext, useState } from "react";
-import { type Season } from "~/lib/constants";
+import { createContext, useContext, useMemo, useState } from "react";
+import { type Role, type Season } from "~/lib/constants";
 import { getCurrentSeason } from "~/lib/seasons";
+import { canEditTeam, canManageTeam } from "~/server/authz/permissions";
 import { api } from "~/trpc/react";
+
+import { useDevAuthz } from "./dev/DevAuthzProvider";
 
 type TeamContext = {
   teamId: number;
+  role: Role | null;
+  canEdit: boolean;
   isOwner: boolean;
   isArchived: boolean;
   tabs: [string, ...string[]];
@@ -31,18 +36,20 @@ export function useTeamContext() {
   return ctx;
 }
 
-export default function TeamContextProvider({
+function TeamContextInner({
   teamId,
   children,
-  isShared = false,
-  isOwner = false,
-  session = null,
+  isShared,
+  role,
+  isArchived,
+  session,
 }: {
   teamId: number;
   children: React.ReactNode;
-  isShared?: boolean;
-  isOwner?: boolean;
-  session?: Session | null;
+  isShared: boolean;
+  role: Role | null;
+  isArchived: boolean;
+  session: Session | null;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -51,8 +58,26 @@ export default function TeamContextProvider({
     getCurrentSeason(),
   );
 
-  const [team] = api.team.byId.useSuspenseQuery({ teamId: String(teamId) });
-  const isArchived = team?.archived ?? false;
+  const devAuthz = useDevAuthz();
+  const effectiveRole = useMemo<Role | null>(() => {
+    if (!devAuthz?.isActive || devAuthz.role === "off") {
+      return role;
+    }
+
+    if (devAuthz.role === "public") {
+      return null;
+    }
+
+    return devAuthz.role;
+  }, [devAuthz, role]);
+
+  const effectiveArchived =
+    isArchived || Boolean(devAuthz?.isActive && devAuthz.simulateArchived);
+
+  const isOwner = effectiveRole ? canManageTeam(effectiveRole) : false;
+  const canEdit = effectiveRole
+    ? canEditTeam(effectiveRole) && !effectiveArchived
+    : false;
 
   const tabs = ["matches", "members", "stats"] as [string, ...string[]];
   if (isOwner && !isShared) tabs.push("settings");
@@ -65,8 +90,10 @@ export default function TeamContextProvider({
     <TeamContext.Provider
       value={{
         teamId,
+        role: effectiveRole,
+        canEdit,
         isOwner,
-        isArchived,
+        isArchived: effectiveArchived,
         tabs,
         currentSeason,
         setCurrentSeason,
@@ -75,5 +102,72 @@ export default function TeamContextProvider({
     >
       {children}
     </TeamContext.Provider>
+  );
+}
+
+function TeamContextWithArchive({
+  teamId,
+  children,
+  isShared,
+  role,
+  session,
+}: {
+  teamId: number;
+  children: React.ReactNode;
+  isShared: boolean;
+  role: Role | null;
+  session: Session | null;
+}) {
+  const [team] = api.team.byId.useSuspenseQuery({ teamId: String(teamId) });
+
+  return (
+    <TeamContextInner
+      teamId={teamId}
+      isShared={isShared}
+      role={role}
+      isArchived={team?.archived ?? false}
+      session={session}
+    >
+      {children}
+    </TeamContextInner>
+  );
+}
+
+export default function TeamContextProvider({
+  teamId,
+  children,
+  isShared = false,
+  role = null,
+  session = null,
+}: {
+  teamId: number;
+  children: React.ReactNode;
+  isShared?: boolean;
+  role?: Role | null;
+  session?: Session | null;
+}) {
+  if (isShared) {
+    return (
+      <TeamContextInner
+        teamId={teamId}
+        isShared={isShared}
+        role={role}
+        isArchived={false}
+        session={session}
+      >
+        {children}
+      </TeamContextInner>
+    );
+  }
+
+  return (
+    <TeamContextWithArchive
+      teamId={teamId}
+      isShared={isShared}
+      role={role}
+      session={session}
+    >
+      {children}
+    </TeamContextWithArchive>
   );
 }

@@ -13,7 +13,7 @@ export default function ArchiveTeamDialog({
 }: {
   isArchived: boolean;
 }) {
-  const { teamId, session } = useTeamContext();
+  const { teamId } = useTeamContext();
   const { toast } = useToast();
   const [formOpened, setFormOpened] = useState(false);
 
@@ -44,7 +44,6 @@ export default function ArchiveTeamDialog({
   });
 
   const mutation = isArchived ? unarchiveTeam : archiveTeam;
-  const userId = session?.user.id;
 
   return (
     <ResponsiveDialog
@@ -79,11 +78,8 @@ export default function ArchiveTeamDialog({
         </Button>
         <Button
           loading={mutation.isPending}
-          disabled={!userId}
           onClick={() => {
-            if (!userId) return;
-
-            mutation.mutate({ userId, teamId });
+            mutation.mutate({ teamId });
           }}
         >
           {isArchived ? "Odarchiwizuj" : "Archiwizuj"}

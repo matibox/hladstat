@@ -1,8 +1,11 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import {
   createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
+  matchOwnerProcedure,
+  matchStatEditorProcedure,
+  matchStatsReaderProcedure,
+  teamMemberProcedure,
 } from "~/server/api/trpc";
 import { type Season, type StatsCode } from "~/lib/constants";
 import { matches, stats, users, usersToTeams } from "~/server/db/schema";
@@ -10,7 +13,7 @@ import { and, eq, inArray } from "drizzle-orm";
 
 export const statsRouter = createTRPCRouter({
   // CREATE
-  addByMatchPlayer: protectedProcedure
+  addByMatchPlayer: matchStatEditorProcedure
     .input(
       z.object({
         playerId: z.string(),
@@ -38,10 +41,11 @@ export const statsRouter = createTRPCRouter({
       return insertedValues[0]!;
     }),
   // READ
-  byMatch: publicProcedure
+  byMatch: matchStatsReaderProcedure
     .input(z.object({ teamId: z.number(), matchId: z.number() }))
     .query(async ({ ctx, input }) => {
-      const { teamId, matchId } = input;
+      const { teamId } = input;
+      const matchId = ctx.match.id;
 
       const selectedMatch = await ctx.db.query.matches.findFirst({
         where: (matches, { eq }) => eq(matches.id, matchId),
@@ -80,7 +84,7 @@ export const statsRouter = createTRPCRouter({
 
       return stats!;
     }),
-  byMatchPlayer: publicProcedure
+  byMatchPlayer: matchStatsReaderProcedure
     .input(
       z.object({
         matchId: z.number(),
@@ -89,13 +93,12 @@ export const statsRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { matchId, playerId, teamId } = input;
+      const { playerId, teamId } = input;
+      const matchId = ctx.match.id;
 
       const selectedStats = await ctx.db.query.stats.findMany({
         where: (stats, { eq, and }) =>
-          matchId
-            ? and(eq(stats.playerId, playerId), eq(stats.matchId, matchId))
-            : eq(stats.playerId, playerId),
+          and(eq(stats.playerId, playerId), eq(stats.matchId, matchId)),
         columns: { id: true, code: true, set: true },
         with: {
           player: {
@@ -126,7 +129,7 @@ export const statsRouter = createTRPCRouter({
 
       return stats;
     }),
-  byTeamAndSeason: protectedProcedure
+  byTeamAndSeason: teamMemberProcedure
     .input(z.object({ teamId: z.number(), season: z.custom<Season>() }))
     .query(async ({ ctx, input }) => {
       const { teamId, season } = input;
@@ -163,7 +166,7 @@ export const statsRouter = createTRPCRouter({
           },
         }));
     }),
-  byTeamPlayer: protectedProcedure
+  byTeamPlayer: teamMemberProcedure
     .input(
       z.object({
         playerId: z.string(),
@@ -216,19 +219,26 @@ export const statsRouter = createTRPCRouter({
     }),
   // UPDATE
   // DELETE
-  delete: protectedProcedure
-    .input(z.object({ statId: z.string() }))
+  delete: matchStatEditorProcedure
+    .input(z.object({ statId: z.string(), matchId: z.number() }))
     .mutation(async ({ ctx, input }) => {
       const { statId } = input;
 
       const deletedRecords = await ctx.db
         .delete(stats)
-        .where(eq(stats.id, statId))
+        .where(and(eq(stats.id, statId), eq(stats.matchId, ctx.match.id)))
         .returning({ code: stats.code });
 
-      return deletedRecords[0]!;
+      if (!deletedRecords[0]) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Nie znaleziono statystyki.",
+        });
+      }
+
+      return deletedRecords[0];
     }),
-  deleteByMatchIdAndSet: protectedProcedure
+  deleteByMatchIdAndSet: matchOwnerProcedure
     .input(z.object({ matchId: z.number(), sets: z.array(z.number()) }))
     .mutation(async ({ ctx, input }) => {
       const { matchId, sets } = input;

@@ -1,8 +1,10 @@
 import { z } from "zod";
 import {
   createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
+  matchOwnerProcedure,
+  matchReaderProcedure,
+  teamEditorProcedure,
+  teamMemberProcedure,
 } from "~/server/api/trpc";
 import { matches } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
@@ -10,7 +12,7 @@ import { type Season } from "~/lib/constants";
 
 export const matchRouter = createTRPCRouter({
   // CREATE
-  create: protectedProcedure
+  create: teamEditorProcedure
     .input(
       z.object({
         teamId: z.number(),
@@ -37,25 +39,21 @@ export const matchRouter = createTRPCRouter({
       return { matchId: data?.matchId };
     }),
   // READ
-  byId: publicProcedure
+  byId: matchReaderProcedure
     .input(z.object({ matchId: z.number() }))
-    .query(async ({ ctx, input }) => {
-      const { matchId } = input;
-
-      const selectedMatch = await ctx.db.query.matches.findFirst({
-        where: (matches, { eq }) => eq(matches.id, matchId),
-      });
+    .query(async ({ ctx }) => {
+      const selectedMatch = ctx.match;
 
       return {
         ...selectedMatch,
         numberOfSets:
-          selectedMatch?.score
+          selectedMatch.score
             .split(":")
             .map(Number)
             .reduce((a, b) => a + b, 0) ?? 0,
       };
     }),
-  byTeamRecent: protectedProcedure
+  byTeamRecent: teamMemberProcedure
     .input(z.object({ teamId: z.number(), season: z.custom<Season>() }))
     .query(async ({ ctx, input }) => {
       const { teamId, season } = input;
@@ -74,7 +72,7 @@ export const matchRouter = createTRPCRouter({
         limit: 6,
       });
     }),
-  byTeamWithStats: protectedProcedure
+  byTeamWithStats: teamMemberProcedure
     .input(z.object({ teamId: z.number() }))
     .query(async ({ ctx, input }) => {
       const { teamId } = input;
@@ -93,7 +91,7 @@ export const matchRouter = createTRPCRouter({
       });
     }),
   // UPDATE
-  toggleShare: protectedProcedure
+  toggleShare: matchOwnerProcedure
     .input(z.object({ matchId: z.number(), isShared: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
       const { matchId, isShared } = input;
@@ -103,7 +101,7 @@ export const matchRouter = createTRPCRouter({
         .set({ shared: !isShared })
         .where(eq(matches.id, matchId));
     }),
-  toggleAnalysisLock: protectedProcedure
+  toggleAnalysisLock: matchOwnerProcedure
     .input(z.object({ matchId: z.number(), isLocked: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
       const { matchId, isLocked } = input;

@@ -14,10 +14,7 @@ export default async function TeamLayout({
   params: { teamId: string };
 }) {
   const session = await getServerAuthSession();
-  const { isInTeam } = await api.user.isInTeam({ teamId: parseInt(teamId) });
-  const { isOwner } = await api.user.isOwnerOfTeam({
-    teamId: parseInt(teamId),
-  });
+  const { isInTeam, role } = await api.user.isInTeam({ teamId: parseInt(teamId) });
 
   if (!isInTeam || !session) redirect("/dashboard");
 
@@ -26,7 +23,7 @@ export default async function TeamLayout({
   return (
     <TeamContextProvider
       teamId={parseInt(teamId)}
-      isOwner={isOwner}
+      role={role}
       session={session}
     >
       <div className="flex flex-col">
