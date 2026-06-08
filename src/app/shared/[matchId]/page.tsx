@@ -10,8 +10,11 @@ export default async function MatchAnalysisPage({
 
   const match = await api.match.byId({ matchId });
 
-  await api.user.byTeamPlayers.prefetch({ teamId: match.teamId! });
-  await api.stats.byMatch.prefetch({ matchId, teamId: match.teamId! });
+  await api.user.byTeamPlayers.prefetch({
+    teamId: match.teamId,
+    matchId,
+  });
+  await api.stats.byMatch.prefetch({ matchId, teamId: match.teamId });
 
   return (
     <HydrateClient>

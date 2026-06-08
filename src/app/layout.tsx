@@ -9,6 +9,7 @@ import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
 import { fileRouter } from "~/server/uploadthing";
 import { Toaster } from "~/components/ui/toaster";
+import { TooltipProvider } from "~/components/ui/tooltip";
 
 export const metadata: Metadata = {
   title: "Hladstat",
@@ -21,9 +22,16 @@ const fontSans = Inter({
   variable: "--font-sans",
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const DevAuthzShell =
+    process.env.NODE_ENV === "development"
+      ? (await import("~/components/dev/DevAuthzShell")).default
+      : null;
+
+  const pageContent = <TooltipProvider>{children}</TooltipProvider>;
+
   return (
     <html lang="pl">
       <body
@@ -34,7 +42,11 @@ export default function RootLayout({
       >
         <TRPCReactProvider>
           <NextSSRPlugin routerConfig={extractRouterConfig(fileRouter)} />
-          {children}
+          {DevAuthzShell ? (
+            <DevAuthzShell>{pageContent}</DevAuthzShell>
+          ) : (
+            pageContent
+          )}
           <Toaster />
         </TRPCReactProvider>
       </body>

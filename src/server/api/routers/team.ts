@@ -1,7 +1,13 @@
-import { matches, teams, users, usersToTeams } from "~/server/db/schema";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { matches, teams, usersToTeams } from "~/server/db/schema";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  teamEditorProcedure,
+  teamMemberProcedure,
+  teamOwnerProcedure,
+} from "~/server/api/trpc";
 import z from "zod";
-import { and, eq, inArray, sql, count, asc } from "drizzle-orm";
+import { and, eq, inArray, count, asc, max } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { positions } from "~/lib/constants";
 
@@ -32,7 +38,7 @@ export const teamRouter = createTRPCRouter({
         shirtNumber,
       });
     }),
-  addPlayer: protectedProcedure
+  addPlayer: teamOwnerProcedure
     .input(
       z.object({
         teamId: z.number(),
@@ -52,7 +58,7 @@ export const teamRouter = createTRPCRouter({
         role: "player",
       });
     }),
-  shareViewerAccess: protectedProcedure
+  shareViewerAccess: teamOwnerProcedure
     .input(z.object({ teamId: z.number(), userId: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const { teamId, userId } = input;
@@ -64,13 +70,18 @@ export const teamRouter = createTRPCRouter({
       });
     }),
   // READ
-  byId: protectedProcedure
+  byId: teamMemberProcedure
     .input(z.object({ teamId: z.string() }))
     .query(async ({ ctx, input }) => {
       const { teamId } = input;
 
       return await ctx.db.query.teams.findFirst({
-        columns: { id: true, name: true, profilePicture: true },
+        columns: {
+          id: true,
+          name: true,
+          profilePicture: true,
+          archived: true,
+        },
         where: eq(teams.id, parseInt(teamId)),
         with: {
           users: {
@@ -89,74 +100,51 @@ export const teamRouter = createTRPCRouter({
     }),
   ofUser: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
-    const selectedUsersToTeams = await ctx.db.query.usersToTeams.findMany({
-      columns: { teamId: true, role: true },
-      where: (usersToTeams, { eq }) => eq(usersToTeams.userId, userId),
-      with: {
-        team: { columns: { id: true, name: true, profilePicture: true } },
-      },
-    });
+
+    const userTeams = await ctx.db
+      .select({
+        userRole: usersToTeams.role,
+        id: teams.id,
+        name: teams.name,
+        profilePicture: teams.profilePicture,
+        archived: teams.archived,
+        archivedAt: teams.archivedAt,
+      })
+      .from(usersToTeams)
+      .innerJoin(teams, eq(usersToTeams.teamId, teams.id))
+      .where(eq(usersToTeams.userId, userId));
 
     return await Promise.all(
-      selectedUsersToTeams.map(async ({ role, team }) => {
-        const [selectedTeam] = await ctx.db
-          .select({ playerCount: count() })
-          .from(users)
-          .leftJoin(usersToTeams, eq(users.id, usersToTeams.userId))
-          .where(
-            and(
-              eq(usersToTeams.teamId, team.id),
-              inArray(usersToTeams.role, ["player", "owner"]),
-            ),
-          );
+      userTeams.map(async (team) => {
+        const playerCount = (
+          await ctx.db
+            .select({ playerCount: count() })
+            .from(usersToTeams)
+            .where(
+              and(
+                eq(usersToTeams.teamId, team.id),
+                inArray(usersToTeams.role, ["player", "owner"]),
+              ),
+            )
+        )[0]!.playerCount;
 
-        if (!selectedTeam) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "Nie znaleziono drużyny.",
-          });
-        }
+        const lastMatchDate =
+          (
+            await ctx.db
+              .select({ lastMatchDate: max(matches.date) })
+              .from(matches)
+              .where(eq(matches.teamId, team.id))
+          )[0]?.lastMatchDate ?? null;
 
         return {
           ...team,
-          userRole: role,
-          playerCount: selectedTeam.playerCount,
+          playerCount,
+          lastMatchDate,
         };
       }),
     );
   }),
-  ofViewer: protectedProcedure.query(async ({ ctx }) => {
-    const playerCountSubquery = ctx.db
-      .select({
-        teamId: usersToTeams.teamId,
-        playerCount: sql<number>`COUNT(*)`.as("playerCount"),
-      })
-      .from(usersToTeams)
-      .where(inArray(usersToTeams.role, ["owner", "player"]))
-      .groupBy(usersToTeams.teamId)
-      .as("playerCountSubquery");
-
-    const result = await ctx.db
-      .select({
-        id: teams.id,
-        name: teams.name,
-        profilePicture: teams.profilePicture,
-        playerCount: playerCountSubquery.playerCount,
-      })
-      .from(teams)
-      .leftJoin(
-        usersToTeams,
-        and(
-          eq(usersToTeams.teamId, teams.id),
-          eq(usersToTeams.userId, ctx.session.user.id),
-        ),
-      )
-      .leftJoin(playerCountSubquery, eq(teams.id, playerCountSubquery.teamId))
-      .where(eq(usersToTeams.role, "shared"));
-
-    return result;
-  }),
-  matchSettings: protectedProcedure
+  matchSettings: teamEditorProcedure
     .input(z.object({ teamId: z.number() }))
     .query(async ({ ctx, input }) => {
       const { teamId } = input;
@@ -167,7 +155,7 @@ export const teamRouter = createTRPCRouter({
 
       return settings[0]!;
     }),
-  seasons: protectedProcedure
+  seasons: teamMemberProcedure
     .input(z.object({ teamId: z.number() }))
     .query(async ({ ctx, input }) => {
       const { teamId } = input;
@@ -175,7 +163,7 @@ export const teamRouter = createTRPCRouter({
       const seasons = await ctx.db
         .selectDistinct({ season: matches.season })
         .from(matches)
-        .leftJoin(teams, eq(teams.id, teamId))
+        .innerJoin(teams, eq(teams.id, teamId))
         .orderBy(asc(matches.season));
 
       if (!seasons) return null;
@@ -183,7 +171,7 @@ export const teamRouter = createTRPCRouter({
       return seasons.map((s) => s.season);
     }),
   // UPDATE
-  saveMatchSettings: protectedProcedure
+  saveMatchSettings: teamOwnerProcedure
     .input(z.object({ teamId: z.number(), allowTwoSetMatches: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
       const { teamId, ...settings } = input;
@@ -193,8 +181,28 @@ export const teamRouter = createTRPCRouter({
         .set({ ...settings })
         .where(eq(teams.id, teamId));
     }),
+  archive: teamOwnerProcedure
+    .input(z.object({ teamId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const { teamId } = input;
+
+      await ctx.db
+        .update(teams)
+        .set({ archived: true, archivedAt: new Date() })
+        .where(eq(teams.id, teamId));
+    }),
+  unarchive: teamOwnerProcedure
+    .input(z.object({ teamId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const { teamId } = input;
+
+      await ctx.db
+        .update(teams)
+        .set({ archived: false, archivedAt: null })
+        .where(eq(teams.id, teamId));
+    }),
   // DELETE
-  revokeViewerAccess: protectedProcedure
+  revokeViewerAccess: teamOwnerProcedure
     .input(z.object({ userId: z.string(), teamId: z.number() }))
     .mutation(async ({ ctx, input }) => {
       const { userId, teamId } = input;
@@ -202,7 +210,39 @@ export const teamRouter = createTRPCRouter({
       await ctx.db
         .delete(usersToTeams)
         .where(
-          and(eq(usersToTeams.userId, userId), eq(usersToTeams.teamId, teamId)),
+          and(
+            eq(usersToTeams.userId, userId),
+            eq(usersToTeams.teamId, teamId),
+            eq(usersToTeams.role, "shared"),
+          ),
         );
+    }),
+  delete: teamOwnerProcedure
+    .input(z.object({ teamId: z.number(), name: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { teamId, name } = input;
+
+      const team = await ctx.db.query.teams.findFirst({
+        columns: { id: true, name: true },
+        where: eq(teams.id, teamId),
+      });
+
+      if (!team) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Nie znaleziono drużyny.",
+        });
+      }
+
+      if (team.name !== name) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Podana nazwa nie zgadza się z nazwą drużyny.",
+        });
+      }
+
+      await ctx.db.delete(matches).where(eq(matches.teamId, teamId));
+      await ctx.db.delete(usersToTeams).where(eq(usersToTeams.teamId, teamId));
+      await ctx.db.delete(teams).where(eq(teams.id, teamId));
     }),
 });

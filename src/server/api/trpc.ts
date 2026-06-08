@@ -11,6 +11,17 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
+import {
+  resolveMatchEditorAuthz,
+  resolveMatchOwnerAuthz,
+  resolveMatchReaderAuthz,
+  resolveMatchStatEditorAuthz,
+  resolveMatchStatsReaderAuthz,
+  resolveTeamEditorAuthz,
+  resolveTeamMemberAuthz,
+  resolveTeamOwnerAuthz,
+  resolveTeamPlayersReaderAuthz,
+} from "~/server/authz/middleware";
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
 
@@ -131,3 +142,168 @@ export const protectedProcedure = t.procedure
       },
     });
   });
+
+/**
+ * Team-scoped authorization tiers. Input must include `teamId: number`.
+ */
+export const teamMemberProcedure = protectedProcedure.use(
+  t.middleware(async ({ ctx, next, getRawInput }) => {
+    if (!ctx.session?.user) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+
+    const teamMembership = await resolveTeamMemberAuthz(
+      ctx.db,
+      ctx.session.user.id,
+      getRawInput,
+      ctx.headers,
+    );
+
+    return next({ ctx: { teamMembership } });
+  }),
+);
+
+export const teamEditorProcedure = protectedProcedure.use(
+  t.middleware(async ({ ctx, next, getRawInput }) => {
+    if (!ctx.session?.user) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+
+    const teamMembership = await resolveTeamEditorAuthz(
+      ctx.db,
+      ctx.session.user.id,
+      getRawInput,
+      ctx.headers,
+    );
+
+    return next({ ctx: { teamMembership } });
+  }),
+);
+
+export const teamOwnerProcedure = protectedProcedure.use(
+  t.middleware(async ({ ctx, next, getRawInput }) => {
+    if (!ctx.session?.user) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+
+    const teamMembership = await resolveTeamOwnerAuthz(
+      ctx.db,
+      ctx.session.user.id,
+      getRawInput,
+      ctx.headers,
+    );
+
+    return next({ ctx: { teamMembership } });
+  }),
+);
+
+/**
+ * Match-scoped authorization tiers. Input must include `matchId: number`;
+ * optional `teamId` is validated against the match when provided.
+ *
+ * Use matchStatsReaderProcedure when input also requires `teamId` (stats reads).
+ * Use teamPlayersReaderProcedure for roster reads with optional shared-match path.
+ */
+export const matchReaderProcedure = publicProcedure.use(
+  t.middleware(async ({ ctx, next, getRawInput }) => {
+    const { match, teamMembership } = await resolveMatchReaderAuthz(
+      ctx.db,
+      ctx.session,
+      getRawInput,
+      ctx.headers,
+    );
+
+    return next({
+      ctx: {
+        match,
+        ...(teamMembership ? { teamMembership } : {}),
+      },
+    });
+  }),
+);
+
+export const matchStatsReaderProcedure = publicProcedure.use(
+  t.middleware(async ({ ctx, next, getRawInput }) => {
+    const { match, teamMembership } = await resolveMatchStatsReaderAuthz(
+      ctx.db,
+      ctx.session,
+      getRawInput,
+      ctx.headers,
+    );
+
+    return next({
+      ctx: {
+        match,
+        ...(teamMembership ? { teamMembership } : {}),
+      },
+    });
+  }),
+);
+
+export const teamPlayersReaderProcedure = publicProcedure.use(
+  t.middleware(async ({ ctx, next, getRawInput }) => {
+    const { teamMembership } = await resolveTeamPlayersReaderAuthz(
+      ctx.db,
+      ctx.session,
+      getRawInput,
+      ctx.headers,
+    );
+
+    return next({
+      ctx: {
+        ...(teamMembership ? { teamMembership } : {}),
+      },
+    });
+  }),
+);
+
+export const matchEditorProcedure = protectedProcedure.use(
+  t.middleware(async ({ ctx, next, getRawInput }) => {
+    if (!ctx.session?.user) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+
+    const { match, teamMembership } = await resolveMatchEditorAuthz(
+      ctx.db,
+      ctx.session.user.id,
+      getRawInput,
+      ctx.headers,
+    );
+
+    return next({ ctx: { match, teamMembership } });
+  }),
+);
+
+export const matchStatEditorProcedure = protectedProcedure.use(
+  t.middleware(async ({ ctx, next, getRawInput }) => {
+    if (!ctx.session?.user) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+
+    const { match, teamMembership } = await resolveMatchStatEditorAuthz(
+      ctx.db,
+      ctx.session.user.id,
+      getRawInput,
+      ctx.headers,
+    );
+
+    return next({ ctx: { match, teamMembership } });
+  }),
+);
+
+export const matchOwnerProcedure = protectedProcedure.use(
+  t.middleware(async ({ ctx, next, getRawInput }) => {
+    if (!ctx.session?.user) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+
+    const { match, teamMembership } = await resolveMatchOwnerAuthz(
+      ctx.db,
+      ctx.session.user.id,
+      getRawInput,
+      ctx.headers,
+    );
+
+    return next({ ctx: { match, teamMembership } });
+  }),
+);

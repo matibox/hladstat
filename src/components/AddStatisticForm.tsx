@@ -50,7 +50,7 @@ export default function AddStatisticForm({
         description: `${firstName} ${lastName}: ${statCodeToLabel(code)}`,
         action: (
           <ToastAction altText="cofnij" asChild>
-            <button onClick={() => deleteStat.mutate({ statId: id })}>
+            <button onClick={() => deleteStat.mutate({ statId: id, matchId })}>
               Cofnij
             </button>
           </ToastAction>

@@ -1,9 +1,8 @@
-import { HomeIcon } from "lucide-react";
-import { isRedirectError } from "next/dist/client/components/redirect";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import TeamContextProvider from "~/components/TeamContext";
-import { buttonVariants } from "~/components/ui/button";
+import SharedMatchAccessDenied from "~/components/SharedMatchAccessDenied";
+import { getServerAuthSession } from "~/server/auth";
+import { getTrpcErrorCode } from "~/lib/trpc-error";
 import { api } from "~/trpc/server";
 
 export default async function SharedMatchLayout({
@@ -13,37 +12,42 @@ export default async function SharedMatchLayout({
   children: React.ReactNode;
   params: { matchId: string };
 }) {
-  const match = await api.match.byId({ matchId: parseInt(matchId) });
+  const parsedMatchId = parseInt(matchId);
 
-  if (!match.shared) {
-    return (
-      <main className="flex h-[100dvh] flex-col items-center justify-center gap-4">
-        <div className="flex flex-col items-center gap-1 text-center">
-          <h1 className="text-xl font-semibold leading-none md:text-3xl">
-            Przepraszamy, ten mecz nie jest udostępniony.
-          </h1>
-          <p className="text-sm text-muted-foreground md:text-base">
-            Uważasz, że to pomyłka? Skontaktuj się z członkiem drużyny, który
-            udostępnił tobie tego linka.
-          </p>
-        </div>
-        <Link href="/" className={buttonVariants()}>
-          <span>Strona główna</span>
-          <HomeIcon className="ml-1 h-4 w-4" />
-        </Link>
-      </main>
-    );
+  let match;
+  try {
+    match = await api.match.byId({ matchId: parsedMatchId });
+  } catch (error) {
+    const code = getTrpcErrorCode(error);
+
+    if (code === "FORBIDDEN") {
+      return <SharedMatchAccessDenied />;
+    }
+
+    if (code === "NOT_FOUND") {
+      return (
+        <SharedMatchAccessDenied
+          title="Nie znaleziono meczu."
+          description="Sprawdź link lub skontaktuj się z osobą, która go udostępniła."
+        />
+      );
+    }
+
+    throw error;
   }
 
-  try {
-    const { isInTeam } = await api.user.isInTeam({ teamId: match.teamId! });
-    if (isInTeam) return redirect(`/dashboard/${match.teamId!}/${matchId}`);
-  } catch (err) {
-    if (isRedirectError(err)) throw err;
+  if (!match.shared) {
+    return <SharedMatchAccessDenied />;
+  }
+
+  const session = await getServerAuthSession();
+  if (session?.user) {
+    const { isInTeam } = await api.user.isInTeam({ teamId: match.teamId });
+    if (isInTeam) return redirect(`/dashboard/${match.teamId}/${matchId}`);
   }
 
   return (
-    <TeamContextProvider isShared={true} teamId={match.teamId!}>
+    <TeamContextProvider isShared={true} teamId={match.teamId}>
       {children}
     </TeamContextProvider>
   );

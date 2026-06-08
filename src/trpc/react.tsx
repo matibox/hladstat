@@ -9,6 +9,10 @@ import SuperJSON from "superjson";
 
 import { type AppRouter } from "~/server/api/root";
 import { createQueryClient } from "./query-client";
+import {
+  devAuthzHeadersFromState,
+  readDevAuthzOverrideState,
+} from "~/dev/authz-override";
 
 let clientQueryClientSingleton: QueryClient | undefined = undefined;
 const getQueryClient = () => {
@@ -53,6 +57,15 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
           headers: () => {
             const headers = new Headers();
             headers.set("x-trpc-source", "nextjs-react");
+
+            if (process.env.NODE_ENV === "development") {
+              for (const [key, value] of Object.entries(
+                devAuthzHeadersFromState(readDevAuthzOverrideState()),
+              )) {
+                headers.set(key, value);
+              }
+            }
+
             return headers;
           },
         }),

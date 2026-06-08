@@ -26,6 +26,11 @@ export const env = createEnv({
     DISCORD_CLIENT_SECRET: z.string(),
     GOOGLE_CLIENT_ID: z.string(),
     GOOGLE_CLIENT_SECRET: z.string(),
+    DEV_AUTHZ_OVERRIDE: z
+      .enum(["true", "false"])
+      .optional()
+      .transform((value) => value === "true")
+      .default("false"),
   },
 
   /**
@@ -50,6 +55,7 @@ export const env = createEnv({
     DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+    DEV_AUTHZ_OVERRIDE: process.env.DEV_AUTHZ_OVERRIDE,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
