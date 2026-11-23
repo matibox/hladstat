@@ -1,6 +1,7 @@
 import {
   createTRPCRouter,
   protectedProcedure,
+  teamMemberProcedure,
   teamOwnerProcedure,
   teamPlayersReaderProcedure,
 } from "~/server/api/trpc";
@@ -137,7 +138,7 @@ export const userRouter = createTRPCRouter({
         })
       ).map(({ user, ...data }) => ({ ...data, ...user }));
     }),
-  byTeamViewers: teamOwnerProcedure
+  byTeamViewers: teamMemberProcedure
     .input(z.object({ teamId: z.number() }))
     .query(async ({ ctx, input }) => {
       const { teamId } = input;
